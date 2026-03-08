@@ -1,0 +1,27 @@
+# Cloud deployment dependencies (excludes desktop-only libraries like pynput, pystray, etc.)
+
+# Core dependencies
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-dotenv==1.0.0
+
+# Database
+sqlalchemy==2.0.25
+alembic==1.13.1
+
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+cryptography==42.0.0
+
+# API utilities
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# Data export
+reportlab==4.0.9
+pandas==2.2.0
+
+# WebSocket support
+websockets==12.0
