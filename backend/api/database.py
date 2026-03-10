@@ -42,7 +42,7 @@ def init_db():
     """Initialize database by creating all tables and running migrations."""
     Base.metadata.create_all(bind=engine)
     _run_migrations()
-    print("✓ Database initialized successfully")
+    print("[OK] Database initialized successfully")
 
 
 def _run_migrations():
@@ -81,7 +81,7 @@ def reset_db():
     """Drop all tables and recreate them. USE WITH CAUTION!"""
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
-    print("✓ Database reset successfully")
+    print("[OK] Database reset successfully")
 
 
 if __name__ == "__main__":
