@@ -13,26 +13,57 @@ from monitoring_engine.app_state import monitoring_state
 router = APIRouter(prefix="/api/monitoring", tags=["monitoring"])
 
 
+def _can_monitor() -> bool:
+    """
+    Check whether this server environment supports activity monitoring.
+    Returns False on cloud/headless servers where pynput cannot run.
+    """
+    try:
+        import pynput  # noqa: F401
+        return True
+    except (ImportError, Exception):
+        return False
+
+
 @router.get("/status")
 async def get_monitoring_status():
     """
     Get current monitoring status.
-    Returns whether monitoring is running, session counts, current app, etc.
+    Includes `can_monitor` flag so the frontend knows if this server
+    supports live activity tracking (False on cloud deployments).
     """
-    return monitoring_state.get_status()
+    status = monitoring_state.get_status()
+    status["can_monitor"] = _can_monitor()
+    return status
 
 
 @router.post("/start")
 async def start_monitoring():
     """
     Start the activity monitoring engine.
-    Safe to call even if already running (returns current status).
+    Returns a helpful message if the server doesn't support monitoring.
     """
+    # Check if this environment supports monitoring at all
+    if not _can_monitor():
+        return {
+            "success": False,
+            "message": (
+                "Monitoring is not available on this server. "
+                "Activity tracking requires a physical computer with a screen, "
+                "keyboard, and mouse. Please run the backend locally on your PC "
+                "to use this feature."
+            ),
+            "is_cloud": True,
+            **monitoring_state.get_status(),
+            "can_monitor": False,
+        }
+
     if monitoring_state.is_monitoring:
         return {
             "success": False,
             "message": "Monitoring is already running",
-            **monitoring_state.get_status()
+            **monitoring_state.get_status(),
+            "can_monitor": True,
         }
 
     try:
@@ -40,7 +71,8 @@ async def start_monitoring():
         return {
             "success": True,
             "message": "Monitoring started successfully",
-            **monitoring_state.get_status()
+            **monitoring_state.get_status(),
+            "can_monitor": True,
         }
     except RuntimeError as e:
         raise HTTPException(status_code=500, detail=str(e))

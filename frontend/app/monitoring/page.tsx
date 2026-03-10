@@ -14,6 +14,8 @@ import {
     AlertCircle,
     Wifi,
     WifiOff,
+    Monitor,
+    Info,
 } from 'lucide-react';
 import { monitoringAPI } from '@/lib/api';
 import { useWebSocket } from '@/lib/websocket';
@@ -26,6 +28,7 @@ interface MonitoringStatus {
     is_idle: boolean;
     current_app: string | null;
     action_log: { time: string; action: string }[];
+    can_monitor?: boolean;
 }
 
 function formatDateTime(isoString: string): string {
@@ -48,8 +51,9 @@ export default function MonitoringControlPage() {
     const [status, setStatus] = useState<MonitoringStatus | null>(null);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<'start' | 'stop' | null>(null);
-    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
     const [actionLog, setActionLog] = useState<{ time: string; action: string }[]>([]);
+    const [isCloud, setIsCloud] = useState(false);
 
     const { lastEvent, isConnected } = useWebSocket();
 
@@ -58,6 +62,7 @@ export default function MonitoringControlPage() {
         try {
             const data = await monitoringAPI.getStatus();
             setStatus(data);
+            if (data.can_monitor === false) setIsCloud(true);
             if (data.action_log) setActionLog(data.action_log.reverse());
         } catch (err) {
             console.error('Failed to load status:', err);
@@ -116,23 +121,26 @@ export default function MonitoringControlPage() {
         }
     }, [lastEvent]);
 
-    const showToast = (message: string, type: 'success' | 'error') => {
+    const showToast = (message: string, type: 'success' | 'error' | 'info') => {
         setToast({ message, type });
-        setTimeout(() => setToast(null), 3000);
+        setTimeout(() => setToast(null), 5000);
     };
 
     const handleStart = async () => {
         setActionLoading('start');
         try {
             const result = await monitoringAPI.start();
-            if (result.success) {
+            if (result.is_cloud || result.can_monitor === false) {
+                setIsCloud(true);
+                showToast(result.message, 'info');
+            } else if (result.success) {
                 showToast('Monitoring started successfully!', 'success');
                 await loadStatus();
             } else {
                 showToast(result.message, 'error');
             }
         } catch {
-            showToast('Failed to start monitoring', 'error');
+            showToast('Failed to start monitoring. The server may not support activity tracking.', 'error');
         } finally {
             setActionLoading(null);
         }
@@ -164,6 +172,7 @@ export default function MonitoringControlPage() {
     }
 
     const isRunning = status?.is_monitoring ?? false;
+    const canMonitor = status?.can_monitor !== false && !isCloud;
 
     return (
         <div className="space-y-6 max-w-4xl mx-auto">
@@ -174,15 +183,19 @@ export default function MonitoringControlPage() {
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl text-sm font-medium ${toast.type === 'success'
+                        className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl text-sm font-medium max-w-md ${toast.type === 'success'
                                 ? 'bg-green-500/20 border border-green-500/40 text-green-300'
-                                : 'bg-red-500/20 border border-red-500/40 text-red-300'
+                                : toast.type === 'info'
+                                    ? 'bg-blue-500/20 border border-blue-500/40 text-blue-300'
+                                    : 'bg-red-500/20 border border-red-500/40 text-red-300'
                             }`}
                     >
                         {toast.type === 'success' ? (
-                            <CheckCircle className="w-4 h-4" />
+                            <CheckCircle className="w-4 h-4 shrink-0" />
+                        ) : toast.type === 'info' ? (
+                            <Info className="w-4 h-4 shrink-0" />
                         ) : (
-                            <XCircle className="w-4 h-4" />
+                            <XCircle className="w-4 h-4 shrink-0" />
                         )}
                         {toast.message}
                     </motion.div>
@@ -207,11 +220,49 @@ export default function MonitoringControlPage() {
                 </div>
             </div>
 
+            {/* Cloud Environment Banner */}
+            {isCloud && (
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="glass p-5 border border-amber-500/30 bg-amber-500/5"
+                >
+                    <div className="flex gap-4">
+                        <div className="p-3 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 shrink-0 h-fit">
+                            <Monitor className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                            <h3 className="text-amber-400 font-semibold text-base mb-1">
+                                Cloud Server Detected
+                            </h3>
+                            <p className="text-slate-300 text-sm leading-relaxed">
+                                This backend is running on a cloud server, which doesn&apos;t have a physical
+                                screen, keyboard, or mouse. Live activity monitoring is only available when
+                                the backend runs on your local computer.
+                            </p>
+                            <div className="mt-3 p-3 rounded-lg bg-slate-800/60 border border-slate-700/50">
+                                <p className="text-slate-400 text-xs font-medium mb-2">
+                                    To start monitoring, run this on your PC:
+                                </p>
+                                <code className="text-cyan-400 text-xs font-mono">
+                                    cd backend &amp;&amp; python main.py --mode headless
+                                </code>
+                            </div>
+                            <p className="text-slate-500 text-xs mt-2">
+                                The dashboard, sessions, analytics, and screenshots viewing all work normally from this cloud deployment.
+                            </p>
+                        </div>
+                    </div>
+                </motion.div>
+            )}
+
             {/* Big Status Card */}
             <motion.div
                 className={`glass p-8 text-center border-2 transition-colors duration-500 ${isRunning
                         ? 'border-green-500/30 bg-green-500/5'
-                        : 'border-slate-700/50'
+                        : isCloud
+                            ? 'border-amber-500/20 bg-amber-500/5'
+                            : 'border-slate-700/50'
                     }`}
                 animate={{ scale: [1, 1.002, 1] }}
                 transition={{ repeat: isRunning ? Infinity : 0, duration: 3 }}
@@ -222,12 +273,18 @@ export default function MonitoringControlPage() {
                         <div
                             className={`w-20 h-20 rounded-full flex items-center justify-center ${isRunning
                                     ? 'bg-green-500/20 border-2 border-green-500'
-                                    : 'bg-slate-700/50 border-2 border-slate-600'
+                                    : isCloud
+                                        ? 'bg-amber-500/10 border-2 border-amber-500/50'
+                                        : 'bg-slate-700/50 border-2 border-slate-600'
                                 }`}
                         >
-                            <Activity
-                                className={`w-10 h-10 ${isRunning ? 'text-green-400' : 'text-slate-500'}`}
-                            />
+                            {isCloud && !isRunning ? (
+                                <Monitor className="w-10 h-10 text-amber-400/70" />
+                            ) : (
+                                <Activity
+                                    className={`w-10 h-10 ${isRunning ? 'text-green-400' : 'text-slate-500'}`}
+                                />
+                            )}
                         </div>
                         {isRunning && (
                             <span className="absolute top-0 right-0 w-5 h-5 rounded-full bg-green-400 animate-ping" />
@@ -235,9 +292,19 @@ export default function MonitoringControlPage() {
                     </div>
                 </div>
 
-                <h2 className={`text-3xl font-bold mb-2 ${isRunning ? 'text-green-400' : 'text-slate-400'}`}>
-                    {isRunning ? 'MONITORING ACTIVE' : 'MONITORING STOPPED'}
+                <h2 className={`text-3xl font-bold mb-2 ${isRunning ? 'text-green-400' : isCloud ? 'text-amber-400/80' : 'text-slate-400'}`}>
+                    {isRunning
+                        ? 'MONITORING ACTIVE'
+                        : isCloud
+                            ? 'CLOUD MODE'
+                            : 'MONITORING STOPPED'}
                 </h2>
+
+                {isCloud && !isRunning && (
+                    <p className="text-slate-400 text-sm mb-1">
+                        Monitoring unavailable on cloud servers
+                    </p>
+                )}
 
                 {isRunning && status?.current_app && (
                     <p className="text-slate-300 text-sm mb-1">
@@ -261,11 +328,11 @@ export default function MonitoringControlPage() {
                 {/* Control Buttons */}
                 <div className="flex justify-center gap-4 mt-8">
                     <motion.button
-                        whileHover={{ scale: isRunning ? 1 : 1.05 }}
+                        whileHover={{ scale: (isRunning || isCloud) ? 1 : 1.05 }}
                         whileTap={{ scale: 0.97 }}
                         onClick={handleStart}
-                        disabled={isRunning || actionLoading !== null}
-                        className={`flex items-center gap-3 px-8 py-4 rounded-xl font-semibold text-lg transition-all ${isRunning || actionLoading !== null
+                        disabled={isRunning || actionLoading !== null || (isCloud && !canMonitor)}
+                        className={`flex items-center gap-3 px-8 py-4 rounded-xl font-semibold text-lg transition-all ${isRunning || actionLoading !== null || (isCloud && !canMonitor)
                                 ? 'bg-slate-700/50 text-slate-500 cursor-not-allowed'
                                 : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg shadow-green-500/25 hover:shadow-green-500/40'
                             }`}
@@ -316,12 +383,16 @@ export default function MonitoringControlPage() {
                     {
                         icon: Clock,
                         label: 'Status',
-                        value: isRunning ? (status?.is_idle ? 'Idle' : 'Active') : 'Stopped',
+                        value: isRunning
+                            ? (status?.is_idle ? 'Idle' : 'Active')
+                            : isCloud ? 'Cloud' : 'Stopped',
                         color: isRunning
                             ? status?.is_idle
                                 ? 'from-orange-500 to-amber-500'
                                 : 'from-green-500 to-emerald-500'
-                            : 'from-slate-600 to-slate-700',
+                            : isCloud
+                                ? 'from-amber-500 to-orange-500'
+                                : 'from-slate-600 to-slate-700',
                     },
                 ].map((stat) => (
                     <div key={stat.label} className="glass p-5 flex items-center gap-4">
