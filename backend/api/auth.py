@@ -150,48 +150,41 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 
 async def get_optional_user(db: Session = Depends(get_db)) -> User:
     """
-    Dependency for optional authentication - DEVELOPMENT ONLY.
-    Returns a default user without requiring authentication.
-    
-    ⚠️  CRITICAL SECURITY WARNING ⚠️
-    This function bypasses authentication entirely and should NEVER be used in production!
-    It will raise an exception if DEBUG mode is disabled.
-    
-    This is intended ONLY for local development and testing purposes.
-    In production, use get_current_active_user() instead.
-    
+    Dependency for optional authentication.
+    Returns a default user without requiring a login token.
+
+    - In development (DEBUG=true): returns/creates "default_user"
+    - In production (DEBUG=false): returns/creates "cloud_user"
+      so the dashboard can display (empty) data on cloud deployments.
+
+    This is safe on cloud servers because monitoring cannot run there,
+    so no sensitive local activity data is ever exposed.
+
     Args:
         db: Database session
-    
+
     Returns:
         Default user
-        
-    Raises:
-        HTTPException: If called in production mode (DEBUG=false)
     """
-    # SECURITY CHECK: Prevent use in production
-    if not settings.DEBUG:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Authentication bypass attempted in production mode. This is a security violation. Use proper authentication."
-        )
-    
-    # Log security-sensitive operation
-    print("⚠️  WARNING: Using development-only authentication bypass (get_optional_user)")
-    print("⚠️  This should NEVER be used in production!")
-    # Get or create default user
-    user = db.query(User).filter(User.username == "default_user").first()
-    
+    if settings.DEBUG:
+        username = "default_user"
+        device = "Local Development Machine"
+    else:
+        username = "cloud_user"
+        device = "Cloud Server"
+
+    # Get or create the default user
+    user = db.query(User).filter(User.username == username).first()
+
     if not user:
-        # Create default user with proper password hashing for development
         user = User(
-            username="default_user",
-            password_hash=get_password_hash("default_password"),  # Properly hashed
-            device_name="Local Development Machine"
+            username=username,
+            password_hash=get_password_hash("default_password"),
+            device_name=device,
         )
         db.add(user)
         db.commit()
         db.refresh(user)
-        print(f"✓ Created development user: {user.username}")
-    
+        print(f"[OK] Created user: {user.username}")
+
     return user

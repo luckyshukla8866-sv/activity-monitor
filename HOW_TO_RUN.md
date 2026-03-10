@@ -1,586 +1,390 @@
 # Complete Guide: Running Activity Monitor
 
-**A step-by-step guide for running the Activity Monitor project on your PC.**
+**A step-by-step beginner guide for running and deploying the Activity Monitor project.**
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
-1. [Prerequisites](#prerequisites)
-2. [Quick Start (Recommended)](#quick-start-recommended)
-3. [Detailed Setup](#detailed-setup)
-4. [Running the Application](#running-the-application)
-5. [Accessing the Dashboard](#accessing-the-dashboard)
-6. [Testing the API](#testing-the-api)
-7. [Stopping the Application](#stopping-the-application)
-8. [Troubleshooting](#troubleshooting)
+1. [What is this project?](#what-is-this-project)
+2. [Prerequisites](#prerequisites)
+3. [Running Locally (on your PC)](#running-locally-on-your-pc)
+4. [Using the Dashboard](#using-the-dashboard)
+5. [Deploying Online (Public Link)](#deploying-online-public-link)
+6. [Local vs Cloud Mode](#local-vs-cloud-mode)
+7. [Troubleshooting](#troubleshooting)
+8. [Quick Reference](#quick-reference)
+
+---
+
+## What is this project?
+
+Activity Monitor tracks your computer usage — which apps you use, how long you spend on each, mouse clicks, key presses, and screenshots. It has two parts:
+
+| Part | What it does | Built with |
+|------|-------------|-----------|
+| **Backend** | Tracks activity, stores data, serves API | Python + FastAPI |
+| **Frontend** | Web dashboard to view stats, sessions, charts | Next.js (React) |
 
 ---
 
 ## Prerequisites
 
-### Required Software
+Before running this project, install these tools:
 
-✅ **Python 3.9 or higher**
-- Check if installed: Open PowerShell and run `python --version`
-- If not installed: Download from [python.org](https://www.python.org/downloads/)
+### 1. Python (for the backend)
 
-✅ **Node.js 18 or higher** (for frontend)
-- Check if installed: Run `node --version`
-- If not installed: Download from [nodejs.org](https://nodejs.org/)
+```powershell
+# Check if Python is installed
+python --version
+```
 
-✅ **Git** (optional, for cloning)
-- Check if installed: Run `git --version`
+If not installed, download from [python.org](https://www.python.org/downloads/) (version 3.9 or higher). During installation, **check "Add Python to PATH"**.
+
+### 2. Node.js (for the frontend)
+
+```powershell
+# Check if Node.js is installed
+node --version
+```
+
+If not installed, download from [nodejs.org](https://nodejs.org/) (version 18 or higher). Select the **LTS** version.
+
+### 3. Git (for deployment)
+
+```powershell
+# Check if Git is installed
+git --version
+```
+
+If not installed, download from [git-scm.com](https://git-scm.com/downloads).
 
 ---
 
-## Quick Start (Recommended)
+## Running Locally (on your PC)
 
-### Option 1: Backend Only (Headless Mode)
+You need **two terminals** running side by side — one for backend, one for frontend.
 
-**Perfect for testing the monitoring engine and API.**
+### Terminal 1 — Start the Backend
 
 ```powershell
-# 1. Navigate to backend directory
+# Step 1: Go to the backend folder
 cd E:\Lucky\Projects\activity-monitor\backend
 
-# 2. Activate virtual environment (if you have one)
-.\venv\Scripts\activate
-
-# 3. Install dependencies (first time only)
+# Step 2: Install Python packages (only the first time)
 pip install -r requirements.txt
 
-# 4. Run the backend
-python main.py --mode headless
+# Step 3: Start the backend server
+# The PYTHONIOENCODING part prevents a Unicode crash on Windows
+$env:PYTHONIOENCODING="utf-8"; python main.py --mode headless
 ```
 
-**Expected Output:**
+**You should see:**
 ```
-✓ Security configuration validated for production mode
-✓ Database initialized successfully
+[OK] Database initialized successfully
 
 ==================================================
   Activity Monitor v1.0.0
   Headless Mode
 ==================================================
 
-✓ API server started on http://127.0.0.1:8000
-✓ Activity monitoring started
-✓ API: http://127.0.0.1:8000
-✓ API Docs: http://127.0.0.1:8000/docs
-
-Press Ctrl+C to stop
+API server started on http://127.0.0.1:8000
+Monitoring is NOT running - start it from the website
 ```
 
-**What happens:**
-- ✅ Activity tracking starts (mouse, keyboard, windows)
-- ✅ API server runs on http://localhost:8000
-- ✅ Database created in `backend/data/`
-- ✅ Screenshots saved to `backend/screenshots/` (if enabled)
+> **Note:** The backend starts but does NOT auto-start monitoring. You'll start monitoring from the website dashboard.
 
----
+**Keep this terminal open!** Don't close it.
 
-### Option 2: Full Application (Backend + Frontend)
+### Terminal 2 — Start the Frontend
 
-**Perfect for using the web dashboard.**
-
-#### Terminal 1 - Backend
+Open a **new/second terminal** (don't close the first one):
 
 ```powershell
-# Navigate to backend
-cd E:\Lucky\Projects\activity-monitor\backend
-
-# Activate virtual environment
-.\venv\Scripts\activate
-
-# Install dependencies (first time only)
-pip install -r requirements.txt
-
-# Run backend
-python main.py --mode headless
-```
-
-#### Terminal 2 - Frontend
-
-```powershell
-# Navigate to frontend
+# Step 1: Go to the frontend folder
 cd E:\Lucky\Projects\activity-monitor\frontend
 
-# Install dependencies (first time only)
+# Step 2: Install packages (only the first time)
 npm install
 
-# Run frontend
+# Step 3: Start the frontend
 npm run dev
 ```
 
-**Expected Output (Frontend):**
+**You should see:**
 ```
-  ▲ Next.js 14.x.x
-  - Local:        http://localhost:3000
-  - Network:      http://192.168.x.x:3000
+  Next.js 14.x.x
+  - Local:   http://localhost:3000
 
- ✓ Ready in 2.3s
+  Ready in 2.3s
 ```
 
-**Access the dashboard:** Open browser to http://localhost:3000
+**Keep this terminal open too!**
 
 ---
 
-## Detailed Setup
+## Using the Dashboard
 
-### Step 1: Verify Prerequisites
+### Open the Dashboard
 
-```powershell
-# Check Python version (should be 3.9+)
-python --version
+1. Make sure **both terminals** are running (backend + frontend)
+2. Open your browser
+3. Go to: **http://localhost:3000**
 
-# Check Node.js version (should be 18+)
-node --version
+### Dashboard Pages
 
-# Check npm version
-npm --version
-```
+| Page | URL | What it shows |
+|------|-----|--------------|
+| **Home** | `/` | Overview stats, charts, top apps |
+| **Monitor Control** | `/monitoring` | Start/stop monitoring, live status |
+| **Sessions** | `/sessions` | Detailed session history |
+| **Screenshots** | `/screenshots` | Captured screenshots |
+| **Live Input** | `/live-input` | Real-time mouse/keyboard activity |
 
-### Step 2: Set Up Backend
+### How to Start Monitoring
 
-```powershell
-# Navigate to project
-cd E:\Lucky\Projects\activity-monitor\backend
-
-# Create virtual environment (recommended, first time only)
-python -m venv venv
-
-# Activate virtual environment
-.\venv\Scripts\activate
-
-# Your prompt should now show (venv)
-
-# Install all dependencies
-pip install -r requirements.txt
-```
-
-**This installs:**
-- FastAPI (API framework)
-- SQLAlchemy (database)
-- Pynput (activity tracking)
-- Pillow (screenshots)
-- Cryptography (encryption)
-- And more...
-
-### Step 3: Configure Environment
-
-The `.env` file is already configured for development. You can verify:
-
-```powershell
-# View current configuration
-type .env
-```
-
-**Should show:**
-```env
-DATABASE_URL=sqlite:///./data/activity_monitor.db
-IDLE_TIMEOUT_SECONDS=120
-SCREENSHOT_INTERVAL_SECONDS=300
-SCREENSHOT_ENABLED=true
-SECRET_KEY=your-secret-key
-ENCRYPTION_KEY=PisnzIEzr393gw-DykmpxEO81G2s6gRZVjs0GyoEwFY=
-DEBUG=true
-```
-
-**Configuration explained:**
-- `DEBUG=true` - Development mode (no authentication required)
-- `IDLE_TIMEOUT_SECONDS=120` - Idle after 2 minutes of inactivity
-- `SCREENSHOT_INTERVAL_SECONDS=300` - Screenshot every 5 minutes
-- `SCREENSHOT_ENABLED=true` - Screenshots are enabled
-
-### Step 4: Set Up Frontend (Optional)
-
-```powershell
-# Navigate to frontend
-cd E:\Lucky\Projects\activity-monitor\frontend
-
-# Install dependencies
-npm install
-```
-
-**This installs:**
-- Next.js (React framework)
-- Tailwind CSS (styling)
-- Recharts (charts)
-- Axios (API client)
-- And more...
-
----
-
-## Running the Application
-
-### Method 1: Backend Only
-
-**Use this if you only want to track activity and use the API.**
-
-```powershell
-cd E:\Lucky\Projects\activity-monitor\backend
-.\venv\Scripts\activate
-python main.py --mode headless
-```
-
-**Available modes:**
-- `--mode headless` - No GUI, runs in background
-- `--mode tray` - System tray icon (Windows only)
-
-### Method 2: Backend + Frontend
-
-**Use this for the full experience with web dashboard.**
-
-**Terminal 1 (Backend):**
-```powershell
-cd E:\Lucky\Projects\activity-monitor\backend
-.\venv\Scripts\activate
-python main.py --mode headless
-```
-
-**Terminal 2 (Frontend):**
-```powershell
-cd E:\Lucky\Projects\activity-monitor\frontend
-npm run dev
-```
-
-**Keep both terminals running!**
-
----
-
-## Accessing the Dashboard
-
-### Web Dashboard (Frontend)
-
-1. Make sure both backend and frontend are running
-2. Open browser to: **http://localhost:3000**
-
-**Features:**
-- 📊 Real-time activity statistics
-- 📈 Charts (app distribution, timeline, top apps)
-- 📝 Session history with filters
-- 📸 Screenshot viewer
-- 💾 CSV export
+1. Go to the **Monitor Control** page (`/monitoring`)
+2. Click the green **"Start Monitoring"** button
+3. The status should change to **"MONITORING ACTIVE"** with a green pulsing dot
+4. Now use your computer normally — the tracker records which apps you use
+5. Check the **Home** page to see your stats update in real-time
 
 ### API Documentation
 
-1. Make sure backend is running
-2. Open browser to: **http://localhost:8000/docs**
+You can also explore the API directly:
+- **Swagger Docs:** http://localhost:8000/docs
+- **ReDoc:** http://localhost:8000/redoc
 
-**Features:**
-- Interactive API documentation
-- Test endpoints directly
-- View request/response schemas
-- Try out authentication
+### Stopping the Application
 
----
-
-## Testing the API
-
-### Using the Python Client Example
-
-```powershell
-# Make sure backend is running first!
-
-# In a new terminal
-cd E:\Lucky\Projects\activity-monitor\backend
-.\venv\Scripts\activate
-
-# Install requests library (if not already installed)
-pip install requests
-
-# Run the example
-python examples\python_client.py
-```
-
-**Expected Output:**
-```
-============================================================
-Activity Monitor API - Python Client Example
-============================================================
-
-🔐 Logging in...
-✓ Logged in successfully!
-
-📊 Fetching overview statistics...
-✓ Overview retrieved:
-   Active hours today: 0.00
-   Sessions today: 0
-   Apps tracked: 0
-
-📝 Fetching recent sessions...
-✓ Found 0 total sessions
-
-💾 Exporting data to CSV...
-✓ Exported 59 bytes to activity_export.csv
-
-============================================================
-✅ All API calls completed successfully!
-============================================================
-```
-
-### Using cURL
-
-```powershell
-# Get overview statistics
-curl http://localhost:8000/api/analytics/overview
-
-# Get sessions
-curl http://localhost:8000/api/sessions?page=1&page_size=10
-
-# Get app distribution
-curl http://localhost:8000/api/analytics/app-distribution?days=7
-```
+1. Press `Ctrl+C` in the **frontend terminal** to stop the website
+2. Press `Ctrl+C` in the **backend terminal** to stop the server
+3. Your data is automatically saved — nothing is lost
 
 ---
 
-## Stopping the Application
+## Deploying Online (Public Link)
 
-### Stop Backend
+To share your Activity Monitor website publicly, you deploy the backend and frontend to free cloud services.
 
-In the terminal running the backend:
-1. Press `Ctrl+C`
-2. Wait for graceful shutdown
+### Architecture
 
-**Expected Output:**
 ```
-^C
-Shutting down...
-✓ Activity monitoring stopped
-✓ API server stopped
+Your PC (local)                    Cloud (public)
+-----------------                  -------------------------
+Backend (Python)  ----push---->    Render.com (backend API)
+Frontend (Next.js) ---push---->    Vercel.com (website)
 ```
 
-### Stop Frontend
+### Step 1 — Push Code to GitHub
 
-In the terminal running the frontend:
-1. Press `Ctrl+C`
-2. Confirm with `Y` if prompted
+```powershell
+# Navigate to the project root
+cd E:\Lucky\Projects\activity-monitor
 
-### Stop System Tray (if running)
+# Initialize git (skip if already done)
+git init
+git remote add origin https://github.com/YOUR-USERNAME/activity-monitor.git
 
-1. Right-click the system tray icon
-2. Select "Exit"
+# Push the code
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git push -u origin main
+```
+
+### Step 2 — Deploy Backend on Render
+
+1. Go to [render.com](https://render.com) and sign up with GitHub
+2. Click **"New +"** > **"Web Service"**
+3. Connect your `activity-monitor` repository
+4. Configure:
+
+| Setting | Value |
+|---------|-------|
+| Name | `activity-monitor-api` |
+| Root Directory | `backend` |
+| Runtime | `Python 3` |
+| Build Command | `pip install -r requirements-cloud.txt` |
+| Start Command | `uvicorn api.main:app --host 0.0.0.0 --port $PORT` |
+
+5. Add **Environment Variables:**
+
+| Key | Value |
+|-----|-------|
+| `PYTHON_VERSION` | `3.11.8` |
+| `SECRET_KEY` | *(any random string)* |
+| `ENCRYPTION_KEY` | `PisnzIEzr393gw-DykmpxEO81G2s6gRZVjs0GyoEwFY=` |
+| `DEBUG` | `false` |
+| `CORS_ORIGINS` | `http://localhost:3000` |
+
+6. Click **"Create Web Service"**
+7. Wait for deployment — you'll get a URL like `https://activity-monitor-xxxx.onrender.com`
+
+> **Important:** We use `requirements-cloud.txt` (not `requirements.txt`) because cloud servers don't have screens/keyboards, so desktop libraries like `pynput` are excluded.
+
+### Step 3 — Deploy Frontend on Vercel
+
+1. Go to [vercel.com](https://vercel.com) and sign up with GitHub
+2. Click **"Add New" > "Project"**
+3. Import your `activity-monitor` repository
+4. Configure:
+
+| Setting | Value |
+|---------|-------|
+| Framework Preset | `Next.js` |
+| Root Directory | `frontend` (click "Edit" to change) |
+| Build Command | *(leave default)* |
+| Output Directory | *(leave default)* |
+
+5. Add **Environment Variables:**
+
+| Key | Value |
+|-----|-------|
+| `NEXT_PUBLIC_API_URL` | `https://activity-monitor-xxxx.onrender.com` *(your Render URL)* |
+| `NEXT_PUBLIC_WS_URL` | `wss://activity-monitor-xxxx.onrender.com/ws` *(same URL with wss:// and /ws)* |
+
+6. Click **"Deploy"**
+7. You'll get a URL like `https://activity-monitor-xxxx.vercel.app`
+
+### Step 4 — Update CORS on Render
+
+After getting your Vercel URL, go back to Render:
+
+1. Open your service > **Environment**
+2. Update `CORS_ORIGINS` to:
+   ```
+   http://localhost:3000,https://YOUR-APP.vercel.app
+   ```
+3. Save — Render will redeploy automatically
+
+### Step 5 — Test!
+
+Open your Vercel URL in any browser. The website should load, showing the dashboard with data from the Render backend.
+
+---
+
+## Local vs Cloud Mode
+
+| Feature | Local (your PC) | Cloud (Render + Vercel) |
+|---------|----------------|----------------------|
+| View dashboard | Yes | Yes |
+| View sessions/analytics | Yes | Yes |
+| View screenshots | Yes | Yes |
+| **Start/Stop monitoring** | **Yes** | **No** (shows "Cloud Mode" message) |
+| Track keyboard/mouse | Yes | No |
+| Capture screenshots | Yes | No |
+
+**Why?** Cloud servers have no physical screen, keyboard, or mouse. Monitoring only works on your local computer. The cloud deployment is for **viewing** your data from anywhere.
+
+The monitoring page automatically detects cloud mode and shows a helpful banner explaining this, instead of an error.
 
 ---
 
 ## Troubleshooting
 
-### Issue: "python: command not found"
+### "python: command not found"
 
-**Solution:**
+Python isn't in your PATH. Reinstall Python and **check "Add Python to PATH"** during installation.
+
+### "Module not found" errors (backend)
+
 ```powershell
-# Try python3 instead
-python3 --version
-
-# Or check if Python is in PATH
-where python
-```
-
-### Issue: "Module not found" errors
-
-**Solution:**
-```powershell
-# Make sure virtual environment is activated
-.\venv\Scripts\activate
-
-# Reinstall dependencies
+cd E:\Lucky\Projects\activity-monitor\backend
 pip install -r requirements.txt
 ```
 
-### Issue: Port 8000 already in use
+### Unicode/encoding crash on Windows
 
-**Solution:**
+Use this command to start the backend:
 ```powershell
-# Find process using port 8000
+$env:PYTHONIOENCODING="utf-8"; python main.py --mode headless
+```
+
+### Port 8000 already in use
+
+```powershell
+# Find what's using port 8000
 netstat -ano | findstr :8000
 
-# Kill the process (replace PID with actual process ID)
-taskkill /PID <PID> /F
-
-# Or change port in .env
-# Add: API_PORT=8001
+# Kill that process (replace 1234 with the actual PID)
+taskkill /PID 1234 /F
 ```
 
-### Issue: Port 3000 already in use (Frontend)
+### "Cannot connect to API" in the frontend
 
-**Solution:**
-```powershell
-# Next.js will automatically suggest port 3001
-# Press 'y' to use it
-
-# Or manually specify port
-$env:PORT=3001
-npm run dev
-```
-
-### Issue: "Cannot connect to API" in frontend
-
-**Solution:**
-1. Verify backend is running: http://localhost:8000/docs
-2. Check CORS settings in `backend/.env`
+1. Make sure the backend terminal is running
+2. Check http://localhost:8000/docs loads
 3. Restart both backend and frontend
 
-### Issue: No activity being tracked
+### Vercel build fails with "Can't resolve '@/lib/api'"
 
-**Solution:**
-1. Check if monitoring started (look for "Activity monitoring started")
-2. Use your computer normally (move mouse, type, switch windows)
-3. Wait 2-3 minutes for first session
-4. Check database: `backend/data/activity_monitor.db`
+The `.gitignore` might be blocking the `frontend/lib/` folder. Check that `lib/` in `.gitignore` is changed to `backend/lib/` so it doesn't affect the frontend.
 
-### Issue: Screenshots not being captured
+### Render build fails with "Failed to build pillow/pynput"
 
-**Solution:**
-1. Check `SCREENSHOT_ENABLED=true` in `.env`
-2. Verify `SCREENSHOT_INTERVAL_SECONDS` (default: 300 = 5 minutes)
-3. Check `backend/screenshots/` folder
-4. Ensure you have screen capture permissions
-
-### Issue: 500 Internal Server Error
-
-**Solution:**
-1. Check backend logs for error details
-2. Verify `DEBUG=true` in `.env`
-3. Restart backend
-4. Check database exists: `backend/data/activity_monitor.db`
-
----
-
-## File Locations
-
-### Important Directories
-
+Make sure the **Build Command** on Render is:
 ```
-E:\Lucky\Projects\activity-monitor\
-├── backend/
-│   ├── data/                    # Database files
-│   │   └── activity_monitor.db  # SQLite database
-│   ├── screenshots/             # Captured screenshots
-│   ├── logs/                    # Application logs (if logging enabled)
-│   ├── .env                     # Configuration file
-│   └── main.py                  # Entry point
-├── frontend/
-│   ├── app/                     # Next.js pages
-│   ├── components/              # React components
-│   └── package.json             # Dependencies
-└── README.md                    # Project documentation
+pip install -r requirements-cloud.txt
 ```
+(NOT `requirements.txt`)
 
-### Configuration Files
+### Render build fails with "metadata-generation-failed" for pandas
 
-- **Backend config:** `backend/.env`
-- **Frontend config:** `frontend/.env.local` (if exists)
-- **Python dependencies:** `backend/requirements.txt`
-- **Node dependencies:** `frontend/package.json`
-
----
-
-## Daily Usage
-
-### Starting Your Day
-
-```powershell
-# Terminal 1 - Backend
-cd E:\Lucky\Projects\activity-monitor\backend
-.\venv\Scripts\activate
-python main.py --mode headless
-
-# Terminal 2 - Frontend (optional)
-cd E:\Lucky\Projects\activity-monitor\frontend
-npm run dev
-```
-
-### Viewing Your Activity
-
-1. Open http://localhost:3000
-2. Check dashboard for today's stats
-3. View sessions page for detailed history
-4. Export data as CSV if needed
-
-### Ending Your Day
-
-1. Press `Ctrl+C` in both terminals
-2. Your data is automatically saved to the database
-3. Screenshots are encrypted and stored
-
----
-
-## Next Steps
-
-### Learn More
-
-- 📖 **API Documentation:** http://localhost:8000/docs
-- 📖 **API Integration Examples:** `API_INTEGRATION_EXAMPLES.md`
-- 📖 **PyInstaller Guide:** `PYINSTALLER_GUIDE.md`
-- 📖 **Development Mode Guide:** `DEVELOPMENT_MODE.md`
-- 📖 **Technical Audit Report:** See artifacts folder
-
-### Advanced Features
-
-- **Build Executable:** See `PYINSTALLER_GUIDE.md`
-- **Production Deployment:** Set `DEBUG=false` and generate strong keys
-- **Custom Configuration:** Edit `.env` file
-- **API Integration:** Use examples in `backend/examples/`
+Add an environment variable on Render:
+- **Key:** `PYTHON_VERSION`
+- **Value:** `3.11.8`
 
 ---
 
 ## Quick Reference
 
-### Common Commands
+### Commands
 
 ```powershell
-# Start backend
-cd backend && .\venv\Scripts\activate && python main.py --mode headless
+# Start backend locally
+cd E:\Lucky\Projects\activity-monitor\backend
+$env:PYTHONIOENCODING="utf-8"; python main.py --mode headless
 
-# Start frontend
-cd frontend && npm run dev
+# Start frontend locally
+cd E:\Lucky\Projects\activity-monitor\frontend
+npm run dev
 
-# Install backend dependencies
-cd backend && pip install -r requirements.txt
-
-# Install frontend dependencies
-cd frontend && npm install
-
-# Run Python client example
-cd backend && python examples\python_client.py
-
-# View API docs
-# Open: http://localhost:8000/docs
-
-# View dashboard
-# Open: http://localhost:3000
+# Push changes to GitHub (auto-deploys to Vercel & Render)
+cd E:\Lucky\Projects\activity-monitor
+git add .
+git commit -m "your message"
+git push
 ```
 
-### Default URLs
+### URLs
 
-| Service | URL |
-|---------|-----|
-| **API Server** | http://localhost:8000 |
-| **API Docs (Swagger)** | http://localhost:8000/docs |
-| **API Docs (ReDoc)** | http://localhost:8000/redoc |
-| **Web Dashboard** | http://localhost:3000 |
+| Service | Local | Cloud |
+|---------|-------|-------|
+| Backend API | http://localhost:8000 | https://activity-monitor-qmx3.onrender.com |
+| API Docs | http://localhost:8000/docs | https://activity-monitor-qmx3.onrender.com/docs |
+| Frontend | http://localhost:3000 | https://activity-monitor-seven.vercel.app |
 
-### Default Credentials (Development)
+### Project Structure
 
-- **Username:** `default_user`
-- **Password:** `default_password`
-
-*(Auto-created in development mode)*
+```
+activity-monitor/
+  backend/
+    main.py                    # Backend entry point
+    requirements.txt           # Local dependencies
+    requirements-cloud.txt     # Cloud dependencies (no pynput/pystray)
+    .env                       # Configuration
+    api/                       # API routes
+    monitoring_engine/         # Activity tracker
+    data/                      # SQLite database (auto-created)
+    screenshots/               # Captured screenshots
+  frontend/
+    app/                       # Next.js pages
+    lib/                       # API client, WebSocket hook
+    components/                # React components
+    package.json               # Node dependencies
+```
 
 ---
 
-## Support
-
-For issues or questions:
-
-1. Check this guide's troubleshooting section
-2. Review `README.md` in project root
-3. Check `QUICKSTART.md` for quick setup
-4. Review technical documentation in artifacts folder
-
----
-
-**Happy Monitoring! 📊**
-
-*Last updated: February 17, 2026*
+*Last updated: March 10, 2026*
