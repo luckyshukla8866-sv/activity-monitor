@@ -188,3 +188,8 @@ async def get_optional_user(db: Session = Depends(get_db)) -> User:
         print(f"[OK] Created user: {user.username}")
 
     return user
+
+
+def hello():
+    return "hello"
+    

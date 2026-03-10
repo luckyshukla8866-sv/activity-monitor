@@ -92,6 +92,7 @@ API server started on http://127.0.0.1:8000
 Monitoring is NOT running - start it from the website
 ```
 
+
 > **Note:** The backend starts but does NOT auto-start monitoring. You'll start monitoring from the website dashboard.
 
 **Keep this terminal open!** Don't close it.
