@@ -13,7 +13,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
 from config import settings
-from api.database import init_db
+from api.database import init_db, SessionLocal
 from api.routes import users, sessions, screenshots, analytics, monitoring
 
 
@@ -58,7 +58,19 @@ async def lifespan(app: FastAPI):
     # Startup
     print(f"Starting {settings.APP_NAME} v{settings.APP_VERSION}")
     init_db()
-    print("✓ Database initialized")
+    print("[OK] Database initialized")
+
+    # Seed demo data on cloud deployments (only if database is empty)
+    if not settings.DEBUG:
+        try:
+            from api.seed_data import seed_demo_data
+            db = SessionLocal()
+            try:
+                seed_demo_data(db)
+            finally:
+                db.close()
+        except Exception as e:
+            print(f"[WARN] Could not seed demo data: {e}")
 
     # Register WebSocket manager in the monitoring state singleton
     from monitoring_engine.app_state import monitoring_state
