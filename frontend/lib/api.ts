@@ -173,22 +173,39 @@ export const analyticsAPI = {
     },
 };
 
-// Monitoring Control API
-export const monitoringAPI = {
-    getStatus: async () => {
-        const response = await apiClient.get('/api/monitoring/status');
+// ML Insights API
+export const insightsAPI = {
+    getProductivity: async (days: number = 7) => {
+        const response = await apiClient.get('/api/insights/productivity', {
+            params: { days },
+        });
         return response.data;
     },
 
-    start: async () => {
-        const response = await apiClient.post('/api/monitoring/start');
+    getBurnout: async () => {
+        const response = await apiClient.get('/api/insights/burnout');
         return response.data;
     },
 
-    stop: async () => {
-        const response = await apiClient.post('/api/monitoring/stop');
+    getForecast: async (days: number = 7) => {
+        const response = await apiClient.get('/api/insights/forecast', {
+            params: { days },
+        });
+        return response.data;
+    },
+};
+
+// Data Upload API
+export const uploadAPI = {
+    uploadCSV: async (file: File) => {
+        const form = new FormData();
+        form.append('file', file);
+        const response = await apiClient.post('/api/insights/upload', form, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
         return response.data;
     },
 };
 
 export default apiClient;
+

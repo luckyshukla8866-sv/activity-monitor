@@ -14,7 +14,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from config import settings
 from api.database import init_db, SessionLocal
-from api.routes import users, sessions, screenshots, analytics, monitoring
+from api.routes import users, sessions, analytics, insights
 
 
 class ConnectionManager:
@@ -72,20 +72,21 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             print(f"[WARN] Could not seed demo data: {e}")
 
-    # Register WebSocket manager in the monitoring state singleton
-    from monitoring_engine.app_state import monitoring_state
-    monitoring_state.set_ws_manager(manager)
-
-    # Store the running event loop so pynput threads can safely schedule broadcasts
-    monitoring_state.set_event_loop(asyncio.get_event_loop())
+    # Register WebSocket manager (only if monitoring_engine is available)
+    try:
+        from monitoring_engine.app_state import monitoring_state
+        monitoring_state.set_ws_manager(manager)
+        monitoring_state.set_event_loop(asyncio.get_event_loop())
+    except ImportError:
+        pass  # Cloud deployment — monitoring_engine not available
 
     # Start periodic status ping task (every 5 seconds)
     async def status_ping():
         while True:
             await asyncio.sleep(5)
             if manager.connection_count > 0:
-                from monitoring_engine.app_state import monitoring_state
                 try:
+                    from monitoring_engine.app_state import monitoring_state
                     status = monitoring_state.get_status()
                     await manager.broadcast({
                         "type": "status",
@@ -125,9 +126,8 @@ app.add_middleware(
 # Include routers
 app.include_router(users.router)
 app.include_router(sessions.router)
-app.include_router(screenshots.router)
 app.include_router(analytics.router)
-app.include_router(monitoring.router)
+app.include_router(insights.router)
 
 
 # Root endpoint

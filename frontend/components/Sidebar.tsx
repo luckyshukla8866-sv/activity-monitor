@@ -7,20 +7,20 @@ import { motion } from 'framer-motion';
 import {
     LayoutDashboard,
     Activity,
-    Image as ImageIcon,
+    BrainCircuit,
     Settings,
     ChevronLeft,
     ChevronRight,
-    Radio,
-    Mouse,
+    TrendingUp,
+    Upload,
 } from 'lucide-react';
 
 const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', href: '/' },
     { icon: Activity, label: 'Sessions', href: '/sessions' },
-    { icon: ImageIcon, label: 'Screenshots', href: '/screenshots' },
-    { icon: Mouse, label: 'Live Input', href: '/live-input' },
-    { icon: Radio, label: 'Monitoring Control', href: '/monitoring' },
+    { icon: BrainCircuit, label: 'ML Insights', href: '/insights' },
+    { icon: TrendingUp, label: 'Forecast', href: '/forecast' },
+    { icon: Upload, label: 'Upload Data', href: '/upload' },
     { icon: Settings, label: 'Settings', href: '/settings' },
 ];
 

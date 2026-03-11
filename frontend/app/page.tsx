@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Clock, Layers, TrendingUp } from 'lucide-react';
-import { analyticsAPI } from '@/lib/api';
+import { Activity, Clock, Layers, BrainCircuit, AlertTriangle, TrendingUp } from 'lucide-react';
+import { analyticsAPI, insightsAPI } from '@/lib/api';
 import dynamic from 'next/dynamic';
-import LiveActivityPanel from '@/components/LiveActivityPanel';
 
 // Lazy-load heavy chart components so they don't block initial render
 const AppDistributionChart = dynamic(() => import('@/components/charts/AppDistributionChart'), {
@@ -43,9 +42,16 @@ function StatCardSkeleton() {
     );
 }
 
+const RISK_COLORS: Record<string, string> = {
+    LOW: 'from-emerald-500 to-green-500',
+    MEDIUM: 'from-yellow-500 to-orange-500',
+    HIGH: 'from-red-500 to-pink-500',
+    UNKNOWN: 'from-slate-500 to-slate-400',
+};
+
 export default function DashboardPage() {
     const [overview, setOverview] = useState<any>(null);
-    // Start with null — show skeletons immediately, fill in data when ready
+    const [mlData, setMlData] = useState<any>(null);
     const [chartData, setChartData] = useState<{
         distribution: any[] | null;
         topApps: any[] | null;
@@ -54,18 +60,20 @@ export default function DashboardPage() {
 
     useEffect(() => {
         loadAll();
-        const interval = setInterval(loadAll, 60000); // refresh every 60s (was 30s)
+        const interval = setInterval(loadAll, 60000);
         return () => clearInterval(interval);
     }, []);
 
     const loadAll = async () => {
-        // Fire all 4 requests in parallel — don't wait for one before starting the next
-        const [overviewRes, distRes, topRes, timelineRes] = await Promise.allSettled([
-            analyticsAPI.getOverview(),
-            analyticsAPI.getAppDistribution(7),
-            analyticsAPI.getTopApps(5, 7),
-            analyticsAPI.getTimeline(),
-        ]);
+        const [overviewRes, distRes, topRes, timelineRes, productivityRes, burnoutRes] =
+            await Promise.allSettled([
+                analyticsAPI.getOverview(),
+                analyticsAPI.getAppDistribution(7),
+                analyticsAPI.getTopApps(5, 7),
+                analyticsAPI.getTimeline(),
+                insightsAPI.getProductivity(7),
+                insightsAPI.getBurnout(),
+            ]);
 
         if (overviewRes.status === 'fulfilled') setOverview(overviewRes.value);
         setChartData({
@@ -73,15 +81,25 @@ export default function DashboardPage() {
             topApps: topRes.status === 'fulfilled' ? topRes.value : [],
             timeline: timelineRes.status === 'fulfilled' ? timelineRes.value : [],
         });
+
+        const ml: any = {};
+        if (productivityRes.status === 'fulfilled') ml.productivity = productivityRes.value;
+        if (burnoutRes.status === 'fulfilled') ml.burnout = burnoutRes.value;
+        setMlData(ml);
     };
+
+    const productivityScore = mlData?.productivity?.productivity_score ?? null;
+    const burnoutRisk = mlData?.burnout?.risk_level ?? 'UNKNOWN';
 
     const stats = [
         {
-            title: 'Active Hours Today',
-            value: overview?.total_active_hours_today?.toFixed(1) ?? '—',
-            unit: 'hours',
-            icon: Clock,
-            color: 'from-cyan-500 to-blue-500',
+            title: 'Productivity Score',
+            value: productivityScore ?? '—',
+            unit: '/100',
+            icon: BrainCircuit,
+            color: productivityScore >= 75 ? 'from-emerald-500 to-cyan-500' :
+                   productivityScore >= 50 ? 'from-yellow-500 to-orange-500' :
+                   'from-cyan-500 to-blue-500',
         },
         {
             title: 'Sessions Today',
@@ -98,27 +116,24 @@ export default function DashboardPage() {
             color: 'from-green-500 to-emerald-500',
         },
         {
-            title: 'Productivity',
-            value: overview?.active_time_today
-                ? Math.round((overview.active_time_today / (overview.active_time_today + (overview.idle_time_today || 0))) * 100)
-                : '—',
-            unit: '%',
-            icon: TrendingUp,
-            color: 'from-orange-500 to-red-500',
+            title: 'Burnout Risk',
+            value: burnoutRisk,
+            unit: '',
+            icon: AlertTriangle,
+            color: RISK_COLORS[burnoutRisk] || 'from-slate-500 to-slate-400',
         },
     ];
 
     return (
         <div className="space-y-6">
-            {/* Header — always visible immediately */}
             <div>
                 <h1 className="text-3xl font-bold gradient-text">Dashboard</h1>
-                <p className="text-slate-400 mt-1">Track your activity and productivity</p>
+                <p className="text-slate-400 mt-1">ML-powered activity analytics</p>
             </div>
 
-            {/* Stats Cards — show skeletons until data arrives */}
+            {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {overview === null
+                {overview === null && !mlData
                     ? Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
                     : stats.map((stat) => (
                         <motion.div
@@ -144,7 +159,28 @@ export default function DashboardPage() {
                     ))}
             </div>
 
-            {/* Charts Grid — lazy loaded, show skeletons until JS chunk arrives */}
+            {/* ML Summary Row */}
+            {mlData?.productivity && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {[
+                        { label: 'Deep Work', value: `${mlData.productivity.deep_work_hours}h`, color: 'text-cyan-400' },
+                        { label: 'Communication', value: `${mlData.productivity.communication_hours}h`, color: 'text-purple-400' },
+                        { label: 'Distraction', value: `${mlData.productivity.distraction_hours}h`, color: 'text-red-400' },
+                    ].map((item) => (
+                        <motion.div
+                            key={item.label}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="glass p-4 flex items-center justify-between"
+                        >
+                            <span className="text-slate-400 text-sm">{item.label}</span>
+                            <span className={`text-xl font-bold ${item.color}`}>{item.value}</span>
+                        </motion.div>
+                    ))}
+                </div>
+            )}
+
+            {/* Charts Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="glass p-6">
                     <h2 className="text-xl font-semibold mb-4">App Usage Distribution</h2>
@@ -160,9 +196,6 @@ export default function DashboardPage() {
                 <h2 className="text-xl font-semibold mb-4">Activity Timeline (Today)</h2>
                 <ActivityTimelineChart data={chartData.timeline} />
             </div>
-
-            {/* Live Activity Panel */}
-            <LiveActivityPanel />
         </div>
     );
 }
