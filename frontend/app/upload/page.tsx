@@ -46,12 +46,16 @@ export default function UploadPage() {
             setResult(res);
             setFile(null);
         } catch (err: any) {
+            console.error('Upload error:', err);
+            const detail = err?.response?.data?.detail;
             if (err?.code === 'ECONNABORTED') {
-                setError('Upload timed out. Please check that the backend server is running and try again.');
-            } else if (err?.code === 'ERR_NETWORK') {
-                setError('Cannot connect to server. Please ensure the backend is running.');
+                setError('Upload timed out. The server may be waking up (free tier). Please wait 30 seconds and try again.');
+            } else if (err?.code === 'ERR_NETWORK' || err?.message?.includes('Network Error')) {
+                setError('Cannot connect to server. The server may be starting up — please wait 30 seconds and try again.');
+            } else if (detail) {
+                setError(detail);
             } else {
-                setError(err?.response?.data?.detail || 'Upload failed. Please check your CSV format.');
+                setError('Upload failed. The server may be starting up — please wait 30 seconds and try again.');
             }
         } finally {
             setUploading(false);

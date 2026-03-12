@@ -1,15 +1,14 @@
 /**
  * API client for communicating with the backend.
- * All requests use relative URLs (/api/...) and are proxied through
- * Next.js rewrites to the backend. This avoids CORS issues entirely.
  */
 
 import axios from 'axios';
 
-// Use relative URLs — Next.js rewrites proxy /api/* to the backend
-// (both in development and production). No cross-origin requests needed.
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+// Create axios instance
 const apiClient = axios.create({
-    baseURL: '',
+    baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -109,7 +108,7 @@ export const screenshotsAPI = {
 
     getImageUrl: (id: number) => {
         const token = localStorage.getItem('access_token');
-        return `/api/screenshots/${id}?token=${token}`;
+        return `${API_BASE_URL}/api/screenshots/${id}?token=${token}`;
     },
 
     getBySession: async (sessionId: number) => {
@@ -203,7 +202,7 @@ export const uploadAPI = {
         form.append('file', file);
         const response = await apiClient.post('/api/insights/upload', form, {
             headers: { 'Content-Type': undefined },
-            timeout: 30000, // 30 second timeout
+            timeout: 120000, // 120 second timeout (Render free tier can take 30-60s to wake up)
         });
         return response.data;
     },
