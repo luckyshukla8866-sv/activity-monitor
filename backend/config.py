@@ -47,7 +47,7 @@ class Settings:
     API_RELOAD: bool = os.getenv("API_RELOAD", "false").lower() == "true"
     
     # CORS settings
-    CORS_ORIGINS: list = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001").split(",")
+    CORS_ORIGINS: list = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,activity-monitor-seven.vercel.app").split(",")
     
     # Application settings
     APP_NAME: str = "Activity Monitor"
