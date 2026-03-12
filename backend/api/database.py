@@ -18,21 +18,22 @@ from api.models import Base
 
 
 # Create SQLAlchemy engine
-if settings.DATABASE_URL.startswith("sqlite"):
+db_url = settings.DATABASE_URL
+# Fix: Render uses postgresql:// but psycopg2 expects postgres://
+if db_url.startswith("postgresql://"):
+    db_url = "postgres://" + db_url[11:]
+
+if db_url.startswith("sqlite"):
     # SQLite-specific configuration
     engine = create_engine(
-        settings.DATABASE_URL,
+        db_url,
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
-        echo=settings.DEBUG
+        echo=settings.DEBUG,
     )
 else:
     # PostgreSQL or other databases
-    engine = create_engine(
-        settings.DATABASE_URL,
-        pool_pre_ping=True,
-        echo=settings.DEBUG
-    )
+    engine = create_engine(db_url, pool_pre_ping=True, echo=settings.DEBUG)
 
 # Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
