@@ -131,4 +131,6 @@ async def upload_csv(
     except HTTPException:
         raise
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Failed to process CSV: {str(e)}")

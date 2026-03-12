@@ -177,10 +177,12 @@ async def websocket_endpoint(websocket: WebSocket):
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
     """Global exception handler for unhandled errors."""
+    import traceback
+    traceback.print_exc()
     print(f"Unhandled error: {exc}")
     return JSONResponse(
         status_code=500,
-        content={"detail": "Internal server error"}
+        content={"detail": f"Internal server error: {str(exc)}"}
     )
 
 
