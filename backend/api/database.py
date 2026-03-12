@@ -19,9 +19,11 @@ from api.models import Base
 
 # Create SQLAlchemy engine
 db_url = settings.DATABASE_URL
-# Fix: Render uses postgresql:// but psycopg2 expects postgres://
-if db_url.startswith("postgresql://"):
-    db_url = "postgres://" + db_url[11:]
+# Fix: Ensure URL uses postgresql+psycopg2 for explicit driver
+if db_url.startswith("postgres://") and "psycopg2" not in db_url:
+    db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
+elif db_url.startswith("postgresql://") and "psycopg2" not in db_url:
+    db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
 
 if db_url.startswith("sqlite"):
     # SQLite-specific configuration
@@ -29,7 +31,14 @@ if db_url.startswith("sqlite"):
         db_url,
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
-        echo=settings.DEBUG,
+        echo=settings.DEBUG
+    )
+else:
+    # PostgreSQL or other databases
+    engine = create_engine(
+        db_url,
+        pool_pre_ping=True,
+        echo=settings.DEBUG
     )
 else:
     # PostgreSQL or other databases
