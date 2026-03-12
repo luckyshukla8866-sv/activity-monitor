@@ -42,7 +42,7 @@ export const authAPI = {
         formData.append('username', username);
         formData.append('password', password);
         const response = await apiClient.post('/api/users/login', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
+            headers: { 'Content-Type': undefined },
         });
         return response.data;
     },
@@ -201,7 +201,8 @@ export const uploadAPI = {
         const form = new FormData();
         form.append('file', file);
         const response = await apiClient.post('/api/insights/upload', form, {
-            headers: { 'Content-Type': 'multipart/form-data' },
+            headers: { 'Content-Type': undefined },
+            timeout: 30000, // 30 second timeout
         });
         return response.data;
     },

@@ -46,7 +46,13 @@ export default function UploadPage() {
             setResult(res);
             setFile(null);
         } catch (err: any) {
-            setError(err?.response?.data?.detail || 'Upload failed. Please check your CSV format.');
+            if (err?.code === 'ECONNABORTED') {
+                setError('Upload timed out. Please check that the backend server is running and try again.');
+            } else if (err?.code === 'ERR_NETWORK') {
+                setError('Cannot connect to server. Please ensure the backend is running.');
+            } else {
+                setError(err?.response?.data?.detail || 'Upload failed. Please check your CSV format.');
+            }
         } finally {
             setUploading(false);
         }
