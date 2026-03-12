@@ -31,14 +31,7 @@ if db_url.startswith("sqlite"):
         db_url,
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
-        echo=settings.DEBUG
-    )
-else:
-    # PostgreSQL or other databases
-    engine = create_engine(
-        db_url,
-        pool_pre_ping=True,
-        echo=settings.DEBUG
+        echo=settings.DEBUG,
     )
 else:
     # PostgreSQL or other databases
