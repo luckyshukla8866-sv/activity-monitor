@@ -2,16 +2,17 @@
 const nextConfig = {
     reactStrictMode: false, // Disabled: StrictMode double-invokes effects in dev, causing double API calls
 
-    // Only proxy /api/* to localhost in local development.
-    // In production (Vercel), NEXT_PUBLIC_API_URL already points to the
-    // Render backend, so no rewrite is needed.
+    // Proxy all /api/* requests to the backend.
+    // In production (Vercel): proxies to the Render backend (NEXT_PUBLIC_API_URL).
+    // In development: proxies to localhost:8000.
+    // This eliminates CORS issues entirely — the browser only talks to
+    // Vercel (same-origin), and Vercel forwards to Render server-to-server.
     async rewrites() {
-        const isProd = !!process.env.NEXT_PUBLIC_API_URL;
-        if (isProd) return [];
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
         return [
             {
                 source: '/api/:path*',
-                destination: 'http://localhost:8000/api/:path*',
+                destination: `${backendUrl}/api/:path*`,
             },
         ];
     },
