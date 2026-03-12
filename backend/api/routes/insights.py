@@ -87,7 +87,9 @@ async def upload_csv(
 
     try:
         contents = await file.read()
-        text = contents.decode("utf-8")
+        # Use utf-8-sig to automatically strip the BOM (byte order mark)
+        # that Windows apps like Excel add to CSV files
+        text = contents.decode("utf-8-sig")
         reader = csv.DictReader(io.StringIO(text))
 
         required_cols = {"app_name", "start_time", "duration_seconds"}
