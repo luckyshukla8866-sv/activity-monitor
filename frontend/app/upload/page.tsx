@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Upload, FileText, CheckCircle, AlertCircle, Download } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Upload, FileText, CheckCircle, AlertCircle, Download, ArrowRight, Sparkles, Info } from 'lucide-react';
 import { uploadAPI } from '@/lib/api';
 
 export default function UploadPage() {
@@ -84,8 +84,20 @@ Visual Studio Code,api.ts - frontend,2026-03-10T11:15:00,2026-03-10T12:30:00,450
             {/* Header */}
             <div>
                 <h1 className="text-3xl font-bold gradient-text">Upload Data</h1>
-                <p className="text-slate-400 mt-1">Import your activity data for ML analysis</p>
+                <p className="text-slate-400 mt-1">Import your activity data for ML analysis — any CSV format accepted</p>
             </div>
+
+            {/* Smart Detection Banner */}
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-start gap-3 px-4 py-3 rounded-lg bg-cyan-500/5 border border-cyan-500/20"
+            >
+                <Sparkles className="w-5 h-5 text-cyan-400 mt-0.5 shrink-0" />
+                <p className="text-sm text-slate-300">
+                    <span className="text-cyan-400 font-medium">Smart Column Detection</span> — Upload CSV files in any format. The system automatically detects and maps your columns to the required fields. Just make sure your file contains application name, start time, and either a duration or end time.
+                </p>
+            </motion.div>
 
             {/* Upload Zone */}
             <motion.div
@@ -107,7 +119,7 @@ Visual Studio Code,api.ts - frontend,2026-03-10T11:15:00,2026-03-10T12:30:00,450
                     <p className="text-slate-400 text-sm">
                         {file
                             ? `${(file.size / 1024).toFixed(1)} KB — Click "Upload" to import`
-                            : 'or click to browse files'}
+                            : 'or click to browse files • Any CSV format accepted'}
                     </p>
                 </div>
                 <input
@@ -120,82 +132,128 @@ Visual Studio Code,api.ts - frontend,2026-03-10T11:15:00,2026-03-10T12:30:00,450
             </motion.div>
 
             {/* Upload Button */}
-            {file && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex gap-4"
-                >
-                    <button
-                        onClick={handleUpload}
-                        disabled={uploading}
-                        className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
+            <AnimatePresence>
+                {file && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="flex gap-4"
                     >
-                        {uploading ? (
-                            <>
-                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                Uploading...
-                            </>
-                        ) : (
-                            <>
-                                <Upload className="w-4 h-4" />
-                                Upload & Analyze
-                            </>
-                        )}
-                    </button>
-                    <button
-                        onClick={() => { setFile(null); setError(null); }}
-                        className="px-6 py-3 bg-slate-700 rounded-lg font-medium hover:bg-slate-600 transition-colors"
-                    >
-                        Cancel
-                    </button>
-                </motion.div>
-            )}
+                        <button
+                            onClick={handleUpload}
+                            disabled={uploading}
+                            className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
+                        >
+                            {uploading ? (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    Uploading...
+                                </>
+                            ) : (
+                                <>
+                                    <Upload className="w-4 h-4" />
+                                    Upload & Analyze
+                                </>
+                            )}
+                        </button>
+                        <button
+                            onClick={() => { setFile(null); setError(null); }}
+                            className="px-6 py-3 bg-slate-700 rounded-lg font-medium hover:bg-slate-600 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Success */}
-            {result && (
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="glass p-6 border border-emerald-500/30 bg-emerald-500/5"
-                >
-                    <div className="flex items-center gap-3">
-                        <CheckCircle className="w-6 h-6 text-emerald-400" />
-                        <div>
-                            <h3 className="font-semibold text-emerald-400">{result.message}</h3>
-                            <p className="text-sm text-slate-400 mt-1">
-                                Visit the ML Insights page to see your analysis results.
-                            </p>
+            <AnimatePresence>
+                {result && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="glass p-6 border border-emerald-500/30 bg-emerald-500/5 space-y-4"
+                    >
+                        <div className="flex items-center gap-3">
+                            <CheckCircle className="w-6 h-6 text-emerald-400 shrink-0" />
+                            <div>
+                                <h3 className="font-semibold text-emerald-400">{result.message}</h3>
+                                <p className="text-sm text-slate-400 mt-1">
+                                    Visit the ML Insights page to see your analysis results.
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                </motion.div>
-            )}
+
+                        {/* Column Mapping Report */}
+                        {result.column_mapping && Object.keys(result.column_mapping).length > 0 && (
+                            <div className="pt-3 border-t border-emerald-500/20">
+                                <p className="text-xs text-slate-500 uppercase tracking-wider mb-2 font-medium">Column Mapping</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {Object.entries(result.column_mapping).map(([field, csvCol]: [string, any]) => (
+                                        <span key={field} className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700">
+                                            <span className="text-slate-400">{csvCol}</span>
+                                            <ArrowRight className="w-3 h-3 text-emerald-500" />
+                                            <span className="text-emerald-400 font-medium">{field}</span>
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Skipped Rows Info */}
+                        {result.rows_skipped > 0 && (
+                            <div className="pt-3 border-t border-yellow-500/20">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <Info className="w-4 h-4 text-yellow-400" />
+                                    <p className="text-sm text-yellow-400">
+                                        {result.rows_skipped} row{result.rows_skipped !== 1 ? 's' : ''} skipped
+                                    </p>
+                                </div>
+                                {result.skip_reasons && (
+                                    <div className="flex flex-wrap gap-2 mt-1">
+                                        {Object.entries(result.skip_reasons).map(([reason, count]: [string, any]) => (
+                                            <span key={reason} className="text-xs px-2 py-0.5 rounded bg-yellow-500/10 text-yellow-300 border border-yellow-500/20">
+                                                {reason}: {count}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Error */}
-            {error && (
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="glass p-6 border border-red-500/30 bg-red-500/5"
-                >
-                    <div className="flex items-center gap-3">
-                        <AlertCircle className="w-6 h-6 text-red-400" />
-                        <div>
-                            <h3 className="font-semibold text-red-400">Upload Failed</h3>
-                            <p className="text-sm text-slate-400 mt-1">{error}</p>
+            <AnimatePresence>
+                {error && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="glass p-6 border border-red-500/30 bg-red-500/5"
+                    >
+                        <div className="flex items-start gap-3">
+                            <AlertCircle className="w-6 h-6 text-red-400 shrink-0 mt-0.5" />
+                            <div>
+                                <h3 className="font-semibold text-red-400">Upload Failed</h3>
+                                <p className="text-sm text-slate-400 mt-1">{error}</p>
+                            </div>
                         </div>
-                    </div>
-                </motion.div>
-            )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
-            {/* CSV Format Guide */}
+            {/* CSV Format Guide — Redesigned */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="glass p-6"
+                className="glass p-6 space-y-5"
             >
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <FileText className="w-5 h-5 text-slate-400" />
                         <h2 className="text-lg font-semibold">CSV Format Guide</h2>
@@ -209,53 +267,74 @@ Visual Studio Code,api.ts - frontend,2026-03-10T11:15:00,2026-03-10T12:30:00,450
                     </button>
                 </div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                        <thead>
-                            <tr className="border-b border-slate-700">
-                                <th className="pb-2 text-slate-400 font-medium">Column</th>
-                                <th className="pb-2 text-slate-400 font-medium">Required</th>
-                                <th className="pb-2 text-slate-400 font-medium">Example</th>
-                            </tr>
-                        </thead>
-                        <tbody className="text-slate-300">
-                            <tr className="border-b border-slate-800">
-                                <td className="py-2 font-mono text-cyan-400">app_name</td>
-                                <td className="py-2"><span className="text-emerald-400">Yes</span></td>
-                                <td className="py-2">Visual Studio Code</td>
-                            </tr>
-                            <tr className="border-b border-slate-800">
-                                <td className="py-2 font-mono text-cyan-400">window_title</td>
-                                <td className="py-2">No</td>
-                                <td className="py-2">main.py - project</td>
-                            </tr>
-                            <tr className="border-b border-slate-800">
-                                <td className="py-2 font-mono text-cyan-400">start_time</td>
-                                <td className="py-2"><span className="text-emerald-400">Yes</span></td>
-                                <td className="py-2">2026-03-10T09:00:00</td>
-                            </tr>
-                            <tr className="border-b border-slate-800">
-                                <td className="py-2 font-mono text-cyan-400">end_time</td>
-                                <td className="py-2">No</td>
-                                <td className="py-2">2026-03-10T09:45:00</td>
-                            </tr>
-                            <tr className="border-b border-slate-800">
-                                <td className="py-2 font-mono text-cyan-400">duration_seconds</td>
-                                <td className="py-2"><span className="text-emerald-400">Yes</span></td>
-                                <td className="py-2">2700</td>
-                            </tr>
-                            <tr className="border-b border-slate-800">
-                                <td className="py-2 font-mono text-cyan-400">mouse_clicks</td>
-                                <td className="py-2">No</td>
-                                <td className="py-2">150</td>
-                            </tr>
-                            <tr>
-                                <td className="py-2 font-mono text-cyan-400">key_presses</td>
-                                <td className="py-2">No</td>
-                                <td className="py-2">800</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                {/* Required vs Optional Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
+                        <h3 className="text-sm font-semibold text-emerald-400 mb-3 uppercase tracking-wider">Required Fields</h3>
+                        <div className="space-y-2.5">
+                            <div>
+                                <span className="font-mono text-cyan-400 text-sm">app_name</span>
+                                <p className="text-xs text-slate-400 mt-0.5">Application or program name</p>
+                                <p className="text-xs text-slate-600 mt-0.5">Also accepts: Application, Program, Software, App Name…</p>
+                            </div>
+                            <div>
+                                <span className="font-mono text-cyan-400 text-sm">start_time</span>
+                                <p className="text-xs text-slate-400 mt-0.5">When the activity started</p>
+                                <p className="text-xs text-slate-600 mt-0.5">Also accepts: Start Date, Started At, Begin, Timestamp…</p>
+                            </div>
+                            <div>
+                                <span className="font-mono text-cyan-400 text-sm">duration</span>
+                                <span className="text-xs text-slate-500 ml-1">or</span>
+                                <span className="font-mono text-cyan-400 text-sm ml-1">end_time</span>
+                                <p className="text-xs text-slate-400 mt-0.5">Session length (seconds, minutes, or hours) or end time</p>
+                                <p className="text-xs text-slate-600 mt-0.5">Also accepts: Duration Seconds, Minutes, Hours, End Date, Elapsed…</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                        <h3 className="text-sm font-semibold text-slate-400 mb-3 uppercase tracking-wider">Optional Fields</h3>
+                        <div className="space-y-2.5">
+                            <div>
+                                <span className="font-mono text-cyan-400 text-sm">window_title</span>
+                                <p className="text-xs text-slate-500 mt-0.5">Window or tab title</p>
+                            </div>
+                            <div>
+                                <span className="font-mono text-cyan-400 text-sm">end_time</span>
+                                <p className="text-xs text-slate-500 mt-0.5">When the activity ended</p>
+                            </div>
+                            <div>
+                                <span className="font-mono text-cyan-400 text-sm">mouse_clicks</span>
+                                <p className="text-xs text-slate-500 mt-0.5">Total mouse clicks in session</p>
+                            </div>
+                            <div>
+                                <span className="font-mono text-cyan-400 text-sm">key_presses</span>
+                                <p className="text-xs text-slate-500 mt-0.5">Total key presses in session</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Accepted Formats */}
+                <div className="p-4 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                    <h3 className="text-sm font-semibold text-slate-400 mb-3 uppercase tracking-wider">Accepted Date/Time Formats</h3>
+                    <div className="flex flex-wrap gap-2">
+                        {[
+                            '2026-03-10T09:00:00',
+                            '2026-03-10 09:00:00',
+                            '03/10/2026 09:00 AM',
+                            '10/03/2026 09:00',
+                            'Mar 10, 2026',
+                            'Unix timestamps',
+                        ].map((fmt) => (
+                            <span key={fmt} className="text-xs px-2.5 py-1 rounded bg-slate-700/50 border border-slate-600/50 text-slate-300 font-mono">
+                                {fmt}
+                            </span>
+                        ))}
+                    </div>
+                    <p className="text-xs text-slate-600 mt-2">
+                        Delimiter auto-detection: comma, semicolon, tab, and pipe-separated files are all supported.
+                    </p>
                 </div>
             </motion.div>
         </div>
