@@ -3,416 +3,253 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-    Upload,
-    FileText,
-    CheckCircle,
-    AlertCircle,
-    Download,
-    ArrowRight,
-    Sparkles,
-    Info,
-    BarChart3,
-    BrainCircuit,
-    TrendingUp,
-    Activity,
-} from 'lucide-react';
+import { Upload, CheckCircle, Brain, Activity, Code, Clock } from 'lucide-react';
 import { uploadAPI } from '@/lib/api';
+import GradientText from '@/components/GradientText';
+import Pill from '@/components/Pill';
+import BackgroundSystem from '@/components/BackgroundSystem';
+
+function FloatingStat({ val, label, top, left, bottom, right, delay }: any) {
+    return (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1, transition: { delay, duration: 0.8 } }}
+            className={`absolute ${top ? `top-[${top}]` : ''} ${left ? `left-[${left}]` : ''} ${bottom ? `bottom-[${bottom}]` : ''} ${right ? `right-[${right}]` : ''} hidden lg:flex items-center gap-3 glass-card px-4 py-3 border border-white/10`}
+            style={{ 
+                top: top, left: left, bottom: bottom, right: right,
+                animation: `floatBob 6s ease-in-out infinite alternate ${delay}s`
+            }}
+            whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(99,102,241,0.15)' }}
+        >
+            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                <Activity className="w-4 h-4 text-sky-400" />
+            </div>
+            <div>
+                <div className="font-mono text-lg font-medium tracking-tight text-white/90">{val}</div>
+                <div className="text-[11px] uppercase tracking-wider text-white/40">{label}</div>
+            </div>
+        </motion.div>
+    );
+}
 
 export default function LandingUploadPage() {
     const router = useRouter();
     const [file, setFile] = useState<File | null>(null);
-    const [uploading, setUploading] = useState(false);
-    const [result, setResult] = useState<any>(null);
-    const [error, setError] = useState<string | null>(null);
     const [dragOver, setDragOver] = useState(false);
-    const [redirectCountdown, setRedirectCountdown] = useState<number | null>(null);
+    const [uploadState, setUploadState] = useState<'IDLE' | 'DRAGGING' | 'PARSING' | 'DONE'>('IDLE');
+    const [progress, setProgress] = useState(0);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Auto-redirect to dashboard after successful upload
-    useEffect(() => {
-        if (redirectCountdown === null) return;
-        if (redirectCountdown <= 0) {
-            router.push('/dashboard');
-            return;
-        }
-        const timer = setTimeout(() => setRedirectCountdown(redirectCountdown - 1), 1000);
-        return () => clearTimeout(timer);
-    }, [redirectCountdown, router]);
-
-    const handleDrop = (e: React.DragEvent) => {
+    const handleDrop = async (e: React.DragEvent) => {
         e.preventDefault();
         setDragOver(false);
         const droppedFile = e.dataTransfer.files[0];
         if (droppedFile?.name.endsWith('.csv')) {
-            setFile(droppedFile);
-            setResult(null);
-            setError(null);
-        } else {
-            setError('Please drop a .csv file');
+            await processFile(droppedFile);
         }
     };
 
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const selected = e.target.files?.[0];
         if (selected) {
-            setFile(selected);
-            setResult(null);
-            setError(null);
+            await processFile(selected);
         }
     };
 
-    const handleUpload = async () => {
-        if (!file) return;
-        setUploading(true);
-        setError(null);
-        setResult(null);
+    const processFile = async (selectedFile: File) => {
+        setFile(selectedFile);
+        setUploadState('PARSING');
+        
+        // Simulating parsing progress steps
+        for(let i=0; i<=100; i+=20) {
+            setProgress(i);
+            await new Promise(r => setTimeout(r, 200));
+        }
 
         try {
-            const res = await uploadAPI.uploadCSV(file);
-            setResult(res);
-            setFile(null);
-            // Start redirect countdown
-            setRedirectCountdown(5);
+            await uploadAPI.uploadCSV(selectedFile);
+            setUploadState('DONE');
+            setTimeout(() => {
+                router.push('/dashboard');
+            }, 600);
         } catch (err: any) {
-            console.error('Upload error:', err);
-            const detail = err?.response?.data?.detail;
-            if (err?.code === 'ECONNABORTED') {
-                setError('Upload timed out. The server may be waking up (free tier). Please wait 30 seconds and try again.');
-            } else if (err?.code === 'ERR_NETWORK' || err?.message?.includes('Network Error')) {
-                setError('Cannot connect to server. The server may be starting up — please wait 30 seconds and try again.');
-            } else if (detail) {
-                setError(detail);
-            } else {
-                setError('Upload failed. The server may be starting up — please wait 30 seconds and try again.');
-            }
-        } finally {
-            setUploading(false);
+            console.error(err);
+            setUploadState('IDLE');
+            setFile(null);
+            setProgress(0);
+            alert('Upload failed: ' + (err?.response?.data?.detail || err.message));
         }
     };
 
-    const sampleCSV = `app_name,window_title,start_time,end_time,duration_seconds,mouse_clicks,key_presses
-Visual Studio Code,main.py - project,2026-03-10T09:00:00,2026-03-10T09:45:00,2700,150,800
-Google Chrome,GitHub - Pull Request,2026-03-10T09:45:00,2026-03-10T10:15:00,1800,200,300
-Microsoft Teams,Sprint Meeting,2026-03-10T10:15:00,2026-03-10T11:00:00,2700,50,100
-Google Chrome,YouTube - Music,2026-03-10T11:00:00,2026-03-10T11:15:00,900,30,10
-Visual Studio Code,api.ts - frontend,2026-03-10T11:15:00,2026-03-10T12:30:00,4500,250,1500`;
-
-    const downloadSample = () => {
-        const blob = new Blob([sampleCSV], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'sample_activity_data.csv';
-        a.click();
-        URL.revokeObjectURL(url);
-    };
-
-    const features = [
-        { icon: BarChart3, title: 'Dashboard Analytics', desc: 'Visualize your app usage with interactive charts' },
-        { icon: BrainCircuit, title: 'ML Insights', desc: 'AI-powered productivity scoring and classification' },
-        { icon: TrendingUp, title: 'Forecast & Burnout', desc: 'Predict peak hours and monitor work health' },
-        { icon: Activity, title: 'Session History', desc: 'Browse, filter, and export your activity sessions' },
-    ];
-
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="relative min-h-screen flex flex-col items-center justify-center px-5 sm:px-10 overflow-hidden font-sans">
+            <BackgroundSystem />
+            
+            {/* Top Bar Logo */}
+            <div className="absolute top-0 left-0 w-full p-6 flex justify-between items-center z-10">
+                <div className="flex items-center gap-2">
+                    <GradientText className="text-xl font-bold tracking-tight">Activity Monitor</GradientText>
+                </div>
+                <Pill color="emerald" className="hidden sm:flex self-start mt-1 gap-2 border-emerald-500/20 bg-emerald-500/10">
+                    <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span className="text-[10px] text-emerald-400 font-semibold tracking-wider">LIVE DATA STREAM</span>
+                </Pill>
+            </div>
+
+            {/* Floating Stats - Decoration */}
+            <FloatingStat top="20%" left="10%" val="2,401" label="HOURS TRACKED" delay={0} />
+            <FloatingStat top="15%" right="12%" val="98.2%" label="ML ACCURACY" delay={0.5} />
+            <FloatingStat bottom="25%" left="8%" val="Top 5%" label="DEEP WORK" delay={1} />
+            <FloatingStat bottom="30%" right="10%" val="No Risk" label="BURNOUT CHANCE" delay={1.5} />
+
             {/* Hero Section */}
-            <div className="flex-1 flex items-center justify-center px-4 py-12">
-                <div className="w-full max-w-3xl space-y-8">
+            <motion.div
+                variants={{
+                    hidden: {},
+                    visible: { transition: { staggerChildren: 0.08 } }
+                }}
+                initial="hidden"
+                animate="visible"
+                className="w-full max-w-[640px] flex flex-col items-center text-center z-10"
+            >
+                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
+                    <Pill color="indigo" className="mb-6 flex items-center gap-2 pr-4 bg-indigo-500/10 border-indigo-500/20">
+                        <Brain className="w-3.5 h-3.5 text-indigo-400" />
+                        <span className="text-indigo-300">Powered by Local Next.js Models</span>
+                    </Pill>
+                </motion.div>
 
-                    {/* Logo & Title */}
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-center"
-                    >
-                        <div className="inline-flex items-center gap-3 mb-4">
-                            <div className="p-3 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-500">
-                                <Activity className="w-8 h-8 text-white" />
-                            </div>
-                        </div>
-                        <h1 className="text-4xl md:text-5xl font-bold gradient-text mb-3">
-                            Activity Monitor
-                        </h1>
-                        <p className="text-slate-400 text-lg max-w-lg mx-auto">
-                            Upload your activity data to get ML-powered productivity insights, forecasts, and analytics.
-                        </p>
-                    </motion.div>
+                <motion.h1 
+                    variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+                    className="text-[clamp(40px,7vw,72px)] font-bold leading-[1.1] tracking-[-0.03em] text-white/95 mb-4 font-['Outfit']"
+                >
+                    Understand your <br className="hidden sm:block" />
+                    <span className="bg-clip-text text-transparent bg-[linear-gradient(200deg,#fff,#6366f1,#38bdf8)] animate-[shimmer_4s_ease_infinite] bg-[length:200%_auto]">
+                        productivity patterns
+                    </span>
+                </motion.h1>
 
-                    {/* Smart Detection Banner */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="flex items-start gap-3 px-4 py-3 rounded-lg bg-cyan-500/5 border border-cyan-500/20"
-                    >
-                        <Sparkles className="w-5 h-5 text-cyan-400 mt-0.5 shrink-0" />
-                        <p className="text-sm text-slate-300">
-                            <span className="text-cyan-400 font-medium">Smart Column Detection</span> — Upload CSV files in any format. The system automatically detects and maps your columns. Just include application name, start time, and either a duration or end time.
-                        </p>
-                    </motion.div>
+                <motion.p 
+                    variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+                    className="text-[16px] text-white/50 max-w-[480px] mb-12 leading-relaxed font-light"
+                >
+                    Drop your activity logs. Our local machine learning models map your focus hours, categorize apps, and predict burnout risk.
+                </motion.p>
 
-                    {/* Upload Zone */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className={`glass p-10 border-2 border-dashed transition-colors cursor-pointer ${
-                            dragOver ? 'border-cyan-500 bg-cyan-500/5' : 'border-slate-600 hover:border-slate-500'
-                        }`}
-                        onClick={() => fileInputRef.current?.click()}
-                        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                        onDragLeave={() => setDragOver(false)}
-                        onDrop={handleDrop}
-                    >
-                        <div className="text-center">
-                            <Upload className={`w-14 h-14 mx-auto mb-4 ${dragOver ? 'text-cyan-400' : 'text-slate-500'}`} />
-                            <h3 className="text-xl font-semibold mb-2">
-                                {file ? file.name : 'Drop your CSV file here'}
-                            </h3>
-                            <p className="text-slate-400 text-sm">
-                                {file
-                                    ? `${(file.size / 1024).toFixed(1)} KB — Click "Upload & Analyze" to import`
-                                    : 'or click to browse files • Any CSV format accepted'}
-                            </p>
-                        </div>
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept=".csv"
-                            onChange={handleFileSelect}
-                            className="hidden"
+                {/* Upload Card */}
+                <motion.div 
+                    variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0,0.55,0.45,1] } } }}
+                    className="w-full"
+                >
+                    <div className="glass-card-elevated relative bg-white/[0.04] p-[2px] rounded-[32px] group">
+                        {/* Gradient Wrapper border */}
+                        <div className={`absolute inset-0 rounded-[32px] -z-10 bg-gradient-to-br from-indigo-500 via-sky-400 to-violet-500 transition-opacity duration-500 
+                            ${dragOver || uploadState === 'PARSING' ? 'opacity-100' : 'opacity-[0.15] group-hover:opacity-30'}`} 
                         />
-                    </motion.div>
-
-                    {/* Upload Button + Download Sample */}
-                    <AnimatePresence>
-                        {file && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                className="flex gap-4 justify-center"
+                        
+                        <div className="bg-[#0a0a16]/90 backdrop-blur-[60px] rounded-[30px] p-6 pb-5 border border-white/5">
+                            
+                            {/* Drop Zone */}
+                            <motion.div 
+                                className={`relative h-[200px] rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors overflow-hidden
+                                    ${dragOver ? 'border-transparent bg-indigo-500/10' : 'border-white/10 hover:border-white/20 bg-white/[0.02]'}`}
+                                onClick={() => uploadState === 'IDLE' && fileInputRef.current?.click()}
+                                onDragOver={(e) => { e.preventDefault(); setDragOver(true); if(uploadState === 'IDLE') setUploadState('DRAGGING'); }}
+                                onDragLeave={() => { setDragOver(false); if(uploadState === 'DRAGGING') setUploadState('IDLE'); }}
+                                onDrop={handleDrop}
+                                whileHover={uploadState === 'IDLE' ? { scale: 1.01 } : {}}
                             >
-                                <button
-                                    onClick={handleUpload}
-                                    disabled={uploading}
-                                    className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2 text-lg"
-                                >
-                                    {uploading ? (
-                                        <>
-                                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                            Uploading...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Upload className="w-5 h-5" />
-                                            Upload & Analyze
-                                        </>
-                                    )}
-                                </button>
-                                <button
-                                    onClick={() => { setFile(null); setError(null); }}
-                                    className="px-6 py-3 bg-slate-700 rounded-lg font-medium hover:bg-slate-600 transition-colors"
-                                >
-                                    Cancel
-                                </button>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-
-                    {!file && !result && !error && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.3 }}
-                            className="flex justify-center gap-4"
-                        >
-                            <button
-                                onClick={downloadSample}
-                                className="flex items-center gap-2 px-5 py-2.5 bg-slate-700 rounded-lg text-sm hover:bg-slate-600 transition-colors"
-                            >
-                                <Download className="w-4 h-4" />
-                                Download Sample CSV
-                            </button>
-                            <button
-                                onClick={() => router.push('/dashboard')}
-                                className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 border border-slate-600 rounded-lg text-sm hover:bg-slate-700 transition-colors text-slate-300"
-                            >
-                                Skip to Dashboard
-                                <ArrowRight className="w-4 h-4" />
-                            </button>
-                        </motion.div>
-                    )}
-
-                    {/* Success → Redirect */}
-                    <AnimatePresence>
-                        {result && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                className="glass p-6 border border-emerald-500/30 bg-emerald-500/5 space-y-4"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <CheckCircle className="w-6 h-6 text-emerald-400 shrink-0" />
-                                    <div className="flex-1">
-                                        <h3 className="font-semibold text-emerald-400">{result.message}</h3>
-                                        <p className="text-sm text-slate-400 mt-1">
-                                            Redirecting to Dashboard in {redirectCountdown} second{redirectCountdown !== 1 ? 's' : ''}...
-                                        </p>
-                                    </div>
-                                    <button
-                                        onClick={() => router.push('/dashboard')}
-                                        className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-                                    >
-                                        Go Now
-                                        <ArrowRight className="w-4 h-4" />
-                                    </button>
-                                </div>
-
-                                {/* Column Mapping Report */}
-                                {result.column_mapping && Object.keys(result.column_mapping).length > 0 && (
-                                    <div className="pt-3 border-t border-emerald-500/20">
-                                        <p className="text-xs text-slate-500 uppercase tracking-wider mb-2 font-medium">Column Mapping</p>
-                                        <div className="flex flex-wrap gap-2">
-                                            {Object.entries(result.column_mapping).map(([field, csvCol]: [string, any]) => (
-                                                <span key={field} className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700">
-                                                    <span className="text-slate-400">{csvCol}</span>
-                                                    <ArrowRight className="w-3 h-3 text-emerald-500" />
-                                                    <span className="text-emerald-400 font-medium">{field}</span>
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
+                                {dragOver && (
+                                    <div className="absolute inset-[-4px] rounded-2xl border-2 border-transparent bg-[conic-gradient(from_0deg,#6366f1,#38bdf8,#a855f7,#6366f1)] [-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] [-webkit-mask-composite:xor] mask-composite-exclude p-[2px] animate-[spinBorder_3s_linear_infinite]" />
                                 )}
 
-                                {/* Skipped Rows Info */}
-                                {result.rows_skipped > 0 && (
-                                    <div className="pt-3 border-t border-yellow-500/20">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <Info className="w-4 h-4 text-yellow-400" />
-                                            <p className="text-sm text-yellow-400">
-                                                {result.rows_skipped} row{result.rows_skipped !== 1 ? 's' : ''} skipped
-                                            </p>
-                                        </div>
-                                        {result.skip_reasons && (
-                                            <div className="flex flex-wrap gap-2 mt-1">
-                                                {Object.entries(result.skip_reasons).map(([reason, count]: [string, any]) => (
-                                                    <span key={reason} className="text-xs px-2 py-0.5 rounded bg-yellow-500/10 text-yellow-300 border border-yellow-500/20">
-                                                        {reason}: {count}
-                                                    </span>
+                                <AnimatePresence mode="wait">
+                                    {uploadState === 'IDLE' && !dragOver && (
+                                        <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center pointer-events-none">
+                                            <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-4 text-white/40 shadow-xl">
+                                                <Upload className="w-5 h-5" />
+                                            </div>
+                                            <h3 className="text-white/90 font-medium mb-1">Drop your CSV here</h3>
+                                            <div className="flex items-center gap-2 mt-2">
+                                                <span className="text-[10px] font-mono text-white/30 px-2 py-0.5 rounded border border-white/10 bg-white/5">app_name</span>
+                                                <span className="text-[10px] font-mono text-white/30 px-2 py-0.5 rounded border border-white/10 bg-white/5">start_time</span>
+                                                <span className="text-[10px] font-mono text-white/30 px-2 py-0.5 rounded border border-white/10 bg-white/5">duration</span>
+                                            </div>
+                                        </motion.div>
+                                    )}
+
+                                    {(dragOver || uploadState === 'DRAGGING') && (
+                                        <motion.div key="dragging" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="flex flex-col items-center pointer-events-none">
+                                            <Upload className="w-12 h-12 text-indigo-400 mb-3 animate-bounce" />
+                                            <h3 className="text-indigo-300 font-medium tracking-wide">Release to upload</h3>
+                                        </motion.div>
+                                    )}
+
+                                    {uploadState === 'PARSING' && (
+                                        <motion.div key="parsing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full px-8 pointer-events-none">
+                                            <div className="flex justify-between items-end mb-3">
+                                                <span className="text-sm font-medium text-white/70">Analyzing dataset...</span>
+                                                <span className="font-mono text-indigo-400 text-sm">{progress}%</span>
+                                            </div>
+                                            <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden mb-4">
+                                                <motion.div 
+                                                    className="h-full bg-gradient-to-r from-indigo-500 to-sky-400"
+                                                    initial={{ width: 0 }}
+                                                    animate={{ width: `${progress}%` }}
+                                                    transition={{ ease: "linear", duration: 0.2 }}
+                                                />
+                                            </div>
+                                            <div className="flex justify-between px-1">
+                                                {[...Array(6)].map((_, i) => (
+                                                    <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i <= progress/20 ? 'w-4 bg-sky-400 shadow-[0_0_10px_rgba(56,189,248,0.5)]' : 'w-1.5 bg-white/10'}`} />
                                                 ))}
                                             </div>
-                                        )}
-                                    </div>
-                                )}
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                                        </motion.div>
+                                    )}
 
-                    {/* Error */}
-                    <AnimatePresence>
-                        {error && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                className="glass p-6 border border-red-500/30 bg-red-500/5"
-                            >
-                                <div className="flex items-start gap-3">
-                                    <AlertCircle className="w-6 h-6 text-red-400 shrink-0 mt-0.5" />
-                                    <div>
-                                        <h3 className="font-semibold text-red-400">Upload Failed</h3>
-                                        <p className="text-sm text-slate-400 mt-1">{error}</p>
-                                    </div>
-                                </div>
+                                    {uploadState === 'DONE' && (
+                                        <motion.div key="done" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center text-emerald-400 pointer-events-none">
+                                            <CheckCircle className="w-12 h-12 mb-3 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
+                                            <h3 className="font-medium tracking-wide">Done! Redirecting...</h3>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                                <input ref={fileInputRef} type="file" accept=".csv" onChange={handleFileSelect} className="hidden" />
                             </motion.div>
-                        )}
-                    </AnimatePresence>
 
-                    {/* Feature Cards */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4 }}
-                        className="grid grid-cols-2 md:grid-cols-4 gap-3"
-                    >
-                        {features.map((f, i) => (
-                            <motion.div
-                                key={f.title}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.4 + i * 0.1 }}
-                                className="glass p-4 text-center group hover:border-cyan-500/30 transition-colors"
-                            >
-                                <f.icon className="w-6 h-6 text-cyan-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                                <h3 className="text-sm font-semibold mb-1">{f.title}</h3>
-                                <p className="text-xs text-slate-500">{f.desc}</p>
-                            </motion.div>
-                        ))}
-                    </motion.div>
-
-                    {/* CSV Format: collapsible */}
-                    <motion.details
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.5 }}
-                        className="glass overflow-hidden"
-                    >
-                        <summary className="p-5 cursor-pointer flex items-center gap-3 hover:bg-slate-800/30 transition-colors select-none">
-                            <FileText className="w-5 h-5 text-slate-400" />
-                            <span className="font-semibold">CSV Format Guide</span>
-                            <span className="text-xs text-slate-500 ml-auto">Click to expand</span>
-                        </summary>
-                        <div className="px-5 pb-5 space-y-4 border-t border-slate-700/50">
-                            {/* Required vs Optional Fields */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                                <div className="p-4 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
-                                    <h3 className="text-sm font-semibold text-emerald-400 mb-3 uppercase tracking-wider">Required Fields</h3>
-                                    <div className="space-y-2.5">
-                                        <div>
-                                            <span className="font-mono text-cyan-400 text-sm">app_name</span>
-                                            <p className="text-xs text-slate-400 mt-0.5">Also accepts: Application, Program, Software...</p>
-                                        </div>
-                                        <div>
-                                            <span className="font-mono text-cyan-400 text-sm">start_time</span>
-                                            <p className="text-xs text-slate-400 mt-0.5">Also accepts: Start Date, Started At, Timestamp...</p>
-                                        </div>
-                                        <div>
-                                            <span className="font-mono text-cyan-400 text-sm">duration</span>
-                                            <span className="text-xs text-slate-500 ml-1">or</span>
-                                            <span className="font-mono text-cyan-400 text-sm ml-1">end_time</span>
-                                            <p className="text-xs text-slate-400 mt-0.5">Seconds, minutes, or hours — or an end time column</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="p-4 rounded-lg bg-slate-800/50 border border-slate-700/50">
-                                    <h3 className="text-sm font-semibold text-slate-400 mb-3 uppercase tracking-wider">Optional Fields</h3>
-                                    <div className="space-y-2.5 text-xs text-slate-500">
-                                        <p><span className="font-mono text-cyan-400">window_title</span> — Window or tab title</p>
-                                        <p><span className="font-mono text-cyan-400">end_time</span> — When activity ended</p>
-                                        <p><span className="font-mono text-cyan-400">mouse_clicks</span> — Click count</p>
-                                        <p><span className="font-mono text-cyan-400">key_presses</span> — Keystroke count</p>
-                                    </div>
-                                </div>
+                            <div className="mt-5 flex items-center gap-3">
+                                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                                <span className="text-[10px] uppercase tracking-widest text-white/30 font-medium">Smart Detection Active</span>
+                                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
                             </div>
 
-                            {/* Date Formats */}
-                            <div className="p-4 rounded-lg bg-slate-800/50 border border-slate-700/50">
-                                <h3 className="text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wider">Accepted Date/Time Formats</h3>
-                                <div className="flex flex-wrap gap-2">
-                                    {['2026-03-10T09:00:00', '2026-03-10 09:00:00', '03/10/2026 09:00 AM', '10/03/2026 09:00', 'Mar 10, 2026', 'Unix timestamps'].map((fmt) => (
-                                        <span key={fmt} className="text-xs px-2.5 py-1 rounded bg-slate-700/50 border border-slate-600/50 text-slate-300 font-mono">{fmt}</span>
-                                    ))}
-                                </div>
-                                <p className="text-xs text-slate-600 mt-2">Also supports semicolon, tab, and pipe delimiters.</p>
+                            <div className="flex justify-center flex-wrap gap-2 mt-5">
+                                <span className="text-[11px] px-3 py-1 bg-white/[0.03] border border-white/[0.05] rounded-full text-white/50 flex items-center gap-1.5">
+                                    <Brain className="w-3 h-3 text-violet-400" /> Pattern Recognition
+                                </span>
+                                <span className="text-[11px] px-3 py-1 bg-white/[0.03] border border-white/[0.05] rounded-full text-white/50 flex items-center gap-1.5">
+                                    <Activity className="w-3 h-3 text-emerald-400" /> Peak Hours
+                                </span>
+                                <span className="text-[11px] px-3 py-1 bg-white/[0.03] border border-white/[0.05] rounded-full text-white/50 flex items-center gap-1.5">
+                                    <Code className="w-3 h-3 text-sky-400" /> App Context
+                                </span>
                             </div>
+
                         </div>
-                    </motion.details>
-                </div>
-            </div>
+                    </div>
+                </motion.div>
+
+                <motion.p 
+                    variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { delay: 0.9 } } }}
+                    className="mt-8 text-xs text-white/30 flex items-center gap-2 group cursor-default"
+                >
+                    <span className="w-4 h-4 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white/10 transition-colors">🔒</span>
+                    All data is processed strictly locally. It never leaves your machine.
+                </motion.p>
+            </motion.div>
         </div>
     );
 }

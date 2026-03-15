@@ -1,17 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Activity, Clock, Layers, BrainCircuit, AlertTriangle, TrendingUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Activity, Clock, Trophy, BrainCircuit, ArrowUpRight, ArrowDownRight, Layers } from 'lucide-react';
 import { analyticsAPI, insightsAPI } from '@/lib/api';
 import dynamic from 'next/dynamic';
+import GlassCard from '@/components/GlassCard';
+import Pill from '@/components/Pill';
+import { useCountUp } from '@/hooks/useCountUp';
 
-// Lazy-load heavy chart components so they don't block initial render
+// Lazy-load charts
 const AppDistributionChart = dynamic(() => import('@/components/charts/AppDistributionChart'), {
     loading: () => <ChartSkeleton />,
     ssr: false,
 });
-const TopAppsChart = dynamic(() => import('@/components/charts/TopAppsChart'), {
+const TopAppsBar = dynamic(() => import('@/components/charts/TopAppsBar'), {
     loading: () => <ChartSkeleton />,
     ssr: false,
 });
@@ -22,32 +25,46 @@ const ActivityTimelineChart = dynamic(() => import('@/components/charts/Activity
 
 function ChartSkeleton() {
     return (
-        <div className="h-64 flex items-center justify-center">
-            <div className="w-full h-full bg-slate-800/50 rounded-lg animate-pulse" />
+        <div className="h-[280px] flex items-center justify-center">
+            <div className="w-full h-full bg-white/[0.02] rounded-2xl animate-pulse" />
         </div>
     );
 }
 
-function StatCardSkeleton() {
+function AnimatedStatCard({ title, value, unit, icon: Icon, trend, delay, isSmall = false }: any) {
+    const isNumber = typeof value === 'number';
+    const displayValue = useCountUp(isNumber ? value : 0, 1500);
+    const finalVal = isNumber ? displayValue.toFixed(0) : value;
+
     return (
-        <div className="glass p-6 animate-pulse">
-            <div className="flex items-center justify-between">
-                <div className="space-y-2">
-                    <div className="h-3 w-24 bg-slate-700 rounded" />
-                    <div className="h-8 w-16 bg-slate-700 rounded" />
+        <motion.div
+            variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, delay } } }}
+        >
+            <GlassCard className="p-5 h-full relative group hover:-translate-y-1 transition-transform duration-300">
+                <div className="flex justify-between items-start mb-4">
+                    <div className="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 group-hover:bg-indigo-500/20 transition-colors">
+                        <Icon className="w-5 h-5" />
+                    </div>
+                    {trend !== undefined && (
+                        <Pill color={trend >= 0 ? "emerald" : "red"} className="text-[10px] px-2 py-0.5">
+                            {trend >= 0 ? <ArrowUpRight className="w-3 h-3 mr-0.5" /> : <ArrowDownRight className="w-3 h-3 mr-0.5" />}
+                            {Math.abs(trend)}%
+                        </Pill>
+                    )}
                 </div>
-                <div className="w-12 h-12 bg-slate-700 rounded-lg" />
-            </div>
-        </div>
+                <div>
+                    <h3 className="text-white/50 text-xs font-medium uppercase tracking-wider mb-1">{title}</h3>
+                    <div className="flex items-baseline gap-1.5">
+                        <span className={`font-mono font-medium tracking-tight text-white/90 ${isSmall ? 'text-2xl' : 'text-4xl'}`}>
+                            {finalVal}
+                        </span>
+                        {unit && <span className="text-white/40 font-mono text-sm">{unit}</span>}
+                    </div>
+                </div>
+            </GlassCard>
+        </motion.div>
     );
 }
-
-const RISK_COLORS: Record<string, string> = {
-    LOW: 'from-emerald-500 to-green-500',
-    MEDIUM: 'from-yellow-500 to-orange-500',
-    HIGH: 'from-red-500 to-pink-500',
-    UNKNOWN: 'from-slate-500 to-slate-400',
-};
 
 export default function DashboardPage() {
     const [overview, setOverview] = useState<any>(null);
@@ -88,114 +105,117 @@ export default function DashboardPage() {
         setMlData(ml);
     };
 
-    const productivityScore = mlData?.productivity?.productivity_score ?? null;
-    const burnoutRisk = mlData?.burnout?.risk_level ?? 'UNKNOWN';
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+    };
 
-    const stats = [
-        {
-            title: 'Productivity Score',
-            value: productivityScore ?? '—',
-            unit: '/100',
-            icon: BrainCircuit,
-            color: productivityScore >= 75 ? 'from-emerald-500 to-cyan-500' :
-                   productivityScore >= 50 ? 'from-yellow-500 to-orange-500' :
-                   'from-cyan-500 to-blue-500',
-        },
-        {
-            title: 'Sessions Today',
-            value: overview?.total_sessions_today ?? '—',
-            unit: 'sessions',
-            icon: Activity,
-            color: 'from-purple-500 to-pink-500',
-        },
-        {
-            title: 'Apps Tracked',
-            value: overview?.total_apps_tracked ?? '—',
-            unit: 'apps',
-            icon: Layers,
-            color: 'from-green-500 to-emerald-500',
-        },
-        {
-            title: 'Burnout Risk',
-            value: burnoutRisk,
-            unit: '',
-            icon: AlertTriangle,
-            color: RISK_COLORS[burnoutRisk] || 'from-slate-500 to-slate-400',
-        },
-    ];
+    const prodScore = mlData?.productivity?.productivity_score ?? null;
+    let totalMinutes = 0;
+    if (chartData.timeline) {
+        chartData.timeline.forEach((t: any) => totalMinutes += (t.active_minutes || 0));
+    }
+    const totalHours = totalMinutes > 0 ? (totalMinutes / 60) : 0;
+    const topApp = chartData.topApps && chartData.topApps.length > 0 ? chartData.topApps[0].app_name : '—';
+    const totalSessions = overview?.total_sessions_today ?? 0;
+    const avgSession = totalSessions > 0 && totalMinutes > 0 ? (totalMinutes / totalSessions) : 0;
 
     return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-bold gradient-text">Dashboard</h1>
-                <p className="text-slate-400 mt-1">ML-powered activity analytics</p>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {overview === null && !mlData
-                    ? Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
-                    : stats.map((stat) => (
-                        <motion.div
-                            key={stat.title}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="glass p-6 hover:scale-105 transition-transform cursor-pointer"
-                        >
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-slate-400 text-sm">{stat.title}</p>
-                                    <div className="flex items-baseline gap-2 mt-2">
-                                        <span className="text-3xl font-bold">{stat.value}</span>
-                                        <span className="text-slate-400 text-sm">{stat.unit}</span>
-                                    </div>
-                                </div>
-                                <div className={`p-3 rounded-lg bg-gradient-to-br ${stat.color}`}>
-                                    <stat.icon className="w-6 h-6 text-white" />
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))}
-            </div>
-
-            {/* ML Summary Row */}
-            {mlData?.productivity && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {[
-                        { label: 'Deep Work', value: `${mlData.productivity.deep_work_hours}h`, color: 'text-cyan-400' },
-                        { label: 'Communication', value: `${mlData.productivity.communication_hours}h`, color: 'text-purple-400' },
-                        { label: 'Distraction', value: `${mlData.productivity.distraction_hours}h`, color: 'text-red-400' },
-                    ].map((item) => (
-                        <motion.div
-                            key={item.label}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="glass p-4 flex items-center justify-between"
-                        >
-                            <span className="text-slate-400 text-sm">{item.label}</span>
-                            <span className={`text-xl font-bold ${item.color}`}>{item.value}</span>
-                        </motion.div>
-                    ))}
+        <motion.div variants={containerVariants} initial="hidden" animate="visible" className="pb-10 font-sans">
+            <div className="flex items-center justify-between mb-8">
+                <div>
+                    <h1 className="text-2xl font-semibold tracking-tight text-white/90">Dashboard Overview</h1>
+                    <p className="text-sm text-white/40 mt-1">Your local productivity metrics</p>
                 </div>
-            )}
-
-            {/* Charts Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="glass p-6">
-                    <h2 className="text-xl font-semibold mb-4">App Usage Distribution</h2>
-                    <AppDistributionChart data={chartData.distribution} />
-                </div>
-                <div className="glass p-6">
-                    <h2 className="text-xl font-semibold mb-4">Top 5 Applications</h2>
-                    <TopAppsChart data={chartData.topApps} />
+                {/* Date range picker placeholder */}
+                <div className="hidden md:flex glass-card px-4 py-2 border-white/5 text-sm text-white/60 cursor-pointer hover:bg-white/5 transition-colors">
+                    Last 7 Days
                 </div>
             </div>
 
-            <div className="glass p-6">
-                <h2 className="text-xl font-semibold mb-4">Activity Timeline (Today)</h2>
-                <ActivityTimelineChart data={chartData.timeline} />
+            {/* Row 1: Key Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
+                <AnimatedStatCard 
+                    title="Active Time Today" 
+                    value={totalHours} 
+                    unit="hrs" 
+                    icon={Clock} 
+                    trend={12} 
+                    delay={0.1} 
+                />
+                <AnimatedStatCard 
+                    title="Top Application" 
+                    value={topApp} 
+                    unit="" 
+                    icon={Trophy} 
+                    delay={0.2} 
+                />
+                <AnimatedStatCard 
+                    title="Productivity Score" 
+                    value={prodScore !== null ? prodScore : 0} 
+                    unit="/100" 
+                    icon={BrainCircuit} 
+                    trend={5} 
+                    delay={0.3} 
+                />
             </div>
-        </div>
+
+            {/* Row 2: Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { delay: 0.4 } } }} className="lg:col-span-2 relative">
+                    <GlassCard className="p-6 h-full flex flex-col">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-white/80 font-medium font-sans">Activity Timeline</h2>
+                            <span className="text-xs text-white/30 uppercase tracking-widest font-mono">Today</span>
+                        </div>
+                        <div className="flex-1 min-h-[280px]">
+                            <ActivityTimelineChart data={chartData.timeline} />
+                        </div>
+                    </GlassCard>
+                </motion.div>
+                
+                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { delay: 0.5 } } }} className="relative">
+                    <GlassCard className="p-6 h-full flex flex-col">
+                        <div className="mb-6">
+                            <h2 className="text-white/80 font-medium font-sans">Time Distribution</h2>
+                        </div>
+                        <div className="flex-1 flex flex-col justify-center min-h-[280px]">
+                            <AppDistributionChart data={chartData.distribution} />
+                        </div>
+                    </GlassCard>
+                </motion.div>
+            </div>
+
+            {/* Row 3: Smaller Details */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { delay: 0.6 } } }} className="lg:col-span-1">
+                    <GlassCard className="p-6 h-full">
+                        <div className="mb-6">
+                            <h2 className="text-white/80 font-medium font-sans">Top Applications</h2>
+                        </div>
+                        <TopAppsBar data={chartData.topApps} />
+                    </GlassCard>
+                </motion.div>
+
+                <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <AnimatedStatCard 
+                        title="Sessions Logged" 
+                        value={totalSessions} 
+                        unit="today" 
+                        icon={Layers} 
+                        isSmall 
+                        delay={0.7} 
+                    />
+                    <AnimatedStatCard 
+                        title="Avg Session Length" 
+                        value={avgSession} 
+                        unit="min" 
+                        icon={Activity} 
+                        isSmall 
+                        delay={0.8} 
+                    />
+                </div>
+            </div>
+        </motion.div>
     );
 }

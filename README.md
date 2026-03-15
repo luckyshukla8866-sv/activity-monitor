@@ -1,351 +1,161 @@
-# Activity Monitoring and Analytics Web Application
+# Activity Monitor & ML Analytics Platform
 
-A comprehensive full-stack desktop activity monitoring system that tracks user interactions, detects active applications, captures screenshots, and provides powerful analytics through a modern web dashboard.
+A comprehensive full-stack desktop activity monitoring system and intelligent analytics platform. It automatically tracks user interactions, captures context, and—most importantly—uses **Machine Learning to provide productivity insights, peak hour forecasting, and burnout risk analysis**.
 
 ![Activity Monitor](https://img.shields.io/badge/Python-3.9+-blue.svg)
 ![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-## 🚀 Features
+## 🌐 Live Deployment
+The application is fully deployed and accessible online! Check out the live version:
+- **Frontend (Vercel)**: [https://activity-monitor-seven.vercel.app](https://activity-monitor-seven.vercel.app)
+- **Backend API (Render)**: [https://activity-monitor-qmx3.onrender.com/docs](https://activity-monitor-qmx3.onrender.com/docs) *(Swagger UI)*
 
-### Monitoring Engine
-- **Real-time Activity Tracking**: Mouse and keyboard input detection
-- **Window Detection**: Automatically identifies active applications and window titles
-- **Idle Detection**: Configurable timeout to detect user inactivity
-- **Screenshot Capture**: Periodic screenshots during active sessions with compression and encryption
-- **Session Management**: Tracks application usage sessions with timestamps and duration
-- **System Tray Integration**: Background service with start/stop controls
+## ✨ Core Features
 
-### Web Dashboard
-- **Modern UI**: Dark theme with glassmorphism effects and smooth animations
-- **Analytics Overview**: Total active hours, sessions, and app distribution
-- **Interactive Charts**: Pie charts, line graphs, and bar charts for data visualization
-- **Session Browser**: Filterable, paginated list of all activity sessions
-- **Screenshot Viewer**: Grid view with modal zoom functionality
-- **Data Export**: CSV export for external analysis
-- **Responsive Design**: Works on desktop, tablet, and mobile
+### 🧠 ML-Powered Analytics
+- **Smart CSV Data Import**: Upload historical activity data in *any* CSV format. The intelligent column-mapping engine automatically detects column names (`app_name`, timestamps, and durations) bridging the gap between external data and internal analytics.
+- **Productivity Scoring**: AI-driven categorization of apps into Deep Work, Communication, and Distraction to generate an overall productivity score.
+- **Burnout Risk Detection**: Analyzes working hours, session lengths, and overtime to calculate a burnout risk score and provide actionable health recommendations.
+- **Peak Hour Forecasting**: Predictive algorithms analyze your daily patterns to highlight your most productive hours.
 
-### Security & Privacy
-- **Screenshot Encryption**: Fernet symmetric encryption for stored screenshots
-- **Password Hashing**: bcrypt for secure user authentication
-- **JWT Authentication**: Secure API access with token-based auth
-- **RBAC**: Role-based access control for multi-user scenarios
+### 🕵️‍♂️ Monitoring Engine
+- **Real-time Activity Tracking**: Mouse and keyboard input detection.
+- **Window Detection**: Automatically identifies active applications and window titles.
+- **Idle Detection**: Configurable timeout to detect user inactivity.
+- **Backend Service**: Runs silently in the background (system tray integration available).
 
-### API & Interoperability
-- **RESTful API**: Complete FastAPI backend with OpenAPI documentation
-- **WebSocket Support**: Real-time updates for dashboard
-- **Cross-language Compatible**: JSON API accessible from any programming language
+### 📊 Modern Web Dashboard
+- **Sleek UI/UX**: State-of-the-art dark theme, glassmorphism UI, and smooth Framer Motion animations.
+- **Interactive Charts**: Rendered with Recharts for App Distribution, Activity Timelines, and Top Applications.
+- **Session Browser**: Filter, manage, and bulk-delete recorded activity sessions.
+- **Data Export**: Export your processed analytics and sessions to CSV.
+
+## 🛠️ Technology Stack
+
+**Frontend:**
+- **Next.js 14** (App Router)
+- **React & TypeScript**
+- **Tailwind CSS** (with Glassmorphism design system)
+- **Framer Motion** (Animations)
+- **Recharts** (Data Visualization)
+- **Lucide React** (Icons)
+
+**Backend:**
+- **Python 3.9+**
+- **FastAPI** (High-performance REST API toolkit)
+- **SQLAlchemy** (Database ORM)
+- **Pandas / Built-in logic** (Data processing & ML Insights)
+- **Pynput & Cryptography** (Monitoring & Security)
 
 ## 📋 Prerequisites
 
 - **Python**: 3.9 or higher
-- **Node.js**: 16 or higher
+- **Node.js**: 16 or higher (v18+ recommended)
 - **npm**: 8 or higher
-- **Windows**: Windows 10/11 (for full functionality)
+- **Windows**: Windows 10/11 (required for the desktop tracking engine modules)
 
-## 🛠️ Installation
+## 🚀 Quick Start Guide
 
 ### 1. Clone the Repository
-
 ```bash
 git clone <repository-url>
 cd activity-monitor
 ```
 
 ### 2. Backend Setup
-
 ```bash
 cd backend
 
-# Create virtual environment
+# Create and activate virtual environment
 python -m venv venv
-
-# Activate virtual environment
-# Windows:
-venv\Scripts\activate
-# Linux/Mac:
-source venv/bin/activate
+venv\Scripts\activate  # On Linux/Mac: source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Copy environment template
+# Copy environment config
 copy .env.example .env
 
-# Generate encryption key
-python -c "from api.utils.encryption import EncryptionManager; print(EncryptionManager.generate_key())"
-
-# Add the generated key to .env file as ENCRYPTION_KEY
+# Initialize the database
+python api/database.py
 ```
 
 ### 3. Frontend Setup
-
 ```bash
 cd frontend
 
 # Install dependencies
 npm install
 
-# Create environment file
+# Point to your local backend API
 echo NEXT_PUBLIC_API_URL=http://localhost:8000 > .env.local
 ```
 
-### 4. Initialize Database
+### 4. Run the Application
 
+**Terminal 1 (Backend - API & Monitor):**
 ```bash
 cd backend
-python api/database.py
-```
+venv\Scripts\activate
 
-## 🚀 Running the Application
-
-### Option 1: Full Application (Recommended)
-
-Run the complete application with monitoring, API, and system tray:
-
-```bash
-cd backend
+# Start the full application (Monitoring + API + Tray module)
 python main.py --mode tray
+
+# OR start just the API for testing the dashboard/upload flow without tracking:
+# python main.py --mode api-only
 ```
 
-This starts:
-- Activity monitoring engine
-- FastAPI server on `http://localhost:8000`
-- System tray icon for controls
-
-### Option 2: Headless Mode (Testing)
-
-Run without system tray (useful for testing):
-
-```bash
-cd backend
-python main.py --mode headless
-```
-
-### Option 3: API Only
-
-Run just the API server:
-
-```bash
-cd backend
-python main.py --mode api-only
-```
-
-Or using uvicorn directly:
-
-```bash
-cd backend
-uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-### Frontend Development Server
-
-In a separate terminal:
-
+**Terminal 2 (Frontend - Dashboard):**
 ```bash
 cd frontend
 npm run dev
 ```
 
-Access the dashboard at `http://localhost:3000`
+Visit **`http://localhost:3000`** in your browser. You will initially be greeted by the **Smart Upload Landing Page** where you can drag-and-drop a CSV file to instantly generate your dashboard metrics!
 
-## 📖 API Documentation
+## 📖 Application Workflow
 
-Once the backend is running, access the interactive API documentation:
+1. **Landing & Upload (`/`)**: Drop your activity CSV here safely. The smart endpoint parses it, maps the columns automatically, and handles data ingestion.
+2. **Dashboard (`/dashboard`)**: Post-upload, you are swiftly redirected to the metrics dashboard showing an overview of Top Apps, Activity Timelines, and App Usage Distribution.
+3. **ML Insights (`/insights`)**: Dive deep into app categorizations (Deep Work vs. Distraction) and view your overall mathematical Productivity Score.
+4. **Forecast & Burnout (`/forecast`)**: Check your workload health, view predicted peak productivity hours, and get system warnings if you are at risk of burnout.
+5. **Sessions (`/sessions`)**: View a raw log of all tracked/uploaded intervals, select rows to bulk-delete, or export your full history.
 
-- **Swagger UI**: `http://localhost:8000/docs`
-- **ReDoc**: `http://localhost:8000/redoc`
-
-### Key Endpoints
-
-#### Authentication
-- `POST /api/users/register` - Register new user
-- `POST /api/users/login` - Login and get JWT token
-- `GET /api/users/me` - Get current user info
-
-#### Sessions
-- `GET /api/sessions` - List sessions (paginated, filterable)
-- `GET /api/sessions/{id}` - Get session details
-- `DELETE /api/sessions/{id}` - Delete session
-
-#### Screenshots
-- `GET /api/screenshots` - List screenshots
-- `GET /api/screenshots/{id}` - Get screenshot image
-- `DELETE /api/screenshots/{id}` - Delete screenshot
-
-#### Analytics
-- `GET /api/analytics/overview` - Dashboard overview stats
-- `GET /api/analytics/app-distribution` - App usage distribution
-- `GET /api/analytics/timeline` - Hourly activity timeline
-- `GET /api/analytics/top-apps` - Top N most used apps
-- `GET /api/analytics/export/csv` - Export data as CSV
-
-## 🔧 Configuration
-
-Edit `backend/.env` to customize settings:
-
-```env
-# Database
-DATABASE_URL=sqlite:///./data/activity_monitor.db
-
-# Monitoring
-IDLE_TIMEOUT_SECONDS=120
-SCREENSHOT_INTERVAL_SECONDS=300
-SCREENSHOT_QUALITY=85
-SCREENSHOT_ENABLED=true
-
-# Security
-SECRET_KEY=your-secret-key-here
-ENCRYPTION_KEY=your-encryption-key-here
-
-# API
-API_HOST=127.0.0.1
-API_PORT=8000
-```
-
-## 📦 Building Standalone Executable
-
-Create a standalone Windows executable using PyInstaller:
-
-```bash
-cd backend
-python build_exe.py
-```
-
-The executable will be created in `backend/dist/ActivityMonitor.exe`
-
-### Executable Features
-- Single-file bundle
-- No Python installation required
-- Includes all dependencies
-- Auto-extracts to temp directory
-- Background service mode
-
-## 🏗️ Project Structure
+## 📂 Project Structure
 
 ```
 activity-monitor/
 ├── backend/
-│   ├── monitoring_engine/      # Activity tracking components
-│   │   ├── activity_tracker.py # Main orchestrator
-│   │   ├── window_detector.py  # Window tracking
-│   │   ├── screenshot_manager.py
-│   │   ├── idle_detector.py
-│   │   └── system_tray.py
-│   ├── api/                    # FastAPI application
-│   │   ├── main.py            # FastAPI app
-│   │   ├── models.py          # Database models
-│   │   ├── schemas.py         # Pydantic schemas
-│   │   ├── database.py        # DB connection
-│   │   ├── auth.py            # Authentication
-│   │   ├── routes/            # API endpoints
-│   │   └── utils/             # Utilities
-│   ├── config.py              # Configuration
-│   ├── main.py                # Application entry point
-│   └── requirements.txt
+│   ├── monitoring_engine/      # Background desktop tracking components
+│   ├── api/                    # FastAPI routes, models, and ML calculation logic
+│   │   ├── routes/             # Feature logic (insights.py, sessions.py, analytics.py)
+│   │   ├── database.py         # SQLite connection setup
+│   │   └── schemas.py          # Pydantic schemas for data validation
+│   ├── config.py               # Environment configuration
+│   └── main.py                 # Backend entry point
 ├── frontend/
-│   ├── app/                   # Next.js app directory
-│   │   ├── layout.tsx
-│   │   ├── page.tsx          # Dashboard
-│   │   ├── sessions/
-│   │   └── screenshots/
-│   ├── components/            # React components
-│   │   ├── Sidebar.tsx
-│   │   ├── Header.tsx
-│   │   └── charts/
-│   ├── lib/                   # Utilities
-│   │   ├── api.ts            # API client
-│   │   └── utils.ts
-│   └── package.json
+│   ├── app/                    # Next.js App Router pages
+│   │   ├── page.tsx            # Landing/Upload Page
+│   │   ├── dashboard/          # Analytics Dashboard
+│   │   ├── insights/           # ML Insights
+│   │   └── forecast/           # Burnout & Peak Hours
+│   ├── components/             # Reusable React components (Charts, AppShell, Sidebar)
+│   ├── lib/                    # API client logic (Axios configuration)
+│   └── public/                 # Static web assets
 └── README.md
 ```
 
-## 🎨 Technology Stack
+## 🔐 Security & Privacy
 
-### Backend
-- **Python 3.9+**
-- **FastAPI** - Modern web framework
-- **SQLAlchemy** - ORM for database
-- **Pynput** - Input detection
-- **Pillow** - Screenshot capture
-- **Cryptography** - Encryption
-- **PyInstaller** - Executable creation
-
-### Frontend
-- **Next.js 14** - React framework
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Styling
-- **Recharts** - Data visualization
-- **Framer Motion** - Animations
-- **Axios** - HTTP client
-
-## 🔒 Privacy & Legal
-
-**IMPORTANT**: This application tracks user activity including:
-- Mouse and keyboard inputs
-- Active application windows
-- Screenshots of user's screen
-
-**Before deployment:**
-1. Ensure users are fully informed and provide explicit consent
-2. Comply with local privacy laws (GDPR, CCPA, etc.)
-3. Implement proper data retention policies
-4. Secure all stored data appropriately
-5. Provide clear opt-out mechanisms
-
-**This tool is intended for:**
-- Personal productivity tracking
-- Authorized workplace monitoring (with consent)
-- Research purposes (with IRB approval)
+**Data Privacy First**: This application tracks sensitive user activity (`app_name`, `window_title`, timestamps).
+- All desktop data is tracked locally and stored in a local SQLite database (unexposed externally by default).
+- If deploying to a wider group/team, ensure you have explicit consent from users being tracked.
+- The web frontend proxies requests locally (via Next.js rewrites natively or API routes) ensuring CORS safety and keeping internal services sealed.
 
 ## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions, issues, and feature requests are welcome! Feel free to check the issues page or submit a Pull Request.
 
 ## 📄 License
-
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🐛 Troubleshooting
-
-### Backend Issues
-
-**Database errors:**
-```bash
-cd backend
-python api/database.py  # Reinitialize database
-```
-
-**Import errors:**
-```bash
-pip install -r requirements.txt --upgrade
-```
-
-### Frontend Issues
-
-**Module not found:**
-```bash
-cd frontend
-rm -rf node_modules package-lock.json
-npm install
-```
-
-**API connection errors:**
-- Ensure backend is running on port 8000
-- Check CORS settings in `backend/config.py`
-- Verify `NEXT_PUBLIC_API_URL` in frontend `.env.local`
-
-## 📞 Support
-
-For issues, questions, or contributions, please open an issue on GitHub.
-
-## 🙏 Acknowledgments
-
-- Built with FastAPI, Next.js, and modern web technologies
-- Inspired by productivity tracking and time management tools
-- Thanks to the open-source community
-
----
-
-**Made with ❤️ for productivity enthusiasts**

@@ -3,23 +3,25 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard,
+    Table as TableIcon,
+    Brain,
     Activity,
-    BrainCircuit,
     ChevronLeft,
     ChevronRight,
-    TrendingUp,
     Upload,
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import GradientText from './GradientText';
 
 const menuItems = [
+    { icon: Upload, label: 'Upload', href: '/' },
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-    { icon: Activity, label: 'Sessions', href: '/sessions' },
-    { icon: BrainCircuit, label: 'ML Insights', href: '/insights' },
-    { icon: TrendingUp, label: 'Forecast', href: '/forecast' },
-    { icon: Upload, label: 'Upload Data', href: '/' },
+    { icon: Brain, label: 'ML Insights', href: '/insights' },
+    { icon: Activity, label: 'Forecast', href: '/forecast' },
+    { icon: TableIcon, label: 'Sessions', href: '/sessions' },
 ];
 
 export default function Sidebar() {
@@ -29,23 +31,71 @@ export default function Sidebar() {
     return (
         <motion.div
             initial={false}
-            animate={{ width: collapsed ? 80 : 256 }}
-            className="glass border-r border-slate-700 flex flex-col"
+            animate={{ width: collapsed ? 64 : 240 }}
+            className="h-full bg-white/[0.02] border-r border-white/5 flex flex-col backdrop-blur-3xl shrink-0"
         >
             {/* Logo */}
-            <div className="p-6 flex items-center justify-between">
-                {!collapsed && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                    >
-                        <h1 className="text-xl font-bold gradient-text">Activity Monitor</h1>
-                    </motion.div>
-                )}
+            <div className="h-14 flex items-center px-4 overflow-hidden shrink-0 mt-4">
+                <AnimatePresence mode="wait">
+                    {!collapsed && (
+                        <motion.div
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -10 }}
+                            className="flex-1 whitespace-nowrap"
+                        >
+                            <h1 className="text-xl font-bold tracking-tight">
+                                <GradientText>Activity Monitor</GradientText>
+                            </h1>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+
+            {/* Navigation */}
+            <nav className="flex-1 px-3 py-4 space-y-1">
+                {menuItems.map((item) => {
+                    const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/');
+                    return (
+                        <Link key={item.href} href={item.href}>
+                            <motion.div
+                                className={cn(
+                                    'group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all',
+                                    isActive
+                                        ? 'bg-indigo-500/10 text-indigo-300'
+                                        : 'text-white/50 hover:text-white hover:bg-white/5'
+                                )}
+                            >
+                                {isActive && (
+                                    <motion.div 
+                                        layoutId="active-indicator"
+                                        className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-indigo-500 rounded-r-full"
+                                    />
+                                )}
+                                <item.icon className="w-5 h-5 shrink-0" />
+                                <AnimatePresence mode="wait">
+                                    {!collapsed && (
+                                        <motion.span
+                                            initial={{ opacity: 0, width: 0 }}
+                                            animate={{ opacity: 1, width: 'auto' }}
+                                            exit={{ opacity: 0, width: 0 }}
+                                            className="font-medium whitespace-nowrap overflow-hidden"
+                                        >
+                                            {item.label}
+                                        </motion.span>
+                                    )}
+                                </AnimatePresence>
+                            </motion.div>
+                        </Link>
+                    );
+                })}
+            </nav>
+
+            {/* Collapse Button */}
+            <div className="p-3 border-t border-white/5">
                 <button
                     onClick={() => setCollapsed(!collapsed)}
-                    className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+                    className="w-full flex items-center justify-center p-2 rounded-xl text-white/50 hover:text-white hover:bg-white/5 transition-colors"
                 >
                     {collapsed ? (
                         <ChevronRight className="w-5 h-5" />
@@ -54,44 +104,6 @@ export default function Sidebar() {
                     )}
                 </button>
             </div>
-
-            {/* Navigation */}
-            <nav className="flex-1 px-4 space-y-2">
-                {menuItems.map((item) => {
-                    const isActive = pathname === item.href;
-                    return (
-                        <Link key={item.href} href={item.href}>
-                            <motion.div
-                                whileHover={{ x: 4 }}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
-                                    ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white'
-                                    : 'hover:bg-slate-700 text-slate-300'
-                                    }`}
-                            >
-                                <item.icon className="w-5 h-5 flex-shrink-0" />
-                                {!collapsed && (
-                                    <span className="font-medium">{item.label}</span>
-                                )}
-                            </motion.div>
-                        </Link>
-                    );
-                })}
-            </nav>
-
-            {/* User Info */}
-            {!collapsed && (
-                <div className="p-4 border-t border-slate-700">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
-                            <span className="text-white font-semibold">U</span>
-                        </div>
-                        <div className="flex-1">
-                            <p className="font-medium">User</p>
-                            <p className="text-xs text-slate-400">Local Machine</p>
-                        </div>
-                    </div>
-                </div>
-            )}
         </motion.div>
     );
 }

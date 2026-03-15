@@ -2,9 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, Calendar, Trash2, ChevronDown, ChevronUp, MousePointer, CheckCheck, X, Download } from 'lucide-react';
+import { CheckCheck, X, Download, MousePointer, Trash2, SlidersHorizontal } from 'lucide-react';
 import { sessionsAPI, analyticsAPI } from '@/lib/api';
-import { formatDuration, formatDate } from '@/lib/utils';
+import GlassCard from '@/components/GlassCard';
+import FilterChipBar from '@/components/FilterChipBar';
+import SessionsTable from '@/components/SessionsTable';
+import AnimatedEmptyState from '@/components/AnimatedEmptyState';
+import { formatDuration } from '@/lib/utils';
 
 export default function SessionsPage() {
     const [sessions, setSessions] = useState<any[]>([]);
@@ -20,13 +24,13 @@ export default function SessionsPage() {
     const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
     const [bulkDeleting, setBulkDeleting] = useState(false);
     const [exporting, setExporting] = useState(false);
+    const [knownApps, setKnownApps] = useState<string[]>([]);
 
     useEffect(() => {
         loadSessions();
     }, [page, filter]);
 
     const loadSessions = async () => {
-        // First load: show skeletons. Subsequent: refresh silently in background
         if (sessions.length === 0) setLoading(true);
         else setRefreshing(true);
         try {
@@ -37,6 +41,12 @@ export default function SessionsPage() {
             });
             setSessions(result.items);
             setTotalPages(result.total_pages);
+            
+            // Extract unique apps for the filter chip bar (ideally from a separate API, but this works for now)
+            if (page === 1 && !filter.appName) {
+                const apps = Array.from(new Set(result.items.map((s: any) => s.app_name))) as string[];
+                setKnownApps(apps.slice(0, 10)); // Just the top few for quick filters
+            }
         } catch (error) {
             console.error('Error loading sessions:', error);
         } finally {
@@ -45,7 +55,6 @@ export default function SessionsPage() {
         }
     };
 
-    // ── CSV Export ─────────────────────────────────────────────────
     const handleExportCSV = async () => {
         setExporting(true);
         try {
@@ -63,7 +72,6 @@ export default function SessionsPage() {
         }
     };
 
-    // ── Single delete ──────────────────────────────────────────────
     const handleDelete = async (id: number) => {
         if (!confirm('Delete this session and its screenshots?')) return;
         try {
@@ -74,7 +82,6 @@ export default function SessionsPage() {
         }
     };
 
-    // ── Selection helpers ──────────────────────────────────────────
     const toggleSelect = (id: number) => {
         setSelectedIds((prev) => {
             const next = new Set(prev);
@@ -91,7 +98,6 @@ export default function SessionsPage() {
         setSelectedIds(new Set());
     };
 
-    // ── Bulk delete ────────────────────────────────────────────────
     const handleBulkDelete = async () => {
         if (selectedIds.size === 0) return;
         if (!confirm(`Delete ${selectedIds.size} session${selectedIds.size > 1 ? 's' : ''} and all their screenshots? This cannot be undone.`)) return;
@@ -108,18 +114,34 @@ export default function SessionsPage() {
         }
     };
 
+    const handleToggleExpand = (id: number) => {
+        setExpandedId(prev => prev === id ? null : id);
+    };
+
+    const handleAppFilter = (appName: string) => {
+        setFilter({ ...filter, appName });
+        setPage(1);
+    };
+
     const allSelected = sessions.length > 0 && selectedIds.size === sessions.length;
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+    };
+
     return (
-        <div className="space-y-6 pb-24">
+        <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6 pb-24 font-sans max-w-[1400px] mx-auto">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
                 <div>
-                    <h1 className="text-3xl font-bold gradient-text">Activity Sessions</h1>
-                    <p className="text-slate-400 mt-1">
-                        View and manage your activity history
+                    <h1 className="text-2xl font-semibold tracking-tight text-white/90">Activity Sessions</h1>
+                    <p className="text-sm text-white/40 mt-1 flex items-center gap-2">
+                        Detailed log of all tracked application usage
                         {selectionMode && selectedIds.size > 0 && (
-                            <span className="ml-2 text-cyan-400">· {selectedIds.size} selected</span>
+                            <span className="text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full text-xs font-mono font-medium border border-indigo-500/20">
+                                {selectedIds.size} selected
+                            </span>
                         )}
                     </p>
                 </div>
@@ -129,14 +151,14 @@ export default function SessionsPage() {
                         <>
                             <button
                                 onClick={allSelected ? deselectAll : selectAll}
-                                className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-colors"
+                                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm transition-colors text-white/80"
                             >
                                 <CheckCheck className="w-4 h-4" />
-                                {allSelected ? 'Deselect All' : 'Select All'}
+                                <span className="hidden sm:inline">{allSelected ? 'Deselect All' : 'Select All'}</span>
                             </button>
                             <button
                                 onClick={exitSelectionMode}
-                                className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-colors"
+                                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm transition-colors text-white/60 hover:text-white/90"
                             >
                                 <X className="w-4 h-4" />
                                 Cancel
@@ -147,214 +169,141 @@ export default function SessionsPage() {
                             <button
                                 onClick={handleExportCSV}
                                 disabled={exporting}
-                                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 rounded-lg text-sm transition-colors font-medium"
+                                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded-xl text-sm transition-colors font-medium text-white shadow-[0_0_20px_rgba(79,70,229,0.3)] border border-indigo-500/50"
                             >
                                 <Download className="w-4 h-4" />
-                                {exporting ? 'Exporting…' : 'Export CSV'}
+                                <span className="hidden sm:inline">{exporting ? 'Exporting...' : 'Export CSV'}</span>
                             </button>
                             <button
                                 onClick={() => setSelectionMode(true)}
-                                className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-colors"
+                                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm transition-colors text-white/80"
                             >
                                 <MousePointer className="w-4 h-4" />
-                                Select
+                                <span className="hidden sm:inline">Select Rows</span>
                             </button>
                         </>
                     )}
                 </div>
             </div>
 
-            {/* Filter */}
-            <div className="glass p-4">
-                <input
-                    type="text"
-                    placeholder="Filter by app name..."
-                    value={filter.appName}
-                    onChange={(e) => {
-                        setFilter({ ...filter, appName: e.target.value });
-                        setPage(1);
-                    }}
-                    className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                />
-            </div>
-
-            {/* Sessions List */}
-            <div className="space-y-3">
-                {loading ? (
-                    // Skeleton rows — visible immediately, no blank screen
-                    Array.from({ length: 6 }).map((_, i) => (
-                        <div key={i} className="glass p-4 animate-pulse">
-                            <div className="flex items-center justify-between">
-                                <div className="space-y-2 flex-1">
-                                    <div className="h-4 w-40 bg-slate-700 rounded" />
-                                    <div className="h-3 w-64 bg-slate-700/60 rounded" />
-                                    <div className="h-3 w-32 bg-slate-700/40 rounded" />
-                                </div>
-                                <div className="flex gap-2">
-                                    <div className="w-8 h-8 bg-slate-700 rounded-lg" />
-                                    <div className="w-8 h-8 bg-slate-700 rounded-lg" />
-                                </div>
-                            </div>
+            {/* Filters Area */}
+            <motion.div variants={containerVariants}>
+                <GlassCard className="p-4 flex flex-col sm:flex-row items-center gap-4 border-white/5 rounded-2xl">
+                    <div className="relative w-full sm:w-64 shrink-0">
+                        <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                            <SlidersHorizontal className="h-4 w-4 text-white/30" />
                         </div>
-                    ))
-                ) : sessions.length === 0 ? (
-                    <div className="glass p-8 text-center text-slate-400">No sessions found</div>
-                ) : (
-                    sessions.map((session) => {
-                        const isSelected = selectedIds.has(session.id);
-                        return (
-                            <div
-                                key={session.id}
-                                className={`glass p-4 transition-all ${selectionMode && isSelected
-                                    ? 'ring-2 ring-cyan-500 bg-cyan-500/5'
-                                    : selectionMode
-                                        ? 'hover:ring-2 hover:ring-slate-600'
-                                        : ''
-                                    }`}
-                            >
-                                <div className="flex items-center justify-between">
-                                    {/* Checkbox (selection mode) */}
-                                    {selectionMode && (
-                                        <button
-                                            onClick={() => toggleSelect(session.id)}
-                                            className="mr-3 shrink-0"
-                                        >
-                                            <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${isSelected
-                                                ? 'bg-cyan-500 border-cyan-500'
-                                                : 'border-slate-500 hover:border-cyan-400'
-                                                }`}>
-                                                {isSelected && (
-                                                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                )}
-                                            </div>
-                                        </button>
-                                    )}
+                        <input
+                            type="text"
+                            placeholder="Filter by app name..."
+                            value={filter.appName}
+                            onChange={(e) => handleAppFilter(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2 bg-black/40 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500/50 transition-all font-sans placeholder:text-white/20"
+                        />
+                    </div>
+                    {knownApps.length > 0 && (
+                        <div className="w-full sm:w-auto flex-1 border-l border-white/10 pl-0 sm:pl-4 overflow-hidden mask-fade-edges">
+                            <FilterChipBar apps={knownApps} activeApp={filter.appName} onSelectApp={handleAppFilter} />
+                        </div>
+                    )}
+                </GlassCard>
+            </motion.div>
 
-                                    {/* Session info — clicking row toggles selection in selection mode */}
-                                    <div
-                                        className={`flex-1 ${selectionMode ? 'cursor-pointer' : ''}`}
-                                        onClick={() => selectionMode && toggleSelect(session.id)}
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <h3 className="text-lg font-semibold">{session.app_name}</h3>
-                                            <span className="px-2 py-1 text-xs bg-cyan-500/20 text-cyan-400 rounded">
-                                                {formatDuration(session.duration_seconds)}
-                                            </span>
-                                        </div>
-                                        <p className="text-slate-400 text-sm mt-1">{session.window_title}</p>
-                                        <div className="flex items-center gap-4 mt-2 text-sm text-slate-500">
-                                            <span className="flex items-center gap-1">
-                                                <Calendar className="w-4 h-4" />
-                                                {formatDate(session.start_time)}
-                                            </span>
-                                            {session.screenshot_count > 0 && (
-                                                <span>{session.screenshot_count} screenshots</span>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Action buttons (non-selection mode) */}
-                                    {!selectionMode && (
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                onClick={() => setExpandedId(expandedId === session.id ? null : session.id)}
-                                                className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
-                                            >
-                                                {expandedId === session.id ? (
-                                                    <ChevronUp className="w-5 h-5" />
-                                                ) : (
-                                                    <ChevronDown className="w-5 h-5" />
-                                                )}
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(session.id)}
-                                                className="p-2 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
-                                            >
-                                                <Trash2 className="w-5 h-5" />
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Expanded Details */}
-                                {!selectionMode && expandedId === session.id && (
-                                    <motion.div
-                                        initial={{ opacity: 0, height: 0 }}
-                                        animate={{ opacity: 1, height: 'auto' }}
-                                        className="mt-4 pt-4 border-t border-slate-700 grid grid-cols-2 gap-4 text-sm"
-                                    >
-                                        <div>
-                                            <span className="text-slate-400">Process ID:</span>
-                                            <span className="ml-2">{session.process_id || 'N/A'}</span>
-                                        </div>
-                                        <div>
-                                            <span className="text-slate-400">End Time:</span>
-                                            <span className="ml-2">{session.end_time ? formatDate(session.end_time) : 'Ongoing'}</span>
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </div>
-                        );
-                    })
-                )}
-            </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2">
-                    <button
-                        onClick={() => setPage(Math.max(1, page - 1))}
-                        disabled={page === 1}
-                        className="px-4 py-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
-                    >
-                        Previous
-                    </button>
-                    <span className="px-4 py-2">Page {page} of {totalPages}</span>
-                    <button
-                        onClick={() => setPage(Math.min(totalPages, page + 1))}
-                        disabled={page === totalPages}
-                        className="px-4 py-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
-                    >
-                        Next
-                    </button>
+            {/* Sessions Table Area */}
+            <motion.div variants={containerVariants}>
+                <div className="relative">
+                    {loading ? (
+                        <div className="w-full h-[500px] border border-white/5 bg-white/[0.02] rounded-2xl animate-pulse" />
+                    ) : sessions.length === 0 ? (
+                        <AnimatedEmptyState />
+                    ) : (
+                        <SessionsTable 
+                            sessions={sessions} 
+                            selectedIds={selectedIds} 
+                            selectionMode={selectionMode} 
+                            expandedId={expandedId} 
+                            onToggleSelect={toggleSelect} 
+                            onToggleExpand={handleToggleExpand} 
+                            onDelete={handleDelete} 
+                        />
+                    )}
+                    
+                    {/* Refreshing overlay */}
+                    {refreshing && !loading && (
+                        <div className="absolute inset-0 bg-[#0a0a16]/40 backdrop-blur-sm z-10 flex items-center justify-center rounded-2xl">
+                            <div className="w-8 h-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
+                        </div>
+                    )}
                 </div>
+            </motion.div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <motion.div variants={containerVariants} className="flex flex-col items-center gap-2 mt-8">
+                     <div className="flex items-center justify-center gap-1.5 p-1 bg-white/5 rounded-full border border-white/10">
+                        <button
+                            onClick={() => setPage(Math.max(1, page - 1))}
+                            disabled={page === 1}
+                            className="px-6 py-2 bg-transparent hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent rounded-full transition-colors text-sm font-medium text-white/80"
+                        >
+                            Previous
+                        </button>
+                        <div className="px-4 py-2 text-sm text-white/40 font-mono flex items-center gap-2">
+                           <span className="text-white">Page {page}</span>
+                           <span className="text-white/20">/</span>
+                           <span>{totalPages}</span>
+                        </div>
+                        <button
+                            onClick={() => setPage(Math.min(totalPages, page + 1))}
+                            disabled={page === totalPages}
+                            className="px-6 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-white/10 rounded-full transition-colors text-sm font-medium text-white border border-white/5 shadow-sm"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </motion.div>
             )}
 
-            {/* Bulk Action Toolbar */}
+            {/* Bulk Action Toolbar Overlay */}
             <AnimatePresence>
                 {selectionMode && selectedIds.size > 0 && (
                     <motion.div
-                        initial={{ y: 80, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: 80, opacity: 0 }}
-                        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 px-6 py-4 glass border border-slate-600 rounded-2xl shadow-2xl"
+                        initial={{ y: 80, opacity: 0, scale: 0.95 }}
+                        animate={{ y: 0, opacity: 1, scale: 1 }}
+                        exit={{ y: 80, opacity: 0, scale: 0.95 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40"
                     >
-                        <span className="text-sm text-slate-300">
-                            <span className="font-bold text-white">{selectedIds.size}</span> selected
-                        </span>
-                        <button
-                            onClick={exitSelectionMode}
-                            className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleBulkDelete}
-                            disabled={bulkDeleting}
-                            className="flex items-center gap-2 px-5 py-2 bg-red-500 hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-semibold transition-colors"
-                        >
-                            {bulkDeleting ? (
-                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            ) : (
-                                <Trash2 className="w-4 h-4" />
-                            )}
-                            Delete {selectedIds.size} Session{selectedIds.size > 1 ? 's' : ''}
-                        </button>
+                        <div className="flex items-center gap-4 px-6 py-4 bg-[#0a0a16]/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.6)] ring-1 ring-white/5">
+                            <span className="text-sm text-white/50 flex flex-col">
+                                <span className="font-semibold text-white text-lg tracking-tight leading-none">{selectedIds.size}</span>
+                                <span className="text-[10px] uppercase tracking-widest mt-1">Selected</span>
+                            </span>
+                            
+                            <div className="w-px h-8 bg-white/10 mx-2" />
+                            
+                            <button
+                                onClick={exitSelectionMode}
+                                className="px-4 py-2 hover:bg-white/5 rounded-xl text-sm transition-colors text-white/60 hover:text-white"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleBulkDelete}
+                                disabled={bulkDeleting}
+                                className="flex items-center gap-2 px-6 py-2 bg-rose-500 hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-sm font-semibold transition-all text-white shadow-[0_0_15px_rgba(244,63,94,0.4)] border border-rose-400"
+                            >
+                                {bulkDeleting ? (
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                ) : (
+                                    <Trash2 className="w-4 h-4" />
+                                )}
+                                Delete Sessions
+                            </button>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div>
+        </motion.div>
     );
 }

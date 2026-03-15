@@ -15,7 +15,12 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className="bg-slate-900 text-slate-100">
+            <head>
+                <link rel="preconnect" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+                <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+            </head>
+            <body className="antialiased selection:bg-indigo-500/30">
                 <ThemeProvider attribute="class" defaultTheme="dark">
                     <AppShell>
                         {children}

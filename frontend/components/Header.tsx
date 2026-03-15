@@ -1,14 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTheme } from 'next-themes';
-import { Moon, Sun, Download } from 'lucide-react';
+import { Download, User } from 'lucide-react';
 import { analyticsAPI } from '@/lib/api';
 import { downloadBlob } from '@/lib/utils';
+import LiveDot from './LiveDot';
 
 export default function Header() {
     const [mounted, setMounted] = useState(false);
-    const { theme, setTheme } = useTheme();
 
     useEffect(() => {
         setMounted(true);
@@ -26,43 +25,30 @@ export default function Header() {
     };
 
     return (
-        <header className="glass border-b border-slate-700 px-6 py-4">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-lg font-semibold">Welcome back!</h2>
-                    <p className="text-sm text-slate-400">
-                        {new Date().toLocaleDateString('en-US', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                        })}
-                    </p>
+        <header className="h-14 flex items-center justify-between px-6 bg-white/[0.02] border-b border-white/5 backdrop-blur-3xl shrink-0 z-10">
+            <div>
+                <h2 className="text-[17px] font-medium text-white/90 tracking-tight">Overview</h2>
+            </div>
+
+            <div className="flex items-center gap-4">
+                {/* Live Indicator */}
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
+                    <LiveDot />
+                    <span className="text-xs font-medium text-white/70 uppercase tracking-widest">Tracking Live</span>
                 </div>
 
-                <div className="flex items-center gap-4">
-                    {/* Export Button */}
-                    <button
-                        onClick={handleExportCSV}
-                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 rounded-lg transition-all"
-                    >
-                        <Download className="w-4 h-4" />
-                        <span className="font-medium">Export CSV</span>
-                    </button>
+                {/* Export Button */}
+                <button
+                    onClick={handleExportCSV}
+                    className="flex items-center gap-2 px-4 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all text-white/90 text-sm font-medium"
+                >
+                    <Download className="w-4 h-4" />
+                    <span className="hidden sm:inline">Export</span>
+                </button>
 
-                    {/* Theme Toggle */}
-                    {mounted && (
-                        <button
-                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                            className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
-                        >
-                            {theme === 'dark' ? (
-                                <Sun className="w-5 h-5" />
-                            ) : (
-                                <Moon className="w-5 h-5" />
-                            )}
-                        </button>
-                    )}
+                {/* User Avatar Placeholder */}
+                <div className="w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center">
+                    <User className="w-4 h-4 text-indigo-300" />
                 </div>
             </div>
         </header>
