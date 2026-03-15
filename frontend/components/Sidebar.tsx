@@ -8,7 +8,6 @@ import {
     LayoutDashboard,
     Activity,
     BrainCircuit,
-    Settings,
     ChevronLeft,
     ChevronRight,
     TrendingUp,
@@ -16,12 +15,11 @@ import {
 } from 'lucide-react';
 
 const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', href: '/' },
+    { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
     { icon: Activity, label: 'Sessions', href: '/sessions' },
     { icon: BrainCircuit, label: 'ML Insights', href: '/insights' },
     { icon: TrendingUp, label: 'Forecast', href: '/forecast' },
-    { icon: Upload, label: 'Upload Data', href: '/upload' },
-    { icon: Settings, label: 'Settings', href: '/settings' },
+    { icon: Upload, label: 'Upload Data', href: '/' },
 ];
 
 export default function Sidebar() {

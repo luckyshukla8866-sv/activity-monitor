@@ -1,17 +1,31 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, FileText, CheckCircle, AlertCircle, Download, ArrowRight, Sparkles, Info } from 'lucide-react';
 import { uploadAPI } from '@/lib/api';
 
 export default function UploadPage() {
+    const router = useRouter();
     const [file, setFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
     const [result, setResult] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
     const [dragOver, setDragOver] = useState(false);
+    const [redirectCountdown, setRedirectCountdown] = useState<number | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Auto-redirect to dashboard after successful upload
+    useEffect(() => {
+        if (redirectCountdown === null) return;
+        if (redirectCountdown <= 0) {
+            router.push('/dashboard');
+            return;
+        }
+        const timer = setTimeout(() => setRedirectCountdown(redirectCountdown - 1), 1000);
+        return () => clearTimeout(timer);
+    }, [redirectCountdown, router]);
 
     const handleDrop = (e: React.DragEvent) => {
         e.preventDefault();
@@ -45,6 +59,7 @@ export default function UploadPage() {
             const res = await uploadAPI.uploadCSV(file);
             setResult(res);
             setFile(null);
+            setRedirectCountdown(5);
         } catch (err: any) {
             console.error('Upload error:', err);
             const detail = err?.response?.data?.detail;
@@ -178,12 +193,19 @@ Visual Studio Code,api.ts - frontend,2026-03-10T11:15:00,2026-03-10T12:30:00,450
                     >
                         <div className="flex items-center gap-3">
                             <CheckCircle className="w-6 h-6 text-emerald-400 shrink-0" />
-                            <div>
+                            <div className="flex-1">
                                 <h3 className="font-semibold text-emerald-400">{result.message}</h3>
                                 <p className="text-sm text-slate-400 mt-1">
-                                    Visit the ML Insights page to see your analysis results.
+                                    Redirecting to Dashboard in {redirectCountdown} second{redirectCountdown !== 1 ? 's' : ''}...
                                 </p>
                             </div>
+                            <button
+                                onClick={() => router.push('/dashboard')}
+                                className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shrink-0"
+                            >
+                                Go Now
+                                <ArrowRight className="w-4 h-4" />
+                            </button>
                         </div>
 
                         {/* Column Mapping Report */}

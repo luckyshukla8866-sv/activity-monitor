@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import Sidebar from "@/components/Sidebar";
-import Header from "@/components/Header";
+import AppShell from "@/components/AppShell";
 
 export const metadata: Metadata = {
-    title: "Activity Monitor - Dashboard",
-    description: "Track and analyze your desktop activity",
+    title: "Activity Monitor",
+    description: "Upload and analyze your desktop activity with ML-powered insights",
 };
 
 export default function RootLayout({
@@ -18,15 +17,9 @@ export default function RootLayout({
         <html lang="en" suppressHydrationWarning>
             <body className="bg-slate-900 text-slate-100">
                 <ThemeProvider attribute="class" defaultTheme="dark">
-                    <div className="flex h-screen overflow-hidden">
-                        <Sidebar />
-                        <div className="flex-1 flex flex-col overflow-hidden">
-                            <Header />
-                            <main className="flex-1 overflow-y-auto p-6">
-                                {children}
-                            </main>
-                        </div>
-                    </div>
+                    <AppShell>
+                        {children}
+                    </AppShell>
                 </ThemeProvider>
             </body>
         </html>
