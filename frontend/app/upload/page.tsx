@@ -358,6 +358,48 @@ Visual Studio Code,api.ts - frontend,2026-03-10T11:15:00,2026-03-10T12:30:00,450
                         Delimiter auto-detection: comma, semicolon, tab, and pipe-separated files are all supported.
                     </p>
                 </div>
+
+                {/* Sample Data Preview - Premium Highlight */}
+                <div className="pt-4 border-t border-slate-700/50">
+                    <div className="flex items-center gap-2 mb-4">
+                        <Sparkles className="w-4 h-4 text-cyan-400" />
+                        <h3 className="text-sm font-semibold text-slate-200">Example Data Structure</h3>
+                    </div>
+                    <div className="overflow-hidden rounded-xl bg-slate-900/50 border border-slate-800 shadow-2xl">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-xs border-collapse">
+                                <thead className="bg-slate-800/80 text-slate-300 font-mono">
+                                    <tr>
+                                        <th className="px-4 py-3 border-b border-slate-700">app_name</th>
+                                        <th className="px-4 py-3 border-b border-slate-700">window_title</th>
+                                        <th className="px-4 py-3 border-b border-slate-700">start_time</th>
+                                        <th className="px-4 py-3 border-b border-slate-700">duration_seconds</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="text-slate-400 font-mono">
+                                    <tr className="hover:bg-cyan-500/5 transition-colors group">
+                                        <td className="px-4 py-3 border-b border-slate-800/50 text-cyan-400 font-medium">Visual Studio Code</td>
+                                        <td className="px-4 py-3 border-b border-slate-800/50 group-hover:text-slate-300">frontend/app/page.tsx</td>
+                                        <td className="px-4 py-3 border-b border-slate-800/50 text-slate-500">2026-03-10 09:00</td>
+                                        <td className="px-4 py-3 border-b border-slate-800/50 text-blue-400">2700</td>
+                                    </tr>
+                                    <tr className="hover:bg-cyan-500/5 transition-colors group">
+                                        <td className="px-4 py-3 border-b border-slate-800/50 text-cyan-400 font-medium">Google Chrome</td>
+                                        <td className="px-4 py-3 border-b border-slate-800/50 group-hover:text-slate-300">React Documentation</td>
+                                        <td className="px-4 py-3 border-b border-slate-800/50 text-slate-500">2026-03-10 09:45</td>
+                                        <td className="px-4 py-3 border-b border-slate-800/50 text-blue-400">1800</td>
+                                    </tr>
+                                    <tr className="hover:bg-cyan-500/5 transition-colors group">
+                                        <td className="px-4 py-3 text-cyan-400 font-medium">Terminal</td>
+                                        <td className="px-4 py-3 group-hover:text-slate-300">npm run dev</td>
+                                        <td className="px-4 py-3 text-slate-500">2026-03-10 10:15</td>
+                                        <td className="px-4 py-3 text-blue-400">600</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </motion.div>
         </div>
     );
