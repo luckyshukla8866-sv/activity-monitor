@@ -282,7 +282,7 @@ Visual Studio Code,api.ts - frontend,2026-03-10T11:15:00,2026-03-10T12:30:00,450
                     </div>
                     <button
                         onClick={downloadSample}
-                        className="flex items-center gap-2 px-4 py-2 bg-slate-700 rounded-lg text-sm hover:bg-slate-600 transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 rounded-lg text-sm hover:bg-cyan-500/20 transition-all font-medium shadow-[0_0_15px_-3px_rgba(6,182,212,0.2)]"
                     >
                         <Download className="w-4 h-4" />
                         Download Sample

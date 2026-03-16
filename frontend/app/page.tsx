@@ -242,7 +242,7 @@ export default function LandingUploadPage() {
                                 <a 
                                     href="/sample-dataset.csv" 
                                     download 
-                                    className="text-xs px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-indigo-300 hover:text-indigo-200 flex items-center gap-2 transition-all"
+                                    className="text-xs px-5 py-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/20 hover:text-indigo-200 flex items-center gap-2 transition-all font-medium shadow-[0_0_20px_-5px_rgba(99,102,241,0.3)]"
                                 >
                                     <Download className="w-3.5 h-3.5" />
                                     Download sample dataset

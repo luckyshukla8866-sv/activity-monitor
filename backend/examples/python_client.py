@@ -18,7 +18,7 @@ class ActivityMonitorClient:
     def register(self, username: str, password: str, device_name: str = None) -> Dict:
         """Register a new user."""
         response = requests.post(
-            f"{self.base_url}/api/users/register",
+            f"{self.base_url}/auth/register",
             json={
                 "username": username,
                 "password": password,
@@ -31,7 +31,7 @@ class ActivityMonitorClient:
     def login(self, username: str, password: str) -> str:
         """Login and get access token."""
         response = requests.post(
-            f"{self.base_url}/api/users/login",
+            f"{self.base_url}/auth/login",
             data={
                 "username": username,
                 "password": password

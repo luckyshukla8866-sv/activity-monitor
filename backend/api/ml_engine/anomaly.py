@@ -97,12 +97,9 @@ def detect_burnout(
 
     if len(active_days) < 3:
         return {
-            "risk_level": "UNKNOWN",
-            "risk_score": 0,
-            "message": "Not enough data to analyze (need at least 3 active days).",
-            "warnings": [],
-            "daily_data": daily_data,
-            "recommendations": ["Keep using the system to build enough data for analysis."],
+            "score": 0.0,
+            "level": "low",
+            "message": "Not enough active data to analyze your patterns fully (need at least 3 active days). Check back as you use the application more!"
         }
 
     hours_list = [d["hours"] for d in active_days]
@@ -178,46 +175,21 @@ def detect_burnout(
             })
 
     # Clamp risk_score
-    risk_score = min(risk_score, 100)
+    score = float(min(risk_score, 100))
 
-    # Determine risk level
-    if risk_score >= 60:
-        risk_level = "HIGH"
-        message = "You are showing signs of overwork. Consider taking breaks and setting boundaries."
-    elif risk_score >= 30:
-        risk_level = "MEDIUM"
-        message = "Some work patterns look concerning. Monitor your hours and take regular breaks."
+    # Determine risk level and message (0-40: low, 41-70: medium, 71+: high)
+    if score > 70:
+        level = "high"
+        message = "Your work patterns indicate a high risk of burnout. It's crucial to take immediate time off and rest to recover."
+    elif score > 40:
+        level = "medium"
+        message = "You are showing moderate signs of fatigue. Consider setting stricter boundaries and taking regular breaks."
     else:
-        risk_level = "LOW"
-        message = "Your work patterns look healthy. Keep it up!"
-
-    # Recommendations
-    recommendations = []
-    if risk_level == "HIGH":
-        recommendations = [
-            "Take a day off or reduce hours tomorrow.",
-            "Set a hard stop time (e.g., 6 PM) and stick to it.",
-            "Take a 15-minute break every 90 minutes.",
-            "Avoid working past 10 PM.",
-        ]
-    elif risk_level == "MEDIUM":
-        recommendations = [
-            "Try to keep your workday under 9 hours.",
-            "Take regular breaks using the Pomodoro technique (25 min work, 5 min break).",
-            "Avoid late-night work sessions.",
-        ]
-    else:
-        recommendations = [
-            "Your schedule looks balanced — keep it up!",
-            "Consider tracking your most productive hours to optimize further.",
-        ]
+        level = "low"
+        message = "Your work patterns look healthy and sustainable. Keep maintaining this good balance!"
 
     return {
-        "risk_level": risk_level,
-        "risk_score": risk_score,
-        "message": message,
-        "warnings": warnings[:5],  # top 5 warnings
-        "daily_data": daily_data,
-        "average_hours": round(avg_hours, 2),
-        "recommendations": recommendations,
+        "score": score,
+        "level": level,
+        "message": message
     }

@@ -22,7 +22,7 @@ from api.auth import (
     get_current_active_user
 )
 
-router = APIRouter(prefix="/api/users", tags=["users"])
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)

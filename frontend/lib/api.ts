@@ -42,14 +42,14 @@ export const authAPI = {
         const formData = new FormData();
         formData.append('username', username);
         formData.append('password', password);
-        const response = await apiClient.post('/api/users/login', formData, {
+        const response = await apiClient.post('/auth/login', formData, {
             headers: { 'Content-Type': undefined },
         });
         return response.data;
     },
 
     register: async (username: string, password: string, deviceName?: string) => {
-        const response = await apiClient.post('/api/users/register', {
+        const response = await apiClient.post('/auth/register', {
             username,
             password,
             device_name: deviceName,
@@ -58,7 +58,7 @@ export const authAPI = {
     },
 
     getCurrentUser: async () => {
-        const response = await apiClient.get('/api/users/me');
+        const response = await apiClient.get('/auth/me');
         return response.data;
     },
 };
