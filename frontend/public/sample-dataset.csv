@@ -1,0 +1,16 @@
+app_name,window_title,start_time,end_time,duration_seconds,mouse_clicks,key_presses
+Visual Studio Code,frontend/app/page.tsx,2026-03-10T09:00:00,2026-03-10T09:45:00,2700,250,1500
+Google Chrome,React Documentation - Next.js,2026-03-10T09:45:00,2026-03-10T10:15:00,1800,450,100
+Terminal,npm run build,2026-03-10T10:15:00,2026-03-10T10:25:00,600,10,25
+Slack,#engineering,2026-03-10T10:25:00,2026-03-10T10:40:00,900,150,400
+Visual Studio Code,backend/api.py,2026-03-10T10:40:00,2026-03-10T11:30:00,3000,320,2100
+Google Chrome,GitHub - Pull Request #42,2026-03-10T11:30:00,2026-03-10T11:45:00,900,120,50
+Visual Studio Code,backend/models.py,2026-03-10T11:45:00,2026-03-10T12:30:00,2700,200,1800
+Google Chrome,YouTube - Lofi Hip Hop Radio,2026-03-10T12:30:00,2026-03-10T13:00:00,1800,50,0
+Google Chrome,Hacker News,2026-03-10T13:00:00,2026-03-10T13:15:00,900,300,10
+Visual Studio Code,frontend/components/GlassCard.tsx,2026-03-10T13:15:00,2026-03-10T14:45:00,5400,400,2500
+Slack,Direct Message,2026-03-10T14:45:00,2026-03-10T15:00:00,900,100,200
+Visual Studio Code,frontend/app/layout.tsx,2026-03-10T15:00:00,2026-03-10T16:00:00,3600,350,1900
+Terminal,git commit -m "feat: updates",2026-03-10T16:00:00,2026-03-10T16:10:00,600,30,80
+Google Chrome,Stack Overflow - React hooks,2026-03-10T16:10:00,2026-03-10T16:30:00,1200,280,40
+Visual Studio Code,README.md,2026-03-10T16:30:00,2026-03-10T17:00:00,1800,150,1100
