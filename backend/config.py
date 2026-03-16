@@ -22,7 +22,7 @@ class Settings:
     # Database configuration
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL", 
-        f"sqlite:///{DATABASE_DIR / 'activity_monitor.db'}"
+        f"sqlite:///{DATABASE_DIR / 'activity_monitor_empty.db'}"
     )
     
     # Monitoring settings

@@ -42,30 +42,27 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def init_db():
-    """Initialize database by creating all tables and running migrations."""
-    Base.metadata.create_all(bind=engine)
-    _run_migrations()
+    """Initialize database and run migrations."""
+    from sqlalchemy import inspect
+    import alembic.config
+    import alembic.command
+    
+    # Alembic configuration
+    alembic_cfg = alembic.config.Config(str(Path(__file__).parent.parent / "alembic.ini"))
+    
+    inspector = inspect(engine)
+    
+    # Check if this is an existing database without Alembic tracking
+    if inspector.has_table("users") and not inspector.has_table("alembic_version"):
+        # This handles existing SQLite databases. Stamp it to "head" so we don't try to recreate tables.
+        print("Existing database detected. Stamping Alembic to head...")
+        alembic.command.stamp(alembic_cfg, "head")
+    else:
+        # For new databases (like a fresh PostgreSQL DB) or already-tracked databases, upgrade to head.
+        print("Running Alembic migrations to upgrade database to head...")
+        alembic.command.upgrade(alembic_cfg, "head")
+        
     print("[OK] Database initialized successfully")
-
-
-def _run_migrations():
-    """
-    Safe column migrations for existing databases.
-    SQLite doesn't support ALTER TABLE ... ADD COLUMN IF NOT EXISTS,
-    so we catch the error and skip if the column already exists.
-    """
-    migrations = [
-        "ALTER TABLE activity_sessions ADD COLUMN mouse_clicks INTEGER NOT NULL DEFAULT 0",
-        "ALTER TABLE activity_sessions ADD COLUMN key_presses INTEGER NOT NULL DEFAULT 0",
-    ]
-    with engine.connect() as conn:
-        for sql in migrations:
-            try:
-                conn.execute(text(sql))
-                conn.commit()
-            except Exception:
-                # Column already exists — safe to ignore
-                pass
 
 
 def get_db() -> Generator[Session, None, None]:
