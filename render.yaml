@@ -15,8 +15,9 @@ services:
     runtime: python
     region: oregon
     plan: free
-    buildCommand: cd backend && chmod +x build.sh && ./build.sh
-    startCommand: cd backend && uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    rootDir: backend      # Render cds into this dir BEFORE running commands
+    buildCommand: chmod +x build.sh && ./build.sh
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -31,4 +32,4 @@ services:
       - key: CORS_ORIGINS
         value: "https://activity-monitor-seven.vercel.app,http://localhost:3000"
       - key: PYTHON_VERSION
-        value: "3.12.0"
+        value: "3.11.8"
