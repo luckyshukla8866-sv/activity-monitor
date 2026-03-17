@@ -13,6 +13,13 @@ import os
 import sys
 from pathlib import Path
 
+try:
+    import anthropic
+    _HAS_ANTHROPIC = True
+except ImportError:
+    anthropic = None
+    _HAS_ANTHROPIC = False
+
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from api.database import get_db
 from api.models import User, ActivitySession
@@ -179,9 +186,13 @@ async def ai_chat(request: ChatRequest, db: Session = Depends(get_db)):
             detail="AI service not configured. Set ANTHROPIC_API_KEY in environment.",
         )
 
-    try:
-        import anthropic
+    if not _HAS_ANTHROPIC:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="anthropic package is not installed. Run: pip install anthropic",
+        )
 
+    try:
         client = anthropic.Anthropic(api_key=api_key)
 
         message = client.messages.create(
@@ -219,11 +230,6 @@ async def ai_chat(request: ChatRequest, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"AI service error: {str(e)}",
-        )
-    except ImportError:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="anthropic package is not installed. Run: pip install anthropic",
         )
     except Exception as e:
         raise HTTPException(
