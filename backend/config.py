@@ -25,6 +25,17 @@ class Settings:
         f"sqlite:///{DATABASE_DIR / 'activity_monitor_empty.db'}"
     )
     
+    @classmethod
+    def _fix_database_url(cls):
+        """
+        Fix Render's postgres:// URL to postgresql://.
+        Render provides postgres:// but SQLAlchemy 1.4+ requires postgresql://.
+        """
+        if cls.DATABASE_URL.startswith("postgres://"):
+            cls.DATABASE_URL = cls.DATABASE_URL.replace(
+                "postgres://", "postgresql://", 1
+            )
+    
     # Monitoring settings
     IDLE_TIMEOUT_SECONDS: int = int(os.getenv("IDLE_TIMEOUT_SECONDS", "120"))
     SCREENSHOT_INTERVAL_SECONDS: int = int(os.getenv("SCREENSHOT_INTERVAL_SECONDS", "300"))
@@ -104,5 +115,6 @@ class Settings:
 
 # Initialize settings
 settings = Settings()
+settings._fix_database_url()
 settings.ensure_directories()
 settings.validate_settings()

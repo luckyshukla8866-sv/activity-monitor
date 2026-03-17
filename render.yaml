@@ -1,0 +1,34 @@
+# Render Blueprint — Infrastructure as Code
+# Docs: https://render.com/docs/blueprint-spec
+# Deploy: connect your repo to Render, and it will auto-detect this file.
+
+databases:
+  - name: activity-monitor-db
+    plan: free            # Free PostgreSQL (90-day expiry, 256 MB)
+    databaseName: activity_monitor
+    user: activity_monitor_user
+    region: oregon        # Same region as your web service
+
+services:
+  - type: web
+    name: activity-monitor-api
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: cd backend && chmod +x build.sh && ./build.sh
+    startCommand: cd backend && uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: activity-monitor-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ENCRYPTION_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "false"
+      - key: CORS_ORIGINS
+        value: "https://activity-monitor-seven.vercel.app,http://localhost:3000"
+      - key: PYTHON_VERSION
+        value: "3.12.0"
