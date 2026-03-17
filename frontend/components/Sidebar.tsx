@@ -12,7 +12,7 @@ import {
     ChevronLeft,
     ChevronRight,
     Upload,
-    MessageSquare,
+    Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import GradientText from './GradientText';
@@ -23,7 +23,7 @@ const menuItems = [
     { icon: Brain, label: 'ML Insights', href: '/insights' },
     { icon: Activity, label: 'Forecast', href: '/forecast' },
     { icon: TableIcon, label: 'Sessions', href: '/sessions' },
-    { icon: MessageSquare, label: 'Chat', href: '/chat' },
+    { icon: Sparkles, label: 'AI Coach', href: '/coach' },
 ];
 
 export default function Sidebar() {

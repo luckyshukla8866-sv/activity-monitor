@@ -55,7 +55,7 @@ export default function ChatPage() {
 
         try {
             // Note: In a real app we'd get a real user_id from auth context
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/ai/chat`, {
+            const response = await axios.post('/api/ai/chat', {
                 question: userMsg.content,
                 user_id: 1 // Default test user
             });
