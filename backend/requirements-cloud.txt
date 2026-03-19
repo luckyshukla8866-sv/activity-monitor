@@ -20,6 +20,7 @@ cryptography==42.0.0
 # API utilities
 pydantic==2.5.3
 pydantic-settings==2.1.0
+groq==1.1.1
 
 # Data Science & ML
 pandas==2.2.0
