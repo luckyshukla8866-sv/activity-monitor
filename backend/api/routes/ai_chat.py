@@ -54,10 +54,10 @@ def _format_duration(seconds: float) -> str:
 
 def _build_session_summary(db: Session, user_id: int) -> str:
     """
-    Fetch the user's activity sessions from the last 7 days and
+    Fetch the user's activity sessions from the last 30 days and
     format them into a concise summary string for the AI to reason over.
     """
-    cutoff = datetime.utcnow() - timedelta(days=7)
+    cutoff = datetime.utcnow() - timedelta(days=30)
 
     # ── Per-day, per-app aggregation ─────────────────────────────────
     rows = (
@@ -80,7 +80,7 @@ def _build_session_summary(db: Session, user_id: int) -> str:
     )
 
     if not rows:
-        return "No activity data found for the past 7 days."
+        return "No activity data found for the past 30 days."
 
     # ── Build day-by-day summary ─────────────────────────────────────
     from collections import defaultdict
@@ -100,7 +100,7 @@ def _build_session_summary(db: Session, user_id: int) -> str:
         grand_total_seconds += total_secs
 
     lines = [
-        f"=== Activity Summary (past 7 days) ===",
+        f"=== Activity Summary (past 30 days) ===",
         f"Period: {min(days.keys())} → {max(days.keys())}",
         f"Total tracked time: {_format_duration(grand_total_seconds)}",
         "",
@@ -157,7 +157,7 @@ async def ai_chat(request: ChatRequest, db: Session = Depends(get_db)):
     """
     AI-powered productivity coach.
 
-    Fetches the user's last 7 days of activity sessions, formats them as
+    Fetches the user's last 30 days of activity sessions, formats them as
     context, and sends the question to Groq (free tier LLaMA) for analysis.
 
     Args:

@@ -288,7 +288,7 @@ export default function CoachPage() {
                         </div>
                         <span className="text-white/10">|</span>
                         <span className="text-[10px] text-white/30 font-mono uppercase tracking-wider">
-                            Last 7 days context
+                            Last 30 days context
                         </span>
                     </div>
                     <div className="flex items-center gap-1.5 text-[10px] text-white/25 font-mono">
