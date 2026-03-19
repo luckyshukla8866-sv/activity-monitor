@@ -1,6 +1,6 @@
 """
 AI Chat API route.
-Provides a productivity coach powered by Anthropic Claude,
+Provides a productivity coach powered by Groq (free tier),
 with context from the user's recent activity sessions.
 """
 
@@ -14,11 +14,11 @@ import sys
 from pathlib import Path
 
 try:
-    import anthropic
-    _HAS_ANTHROPIC = True
+    from groq import Groq
+    _HAS_GROQ = True
 except ImportError:
-    anthropic = None
-    _HAS_ANTHROPIC = False
+    Groq = None
+    _HAS_GROQ = False
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from api.database import get_db
@@ -55,7 +55,7 @@ def _format_duration(seconds: float) -> str:
 def _build_session_summary(db: Session, user_id: int) -> str:
     """
     Fetch the user's activity sessions from the last 7 days and
-    format them into a concise summary string that Claude can reason over.
+    format them into a concise summary string for the AI to reason over.
     """
     cutoff = datetime.utcnow() - timedelta(days=7)
 
@@ -89,7 +89,7 @@ def _build_session_summary(db: Session, user_id: int) -> str:
     grand_total_seconds = 0.0
 
     for day, app_name, total_secs, sess_count in rows:
-        day_str = str(day)  # e.g. "2026-03-10"
+        day_str = str(day)
         days[day_str].append(
             {
                 "app": app_name,
@@ -158,7 +158,7 @@ async def ai_chat(request: ChatRequest, db: Session = Depends(get_db)):
     AI-powered productivity coach.
 
     Fetches the user's last 7 days of activity sessions, formats them as
-    context, and sends the question to Anthropic Claude for analysis.
+    context, and sends the question to Groq (free tier LLaMA) for analysis.
 
     Args:
         request: ChatRequest with question and user_id
@@ -175,31 +175,38 @@ async def ai_chat(request: ChatRequest, db: Session = Depends(get_db)):
             detail=f"User with id {request.user_id} not found",
         )
 
-    # ── Fetch & format session data ──────────────────────────────────
-    session_summary = _build_session_summary(db, request.user_id)
+    # ── Check package is installed ───────────────────────────────────
+    if not _HAS_GROQ:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="groq package is not installed. Run: pip install groq",
+        )
 
-    # ── Call Anthropic Claude API ────────────────────────────────────
-    api_key = os.getenv("ANTHROPIC_API_KEY")
+    # ── Check API key is set ─────────────────────────────────────────
+    api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="AI service not configured. Set ANTHROPIC_API_KEY in environment.",
+            detail="AI service not configured. Set GROQ_API_KEY in environment.",
         )
 
-    if not _HAS_ANTHROPIC:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="anthropic package is not installed. Run: pip install anthropic",
-        )
+    # ── Fetch & format session data ──────────────────────────────────
+    session_summary = _build_session_summary(db, request.user_id)
 
+    # ── Call Groq API ────────────────────────────────────────────────
     try:
-        client = anthropic.Anthropic(api_key=api_key)
+        client = Groq(api_key=api_key)
 
-        message = client.messages.create(
-            model="claude-sonnet-4-20250514",
+        model = os.getenv("GROQ_MODEL", "llama-3.1-70b-versatile")
+
+        completion = client.chat.completions.create(
+            model=model,
             max_tokens=1024,
-            system=SYSTEM_PROMPT,
             messages=[
+                {
+                    "role": "system",
+                    "content": SYSTEM_PROMPT,
+                },
                 {
                     "role": "user",
                     "content": (
@@ -207,32 +214,36 @@ async def ai_chat(request: ChatRequest, db: Session = Depends(get_db)):
                         f"{session_summary}\n\n"
                         f"My question: {request.question}"
                     ),
-                }
+                },
             ],
         )
 
-        answer_text = message.content[0].text
-        tokens_used = message.usage.input_tokens + message.usage.output_tokens
+        answer_text = completion.choices[0].message.content
+        tokens_used = (
+            completion.usage.prompt_tokens + completion.usage.completion_tokens
+        )
 
         return ChatResponse(answer=answer_text, tokens_used=tokens_used)
 
-    except anthropic.AuthenticationError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Anthropic API key.",
-        )
-    except anthropic.RateLimitError:
-        raise HTTPException(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="AI rate limit reached. Please try again in a moment.",
-        )
-    except anthropic.APIError as e:
+    except Exception as e:
+        error_str = str(e).lower()
+
+        if "authentication" in error_str or "api key" in error_str or "unauthorized" in error_str:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid Groq API key. Check your GROQ_API_KEY environment variable.",
+            )
+        if "rate limit" in error_str or "429" in error_str:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Groq rate limit reached. Please wait a moment and try again.",
+            )
+        if "model" in error_str and "not found" in error_str:
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail=f"Groq model not found. Check your GROQ_MODEL value: {model}",
+            )
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"AI service error: {str(e)}",
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Unexpected error communicating with AI: {str(e)}",
+            detail=f"Groq API error: {str(e)}",
         )

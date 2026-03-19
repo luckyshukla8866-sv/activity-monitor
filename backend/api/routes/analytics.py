@@ -30,48 +30,46 @@ router = APIRouter(prefix="/api/analytics", tags=["analytics"])
 
 @router.get("/overview", response_model=OverviewStats)
 async def get_overview_stats(
+    days: int = Query(7, ge=1, le=90),
     current_user: User = Depends(get_optional_user),
     db: Session = Depends(get_db)
 ):
     """
-    Get overview statistics for today.
+    Get overview statistics for the recent period.
     
     Args:
+        days: Number of days to look back (default: 7)
         current_user: Current authenticated user
         db: Database session
     
     Returns:
         Overview statistics
     """
-    # Get today's date range
-    today_start = datetime.combine(datetime.today(), time.min)
-    today_end = datetime.combine(datetime.today(), time.max)
+    # Get date range
+    start_date = datetime.now() - timedelta(days=days)
     
-    # Total active hours today
+    # Total active hours
     total_duration = db.query(func.sum(ActivitySession.duration_seconds)).filter(
         ActivitySession.user_id == current_user.id,
-        ActivitySession.start_time >= today_start,
-        ActivitySession.start_time <= today_end
+        ActivitySession.start_time >= start_date,
     ).scalar() or 0
     
     total_active_hours = total_duration / 3600
     
-    # Total sessions today
+    # Total sessions
     total_sessions = db.query(ActivitySession).filter(
         ActivitySession.user_id == current_user.id,
-        ActivitySession.start_time >= today_start,
-        ActivitySession.start_time <= today_end
+        ActivitySession.start_time >= start_date,
     ).count()
     
     # Total unique apps tracked
     total_apps = db.query(func.count(func.distinct(ActivitySession.app_name))).filter(
         ActivitySession.user_id == current_user.id,
-        ActivitySession.start_time >= today_start,
-        ActivitySession.start_time <= today_end
+        ActivitySession.start_time >= start_date,
     ).scalar() or 0
     
-    # Calculate idle time (assuming 8 hour work day for now)
-    work_hours = 8 * 3600  # 8 hours in seconds
+    # Calculate idle time (assuming 8 hour work day * number of days)
+    work_hours = 8 * 3600 * days  # 8 hours per day in seconds
     idle_time = max(0, work_hours - total_duration)
     
     return {
