@@ -132,15 +132,43 @@ function MessageBubble({ message }: { message: Message }) {
 /* ── Main page ─────────────────────────────────────────────────────── */
 
 export default function CoachPage() {
-    const [messages, setMessages] = useState<Message[]>([
-        {
-            id: 'welcome',
-            role: 'assistant',
-            content:
-                "Hey! I'm your **AI productivity coach** powered by Claude.\n\nI've got access to your recent activity data — ask me anything about your focus patterns, app usage, deep work ratio, or burnout risk.\n\nTry one of the suggestions below, or ask your own question!",
-            timestamp: new Date(),
-        },
-    ]);
+    const DEFAULT_MESSAGE: Message = {
+        id: 'welcome',
+        role: 'assistant',
+        content:
+            "Hey! I'm your **AI productivity coach** powered by Claude.\n\nI've got access to your recent activity data — ask me anything about your focus patterns, app usage, deep work ratio, or burnout risk.\n\nTry one of the suggestions below, or ask your own question!",
+        timestamp: new Date(),
+    };
+
+    const [messages, setMessages] = useState<Message[]>([DEFAULT_MESSAGE]);
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    // Load from localStorage on mount
+    useEffect(() => {
+        const saved = localStorage.getItem('coach_messages');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                const withDates = parsed.map((m: any) => ({
+                    ...m,
+                    timestamp: new Date(m.timestamp)
+                }));
+                if (withDates.length > 0) {
+                    setMessages(withDates);
+                }
+            } catch (e) {
+                console.error("Failed to parse saved chat messages");
+            }
+        }
+        setIsLoaded(true);
+    }, []);
+
+    // Save to localStorage whenever messages change
+    useEffect(() => {
+        if (isLoaded) {
+            localStorage.setItem('coach_messages', JSON.stringify(messages));
+        }
+    }, [messages, isLoaded]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
