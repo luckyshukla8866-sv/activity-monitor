@@ -43,7 +43,7 @@ export default function ForecastPage() {
         setLoading(true);
         try {
             const [f, b] = await Promise.allSettled([
-                insightsAPI.getForecast(7),
+                insightsAPI.getForecast(30),
                 insightsAPI.getBurnout(),
             ]);
             if (f.status === 'fulfilled') setForecast(f.value);

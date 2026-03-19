@@ -84,11 +84,11 @@ export default function DashboardPage() {
     const loadAll = async () => {
         const [overviewRes, distRes, topRes, timelineRes, productivityRes, burnoutRes] =
             await Promise.allSettled([
-                analyticsAPI.getOverview(),
-                analyticsAPI.getAppDistribution(7),
-                analyticsAPI.getTopApps(5, 7),
+                analyticsAPI.getOverview(30),
+                analyticsAPI.getAppDistribution(30),
+                analyticsAPI.getTopApps(5, 30),
                 analyticsAPI.getTimeline(),
-                insightsAPI.getProductivity(7),
+                insightsAPI.getProductivity(30),
                 insightsAPI.getBurnout(),
             ]);
 
@@ -129,7 +129,7 @@ export default function DashboardPage() {
                 </div>
                 {/* Date range picker placeholder */}
                 <div className="hidden md:flex glass-card px-4 py-2 border-white/5 text-sm text-white/60 cursor-pointer hover:bg-white/5 transition-colors">
-                    Last 7 Days
+                    Last 30 Days
                 </div>
             </div>
 

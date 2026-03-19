@@ -129,8 +129,10 @@ export const screenshotsAPI = {
 
 // Analytics API
 export const analyticsAPI = {
-    getOverview: async () => {
-        const response = await apiClient.get('/api/analytics/overview');
+    getOverview: async (days: number = 7) => {
+        const response = await apiClient.get('/api/analytics/overview', {
+            params: { days },
+        });
         return response.data;
     },
 

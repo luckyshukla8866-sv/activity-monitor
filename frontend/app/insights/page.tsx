@@ -26,7 +26,7 @@ const CATEGORY_ICONS: Record<string, any> = {
 export default function InsightsPage() {
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [days, setDays] = useState(7);
+    const [days, setDays] = useState(30);
 
     useEffect(() => {
         loadData();
@@ -102,6 +102,7 @@ export default function InsightsPage() {
                     <option value={3} className="bg-[#0a0a16]">Last 3 Days</option>
                     <option value={7} className="bg-[#0a0a16]">Last 7 Days</option>
                     <option value={14} className="bg-[#0a0a16]">Last 14 Days</option>
+                    <option value={30} className="bg-[#0a0a16]">Last 30 Days</option>
                 </select>
             </div>
 

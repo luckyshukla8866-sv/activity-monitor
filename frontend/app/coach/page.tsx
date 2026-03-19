@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback, KeyboardEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Send, Bot, User, Sparkles, Activity, Zap,
-    Brain, Clock, Target, TrendingUp, Trash2, RotateCcw,
+    Brain, Target, TrendingUp, RotateCcw,
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
@@ -23,11 +23,10 @@ type Message = {
 /* ── Quick-prompt suggestions ──────────────────────────────────────── */
 
 const SUGGESTIONS = [
-    { icon: Target, label: 'How productive was I this week?', color: 'from-emerald-500/20 to-teal-500/20 border-emerald-500/20 text-emerald-300' },
-    { icon: TrendingUp, label: 'What are my focus trends?', color: 'from-blue-500/20 to-cyan-500/20 border-blue-500/20 text-blue-300' },
+    { icon: TrendingUp, label: 'Why was my productivity low this week?', color: 'from-rose-500/20 to-pink-500/20 border-rose-500/20 text-rose-300' },
+    { icon: Target, label: 'When am I most focused?', color: 'from-emerald-500/20 to-teal-500/20 border-emerald-500/20 text-emerald-300' },
     { icon: Brain, label: 'Am I at risk of burnout?', color: 'from-amber-500/20 to-orange-500/20 border-amber-500/20 text-amber-300' },
-    { icon: Clock, label: 'When is my peak focus time?', color: 'from-violet-500/20 to-purple-500/20 border-violet-500/20 text-violet-300' },
-    { icon: Zap, label: 'Give me tips to improve deep work', color: 'from-rose-500/20 to-pink-500/20 border-rose-500/20 text-rose-300' },
+    { icon: Zap, label: 'What apps are hurting my focus?', color: 'from-violet-500/20 to-purple-500/20 border-violet-500/20 text-violet-300' },
 ];
 
 /* ── Typing indicator ──────────────────────────────────────────────── */
