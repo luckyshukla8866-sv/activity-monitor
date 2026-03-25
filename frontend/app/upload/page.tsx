@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, FileText, CheckCircle, AlertCircle, Download, ArrowRight, Sparkles, Info } from 'lucide-react';
 import { uploadAPI } from '@/lib/api';
+import OnboardingChatWidget from '@/components/OnboardingChatWidget';
 
 export default function UploadPage() {
     const router = useRouter();
@@ -401,6 +402,9 @@ Visual Studio Code,api.ts - frontend,2026-03-10T11:15:00,2026-03-10T12:30:00,450
                     </div>
                 </div>
             </motion.div>
+
+            {/* Floating AI Chat Widget */}
+            <OnboardingChatWidget />
         </div>
     );
 }

@@ -247,3 +247,108 @@ async def ai_chat(request: ChatRequest, db: Session = Depends(get_db)):
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"Groq API error: {str(e)}",
         )
+
+
+# ── Onboarding Chat ─────────────────────────────────────────────────────
+
+ONBOARDING_SYSTEM_PROMPT = """\
+You are a friendly onboarding assistant for the **Activity Monitor** application.
+Your job is to help NEW users understand what the app does, how it works, \
+and how to get started — BEFORE they upload any data.
+
+About the Application:
+Activity Monitor is a productivity analytics platform that tracks computer \
+and browser usage, then provides AI-powered insights to help users improve \
+focus, manage time, and avoid burnout.
+
+Key Features:
+1. **CSV Upload** — Users upload a CSV file of their activity data. The system \
+   auto-detects columns (app_name, start_time, duration or end_time are required; \
+   window_title, mouse_clicks, key_presses are optional). Supports any date \
+   format, and comma/semicolon/tab/pipe delimiters.
+2. **Dashboard** — Beautiful glassmorphic dark-theme dashboard showing: \
+   Active Time, Top Applications, Productivity Score, Activity Timeline \
+   (hourly), Time Distribution (pie chart), and Session counts. Has a \
+   source filter: All / Desktop / Browser.
+3. **Sessions Page** — Table of every tracked activity session with \
+   filtering, sorting, bulk delete, and detail expansion.
+4. **ML Insights** — Machine-learning powered analysis: Productivity Score, \
+   Focus Patterns, Burnout Risk, and App Category breakdowns.
+5. **Forecast** — Predicts future productivity trends based on historical data.
+6. **AI Coach** — Chat with an AI productivity coach (powered by Groq LLaMA) \
+   that analyzes your last 30 days of data and gives personalized advice.
+7. **Chrome Extension** — Optional browser tracker that records which websites \
+   you visit and for how long. Auto-categorizes 60+ domains (GitHub=Deep Work, \
+   YouTube=Distraction, Slack=Communication, etc.). Syncs every 60 seconds.
+
+Getting Started:
+1. Download the sample CSV (button on this page) to see the expected format.
+2. Drag & drop or click to upload your CSV file.
+3. The system will auto-detect your columns, import the data, and redirect \
+   you to the Dashboard.
+4. Explore the Dashboard, ML Insights, Forecast, and AI Coach pages.
+
+Rules:
+- Keep answers short and friendly (under 150 words unless asked for detail).
+- If the user asks about something outside this app, politely redirect them.
+- Use emoji occasionally to be welcoming 🎉
+- If the user is confused about CSV format, walk them through it step by step.
+- Always be encouraging — this is their first time using the app!
+"""
+
+
+class OnboardingRequest(BaseModel):
+    question: str = Field(..., min_length=1, max_length=2000)
+
+
+@router.post("/onboarding", response_model=ChatResponse)
+async def onboarding_chat(request: OnboardingRequest):
+    """
+    Lightweight AI chat for the upload/onboarding page.
+    Answers questions about the app, features, and how to get started.
+    Does NOT require user data or authentication.
+    """
+    if not _HAS_GROQ:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="groq package is not installed. Run: pip install groq",
+        )
+
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI service not configured. Set GROQ_API_KEY in environment.",
+        )
+
+    try:
+        client = Groq(api_key=api_key)
+        model = os.getenv("GROQ_MODEL", "llama-3.1-70b-versatile")
+
+        completion = client.chat.completions.create(
+            model=model,
+            max_tokens=512,
+            messages=[
+                {"role": "system", "content": ONBOARDING_SYSTEM_PROMPT},
+                {"role": "user", "content": request.question},
+            ],
+        )
+
+        answer_text = completion.choices[0].message.content
+        tokens_used = (
+            completion.usage.prompt_tokens + completion.usage.completion_tokens
+        )
+
+        return ChatResponse(answer=answer_text, tokens_used=tokens_used)
+
+    except Exception as e:
+        error_str = str(e).lower()
+        if "rate limit" in error_str or "429" in error_str:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="AI rate limit reached. Please wait a moment and try again.",
+            )
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"AI service error: {str(e)}",
+        )
