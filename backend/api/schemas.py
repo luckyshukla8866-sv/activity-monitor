@@ -63,6 +63,7 @@ class ActivitySessionResponse(ActivitySessionBase):
     start_time: datetime
     end_time: Optional[datetime]
     duration_seconds: float
+    source: str = "desktop"
     created_at: datetime
     screenshot_count: Optional[int] = 0
     

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Activity, Clock, Trophy, BrainCircuit, ArrowUpRight, ArrowDownRight, Layers } from 'lucide-react';
+import { Activity, Clock, Trophy, BrainCircuit, ArrowUpRight, ArrowDownRight, Layers, Monitor, Globe, Chrome } from 'lucide-react';
 import { analyticsAPI, insightsAPI } from '@/lib/api';
 import dynamic from 'next/dynamic';
 import GlassCard from '@/components/GlassCard';
@@ -66,6 +66,15 @@ function AnimatedStatCard({ title, value, unit, icon: Icon, trend, delay, isSmal
     );
 }
 
+// Source filter type
+type SourceFilter = 'all' | 'desktop' | 'browser';
+
+const SOURCE_BUTTONS: { key: SourceFilter; label: string; icon: any }[] = [
+    { key: 'all', label: 'All', icon: Globe },
+    { key: 'desktop', label: 'Desktop', icon: Monitor },
+    { key: 'browser', label: 'Browser', icon: Chrome },
+];
+
 export default function DashboardPage() {
     const [overview, setOverview] = useState<any>(null);
     const [mlData, setMlData] = useState<any>(null);
@@ -74,20 +83,17 @@ export default function DashboardPage() {
         topApps: any[] | null;
         timeline: any[] | null;
     }>({ distribution: null, topApps: null, timeline: null });
+    const [sourceFilter, setSourceFilter] = useState<SourceFilter>('all');
 
-    useEffect(() => {
-        loadAll();
-        const interval = setInterval(loadAll, 60000);
-        return () => clearInterval(interval);
-    }, []);
+    const loadAll = useCallback(async () => {
+        const src = sourceFilter === 'all' ? undefined : sourceFilter;
 
-    const loadAll = async () => {
         const [overviewRes, distRes, topRes, timelineRes, productivityRes, burnoutRes] =
             await Promise.allSettled([
-                analyticsAPI.getOverview(30),
-                analyticsAPI.getAppDistribution(30),
-                analyticsAPI.getTopApps(5, 30),
-                analyticsAPI.getTimeline(),
+                analyticsAPI.getOverview(30, src),
+                analyticsAPI.getAppDistribution(30, src),
+                analyticsAPI.getTopApps(5, 30, src),
+                analyticsAPI.getTimeline(undefined, src),
                 insightsAPI.getProductivity(30),
                 insightsAPI.getBurnout(),
             ]);
@@ -103,7 +109,13 @@ export default function DashboardPage() {
         if (productivityRes.status === 'fulfilled') ml.productivity = productivityRes.value;
         if (burnoutRes.status === 'fulfilled') ml.burnout = burnoutRes.value;
         setMlData(ml);
-    };
+    }, [sourceFilter]);
+
+    useEffect(() => {
+        loadAll();
+        const interval = setInterval(loadAll, 60000);
+        return () => clearInterval(interval);
+    }, [loadAll]);
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -122,14 +134,36 @@ export default function DashboardPage() {
 
     return (
         <motion.div variants={containerVariants} initial="hidden" animate="visible" className="pb-10 font-sans">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight text-white/90">Dashboard Overview</h1>
                     <p className="text-sm text-white/40 mt-1">Your local productivity metrics</p>
                 </div>
-                {/* Date range picker placeholder */}
-                <div className="hidden md:flex glass-card px-4 py-2 border-white/5 text-sm text-white/60 cursor-pointer hover:bg-white/5 transition-colors">
-                    Last 30 Days
+                <div className="flex items-center gap-2">
+                    {/* Source filter buttons */}
+                    <div className="flex items-center rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-md p-1 gap-0.5">
+                        {SOURCE_BUTTONS.map(({ key, label, icon: BtnIcon }) => (
+                            <button
+                                key={key}
+                                onClick={() => setSourceFilter(key)}
+                                className={`
+                                    flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold tracking-wide
+                                    transition-all duration-200 cursor-pointer
+                                    ${sourceFilter === key
+                                        ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 shadow-[0_0_12px_rgba(99,102,241,0.15)]'
+                                        : 'text-white/40 hover:text-white/60 hover:bg-white/[0.04] border border-transparent'
+                                    }
+                                `}
+                            >
+                                <BtnIcon className="w-3.5 h-3.5" />
+                                {label}
+                            </button>
+                        ))}
+                    </div>
+                    {/* Date range pill */}
+                    <div className="hidden md:flex glass-card px-4 py-2 border-white/5 text-sm text-white/60 cursor-pointer hover:bg-white/5 transition-colors">
+                        Last 30 Days
+                    </div>
                 </div>
             </div>
 

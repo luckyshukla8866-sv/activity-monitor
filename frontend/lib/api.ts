@@ -129,30 +129,30 @@ export const screenshotsAPI = {
 
 // Analytics API
 export const analyticsAPI = {
-    getOverview: async (days: number = 7) => {
+    getOverview: async (days: number = 7, source?: string) => {
         const response = await apiClient.get('/api/analytics/overview', {
-            params: { days },
+            params: { days, source },
         });
         return response.data;
     },
 
-    getAppDistribution: async (days: number = 7) => {
+    getAppDistribution: async (days: number = 7, source?: string) => {
         const response = await apiClient.get('/api/analytics/app-distribution', {
-            params: { days },
+            params: { days, source },
         });
         return response.data;
     },
 
-    getTimeline: async (date?: string) => {
+    getTimeline: async (date?: string, source?: string) => {
         const response = await apiClient.get('/api/analytics/timeline', {
-            params: { date },
+            params: { date, source },
         });
         return response.data;
     },
 
-    getTopApps: async (limit: number = 5, days: number = 7) => {
+    getTopApps: async (limit: number = 5, days: number = 7, source?: string) => {
         const response = await apiClient.get('/api/analytics/top-apps', {
-            params: { limit, days },
+            params: { limit, days, source },
         });
         return response.data;
     },

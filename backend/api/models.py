@@ -43,6 +43,7 @@ class ActivitySession(Base):
     duration_seconds = Column(Float, default=0.0, nullable=False)
     mouse_clicks = Column(BigInteger, default=0, nullable=False)   # Total mouse clicks in this session
     key_presses  = Column(BigInteger, default=0, nullable=False)   # Total key presses in this session
+    source       = Column(String(50), default="desktop", nullable=False, index=True)  # 'desktop' | 'browser'
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     
     # Relationships

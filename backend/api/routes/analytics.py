@@ -28,9 +28,17 @@ from api.auth import get_optional_user
 router = APIRouter(prefix="/api/analytics", tags=["analytics"])
 
 
+def _source_filter(query, source: Optional[str]):
+    """Apply optional source filter (desktop / browser / None=all)."""
+    if source and source in ("desktop", "browser"):
+        return query.filter(ActivitySession.source == source)
+    return query
+
+
 @router.get("/overview", response_model=OverviewStats)
 async def get_overview_stats(
     days: int = Query(7, ge=1, le=90),
+    source: Optional[str] = Query(None, regex="^(desktop|browser)$"),
     current_user: User = Depends(get_optional_user),
     db: Session = Depends(get_db)
 ):
@@ -39,37 +47,35 @@ async def get_overview_stats(
     
     Args:
         days: Number of days to look back (default: 7)
+        source: Optional filter — 'desktop', 'browser', or omit for all
         current_user: Current authenticated user
         db: Database session
     
     Returns:
         Overview statistics
     """
-    # Get date range
     start_date = datetime.now() - timedelta(days=days)
     
-    # Total active hours
-    total_duration = db.query(func.sum(ActivitySession.duration_seconds)).filter(
+    base = db.query(func.sum(ActivitySession.duration_seconds)).filter(
         ActivitySession.user_id == current_user.id,
         ActivitySession.start_time >= start_date,
-    ).scalar() or 0
-    
+    )
+    total_duration = _source_filter(base, source).scalar() or 0
     total_active_hours = total_duration / 3600
     
-    # Total sessions
-    total_sessions = db.query(ActivitySession).filter(
+    base_count = db.query(ActivitySession).filter(
         ActivitySession.user_id == current_user.id,
         ActivitySession.start_time >= start_date,
-    ).count()
+    )
+    total_sessions = _source_filter(base_count, source).count()
     
-    # Total unique apps tracked
-    total_apps = db.query(func.count(func.distinct(ActivitySession.app_name))).filter(
+    base_apps = db.query(func.count(func.distinct(ActivitySession.app_name))).filter(
         ActivitySession.user_id == current_user.id,
         ActivitySession.start_time >= start_date,
-    ).scalar() or 0
+    )
+    total_apps = _source_filter(base_apps, source).scalar() or 0
     
-    # Calculate idle time (assuming 8 hour work day * number of days)
-    work_hours = 8 * 3600 * days  # 8 hours per day in seconds
+    work_hours = 8 * 3600 * days
     idle_time = max(0, work_hours - total_duration)
     
     return {
@@ -84,40 +90,28 @@ async def get_overview_stats(
 @router.get("/app-distribution", response_model=List[AppDistribution])
 async def get_app_distribution(
     days: int = Query(7, ge=1, le=90),
+    source: Optional[str] = Query(None, regex="^(desktop|browser)$"),
     current_user: User = Depends(get_optional_user),
     db: Session = Depends(get_db)
 ):
     """
     Get application usage distribution for pie chart.
-    
-    Args:
-        days: Number of days to analyze
-        current_user: Current authenticated user
-        db: Database session
-    
-    Returns:
-        List of app usage data
     """
     start_date = datetime.now() - timedelta(days=days)
     
-    # Query app usage
-    results = db.query(
+    base = db.query(
         ActivitySession.app_name,
         func.sum(ActivitySession.duration_seconds).label('total_duration'),
         func.count(ActivitySession.id).label('session_count')
     ).filter(
         ActivitySession.user_id == current_user.id,
         ActivitySession.start_time >= start_date
-    ).group_by(
-        ActivitySession.app_name
-    ).order_by(
-        desc('total_duration')
-    ).all()
+    )
+    base = _source_filter(base, source)
+    results = base.group_by(ActivitySession.app_name).order_by(desc('total_duration')).all()
     
-    # Calculate total for percentages
     total_duration = sum(r.total_duration for r in results)
     
-    # Build response
     distribution = []
     for result in results:
         percentage = (result.total_duration / total_duration * 100) if total_duration > 0 else 0
@@ -134,32 +128,24 @@ async def get_app_distribution(
 @router.get("/timeline", response_model=List[TimelineData])
 async def get_activity_timeline(
     date: Optional[datetime] = None,
+    source: Optional[str] = Query(None, regex="^(desktop|browser)$"),
     current_user: User = Depends(get_optional_user),
     db: Session = Depends(get_db)
 ):
     """
     Get hourly activity timeline for line chart.
-    
-    Args:
-        date: Date to analyze (defaults to today)
-        current_user: Current authenticated user
-        db: Database session
-    
-    Returns:
-        Hourly activity data
     """
     target_date = date or datetime.today()
     day_start = datetime.combine(target_date, time.min)
     day_end = datetime.combine(target_date, time.max)
     
-    # Get all sessions for the day
-    sessions = db.query(ActivitySession).filter(
+    base = db.query(ActivitySession).filter(
         ActivitySession.user_id == current_user.id,
         ActivitySession.start_time >= day_start,
         ActivitySession.start_time <= day_end
-    ).all()
+    )
+    sessions = _source_filter(base, source).all()
     
-    # Aggregate by hour
     hourly_data = {}
     for hour in range(24):
         hourly_data[hour] = {'active_minutes': 0, 'session_count': 0}
@@ -169,7 +155,6 @@ async def get_activity_timeline(
         hourly_data[hour]['active_minutes'] += session.duration_seconds / 60
         hourly_data[hour]['session_count'] += 1
     
-    # Build response
     timeline = []
     for hour in range(24):
         timeline.append({
@@ -185,35 +170,25 @@ async def get_activity_timeline(
 async def get_top_apps(
     limit: int = Query(5, ge=1, le=20),
     days: int = Query(7, ge=1, le=90),
+    source: Optional[str] = Query(None, regex="^(desktop|browser)$"),
     current_user: User = Depends(get_optional_user),
     db: Session = Depends(get_db)
 ):
     """
     Get top N most used applications.
-    
-    Args:
-        limit: Number of top apps to return
-        days: Number of days to analyze
-        current_user: Current authenticated user
-        db: Database session
-    
-    Returns:
-        List of top apps
     """
     start_date = datetime.now() - timedelta(days=days)
     
-    results = db.query(
+    base = db.query(
         ActivitySession.app_name,
         func.sum(ActivitySession.duration_seconds).label('total_duration'),
         func.count(ActivitySession.id).label('session_count')
     ).filter(
         ActivitySession.user_id == current_user.id,
         ActivitySession.start_time >= start_date
-    ).group_by(
-        ActivitySession.app_name
-    ).order_by(
-        desc('total_duration')
-    ).limit(limit).all()
+    )
+    base = _source_filter(base, source)
+    results = base.group_by(ActivitySession.app_name).order_by(desc('total_duration')).limit(limit).all()
     
     top_apps = []
     for result in results:
