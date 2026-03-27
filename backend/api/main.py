@@ -72,6 +72,39 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             print(f"[WARN] Could not seed demo data: {e}")
 
+    # Always ensure an admin user exists
+    try:
+        from api.models import User
+        from api.auth import get_password_hash
+        db = SessionLocal()
+        admin_user = db.query(User).filter(User.username == "admin").first()
+        if not admin_user:
+            admin_user = User(
+                username="admin",
+                password_hash=get_password_hash("admin123"),
+                device_name="System",
+                is_admin=True
+            )
+            db.add(admin_user)
+            db.commit()
+            print("[OK] Created default admin user: admin / admin123")
+
+        cloud_user = db.query(User).filter(User.username == "cloud_user").first()
+        if not cloud_user:
+            cloud_user = User(
+                username="cloud_user",
+                password_hash=get_password_hash("default_password"),
+                device_name="Demo Device",
+                is_admin=False
+            )
+            db.add(cloud_user)
+            db.commit()
+            print("[OK] Created demo user: cloud_user")
+    except Exception as e:
+        print(f"[WARN] Could not create admin user: {e}")
+    finally:
+        db.close()
+
     # Register WebSocket manager (only if monitoring_engine is available)
     try:
         from monitoring_engine.app_state import monitoring_state
