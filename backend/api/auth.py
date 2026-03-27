@@ -181,11 +181,12 @@ async def get_optional_user(db: Session = Depends(get_db)) -> User:
             username=username,
             password_hash=get_password_hash("default_password"),
             device_name=device,
+            is_admin=(username == "cloud_user"),
         )
         db.add(user)
         db.commit()
         db.refresh(user)
-        print(f"[OK] Created user: {user.username}")
+        print(f"[OK] Created user: {user.username} (admin={user.is_admin})")
 
     return user
 

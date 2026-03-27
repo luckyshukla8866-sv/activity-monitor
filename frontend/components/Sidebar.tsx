@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard,
@@ -13,22 +13,31 @@ import {
     ChevronRight,
     Upload,
     Sparkles,
+    LogOut,
+    Shield,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import GradientText from './GradientText';
 
 const menuItems = [
-    { icon: Upload, label: 'Upload', href: '/' },
+    { icon: Upload, label: 'Upload', href: '/upload' },
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
     { icon: Brain, label: 'ML Insights', href: '/insights' },
     { icon: Activity, label: 'Forecast', href: '/forecast' },
     { icon: TableIcon, label: 'Sessions', href: '/sessions' },
     { icon: Sparkles, label: 'AI Coach', href: '/coach' },
+    { icon: Shield, label: 'Admin', href: '/admin' },
 ];
 
 export default function Sidebar() {
     const [collapsed, setCollapsed] = useState(false);
     const pathname = usePathname();
+    const router = useRouter();
+
+    const handleLogout = () => {
+        localStorage.removeItem('access_token');
+        router.push('/login');
+    };
 
     return (
         <motion.div
@@ -93,11 +102,29 @@ export default function Sidebar() {
                 })}
             </nav>
 
-            {/* Collapse Button */}
-            <div className="p-3 border-t border-white/5">
+            {/* Bottom actions */}
+            <div className="p-3 border-t border-white/5 space-y-1">
+                <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
+                >
+                    <LogOut className="w-5 h-5 shrink-0" />
+                    <AnimatePresence mode="wait">
+                        {!collapsed && (
+                            <motion.span
+                                initial={{ opacity: 0, width: 0 }}
+                                animate={{ opacity: 1, width: 'auto' }}
+                                exit={{ opacity: 0, width: 0 }}
+                                className="font-medium whitespace-nowrap overflow-hidden text-sm"
+                            >
+                                Logout
+                            </motion.span>
+                        )}
+                    </AnimatePresence>
+                </button>
                 <button
                     onClick={() => setCollapsed(!collapsed)}
-                    className="w-full flex items-center justify-center p-2 rounded-xl text-white/50 hover:text-white hover:bg-white/5 transition-colors"
+                    className="w-full flex items-center justify-center p-2 rounded-xl text-white/50 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
                 >
                     {collapsed ? (
                         <ChevronRight className="w-5 h-5" />

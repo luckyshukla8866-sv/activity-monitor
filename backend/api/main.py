@@ -14,7 +14,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from config import settings
 from api.database import init_db, SessionLocal
-from api.routes import users, sessions, analytics, insights, ai_chat
+from api.routes import users, sessions, analytics, insights, ai_chat, admin
 
 
 class ConnectionManager:
@@ -130,6 +130,7 @@ app.include_router(sessions.router)
 app.include_router(analytics.router)
 app.include_router(insights.router)
 app.include_router(ai_chat.router)
+app.include_router(admin.router)
 
 
 # Root endpoint
