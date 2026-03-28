@@ -17,7 +17,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from api.database import get_db
 from api.models import User, ActivitySession
-from api.auth import get_optional_user
+from api.auth import get_current_user
 from api.ml_engine.classifier import get_productivity_summary
 from api.ml_engine.anomaly import detect_burnout
 from api.ml_engine.forecasting import predict_peak_hours
@@ -235,7 +235,7 @@ def _parse_duration(row: dict, col_map: Dict[str, str]) -> Optional[float]:
 @router.get("/productivity")
 async def get_productivity_insights(
     days: int = 7,
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """
@@ -249,7 +249,7 @@ async def get_productivity_insights(
 
 @router.get("/burnout")
 async def get_burnout_analysis(
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """
@@ -264,7 +264,7 @@ async def get_burnout_analysis(
 @router.get("/forecast")
 async def get_forecast(
     days: int = 7,
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """
@@ -279,7 +279,7 @@ async def get_forecast(
 @router.post("/upload")
 async def upload_csv(
     file: UploadFile = File(...),
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """

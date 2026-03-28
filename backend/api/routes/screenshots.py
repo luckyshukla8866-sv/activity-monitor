@@ -16,7 +16,7 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 from api.database import get_db
 from api.models import User, Screenshot, ActivitySession
 from api.schemas import ScreenshotCreate, ScreenshotResponse
-from api.auth import get_optional_user
+from api.auth import get_current_user
 from api.utils.encryption import decrypt_file
 
 router = APIRouter(prefix="/api/screenshots", tags=["screenshots"])
@@ -27,7 +27,7 @@ async def list_screenshots(
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
     session_id: Optional[int] = None,
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -61,7 +61,7 @@ async def list_screenshots(
 @router.get("/{screenshot_id}", response_class=Response)
 async def get_screenshot(
     screenshot_id: int,
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -116,7 +116,7 @@ async def get_screenshot(
 @router.get("/session/{session_id}", response_model=List[ScreenshotResponse])
 async def get_session_screenshots(
     session_id: int,
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -155,7 +155,7 @@ async def get_session_screenshots(
 @router.post("", response_model=ScreenshotResponse, status_code=status.HTTP_201_CREATED)
 async def create_screenshot(
     screenshot: ScreenshotCreate,
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -202,7 +202,7 @@ async def create_screenshot(
 @router.delete("/{screenshot_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_screenshot(
     screenshot_id: int,
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -243,7 +243,7 @@ async def delete_screenshot(
 @router.post("/bulk-delete")
 async def bulk_delete_screenshots(
     payload: dict,
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """

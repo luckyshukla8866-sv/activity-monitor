@@ -22,7 +22,7 @@ from api.schemas import (
     ActivitySessionUpdate,
     PaginatedResponse
 )
-from api.auth import get_optional_user
+from api.auth import get_current_user
 
 router = APIRouter(prefix="/api/sessions", tags=["sessions"])
 
@@ -213,7 +213,7 @@ def _resolve_domain(url: str) -> tuple[str, str, str]:
 @router.post("/browser")
 async def ingest_browser_sessions(
     payload: BrowserSessionBatch,
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """
@@ -274,7 +274,7 @@ async def list_sessions(
     date_from: Optional[datetime] = None,
     date_to: Optional[datetime] = None,
     app_name: Optional[str] = None,
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -333,7 +333,7 @@ async def list_sessions(
 @router.get("/{session_id}", response_model=ActivitySessionResponse)
 async def get_session(
     session_id: int,
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -373,7 +373,7 @@ async def get_session(
 @router.post("", response_model=ActivitySessionResponse, status_code=status.HTTP_201_CREATED)
 async def create_session(
     session: ActivitySessionCreate,
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -406,7 +406,7 @@ async def create_session(
 async def update_session(
     session_id: int,
     session_update: ActivitySessionUpdate,
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -452,7 +452,7 @@ async def update_session(
 @router.delete("/{session_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_session(
     session_id: int,
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -495,7 +495,7 @@ async def delete_session(
 @router.post("/bulk-delete")
 async def bulk_delete_sessions(
     payload: dict,
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -540,7 +540,7 @@ async def bulk_delete_sessions(
 
 @router.get("/stats/summary")
 async def get_session_stats(
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """

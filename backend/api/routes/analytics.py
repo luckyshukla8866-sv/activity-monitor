@@ -23,7 +23,7 @@ from api.schemas import (
     TopApp,
     AnalyticsResponse
 )
-from api.auth import get_optional_user
+from api.auth import get_current_user
 
 router = APIRouter(prefix="/api/analytics", tags=["analytics"])
 
@@ -39,7 +39,7 @@ def _source_filter(query, source: Optional[str]):
 async def get_overview_stats(
     days: int = Query(7, ge=1, le=90),
     source: Optional[str] = Query(None, regex="^(desktop|browser)$"),
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -91,7 +91,7 @@ async def get_overview_stats(
 async def get_app_distribution(
     days: int = Query(7, ge=1, le=90),
     source: Optional[str] = Query(None, regex="^(desktop|browser)$"),
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -129,7 +129,7 @@ async def get_app_distribution(
 async def get_activity_timeline(
     date: Optional[datetime] = None,
     source: Optional[str] = Query(None, regex="^(desktop|browser)$"),
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -171,7 +171,7 @@ async def get_top_apps(
     limit: int = Query(5, ge=1, le=20),
     days: int = Query(7, ge=1, le=90),
     source: Optional[str] = Query(None, regex="^(desktop|browser)$"),
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -205,7 +205,7 @@ async def get_top_apps(
 async def export_csv(
     date_from: Optional[datetime] = None,
     date_to: Optional[datetime] = None,
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -283,7 +283,7 @@ async def export_csv(
 @router.get("/export/summary")
 async def export_summary(
     days: int = Query(7, ge=1, le=90),
-    current_user: User = Depends(get_optional_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
