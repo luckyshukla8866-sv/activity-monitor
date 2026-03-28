@@ -25,6 +25,7 @@ class UserLogin(BaseModel):
 
 class UserResponse(UserBase):
     id: int
+    is_admin: bool = False
     created_at: datetime
     updated_at: datetime
     

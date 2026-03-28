@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,21 +18,43 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import GradientText from './GradientText';
+import axios from 'axios';
 
-const menuItems = [
+const baseMenuItems = [
     { icon: Upload, label: 'Upload', href: '/upload' },
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
     { icon: Brain, label: 'ML Insights', href: '/insights' },
     { icon: Activity, label: 'Forecast', href: '/forecast' },
     { icon: TableIcon, label: 'Sessions', href: '/sessions' },
     { icon: Sparkles, label: 'AI Coach', href: '/coach' },
-    { icon: Shield, label: 'Admin', href: '/admin' },
 ];
+
+const adminMenuItem = { icon: Shield, label: 'Admin', href: '/admin' };
 
 export default function Sidebar() {
     const [collapsed, setCollapsed] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
     const pathname = usePathname();
     const router = useRouter();
+
+    // Check if the current user is an admin
+    useEffect(() => {
+        const token = localStorage.getItem('access_token');
+        if (!token) return;
+
+        const client = axios.create();
+        client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+        client.get('/auth/me')
+            .then((res) => {
+                setIsAdmin(res.data?.is_admin === true);
+            })
+            .catch(() => {
+                setIsAdmin(false);
+            });
+    }, []);
+
+    const menuItems = isAdmin ? [...baseMenuItems, adminMenuItem] : baseMenuItems;
 
     const handleLogout = () => {
         localStorage.removeItem('access_token');
