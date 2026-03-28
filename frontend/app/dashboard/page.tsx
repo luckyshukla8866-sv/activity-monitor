@@ -78,6 +78,7 @@ const SOURCE_BUTTONS: { key: SourceFilter; label: string; icon: any }[] = [
 export default function DashboardPage() {
     const [overview, setOverview] = useState<any>(null);
     const [mlData, setMlData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
     const [chartData, setChartData] = useState<{
         distribution: any[] | null;
         topApps: any[] | null;
@@ -88,30 +89,37 @@ export default function DashboardPage() {
     const loadAll = useCallback(async () => {
         const src = sourceFilter === 'all' ? undefined : sourceFilter;
 
-        const [overviewRes, distRes, topRes, timelineRes, productivityRes, burnoutRes] =
-            await Promise.allSettled([
-                analyticsAPI.getOverview(30, src),
-                analyticsAPI.getAppDistribution(30, src),
-                analyticsAPI.getTopApps(5, 30, src),
-                analyticsAPI.getTimeline(undefined, src),
-                insightsAPI.getProductivity(30),
-                insightsAPI.getBurnout(),
-            ]);
+        try {
+            const [overviewRes, distRes, topRes, timelineRes, productivityRes, burnoutRes] =
+                await Promise.allSettled([
+                    analyticsAPI.getOverview(30, src),
+                    analyticsAPI.getAppDistribution(30, src),
+                    analyticsAPI.getTopApps(5, 30, src),
+                    analyticsAPI.getTimeline(undefined, src),
+                    insightsAPI.getProductivity(30),
+                    insightsAPI.getBurnout(),
+                ]);
 
-        if (overviewRes.status === 'fulfilled') setOverview(overviewRes.value);
-        setChartData({
-            distribution: distRes.status === 'fulfilled' ? distRes.value : [],
-            topApps: topRes.status === 'fulfilled' ? topRes.value : [],
-            timeline: timelineRes.status === 'fulfilled' ? timelineRes.value : [],
-        });
+            if (overviewRes.status === 'fulfilled') setOverview(overviewRes.value);
+            setChartData({
+                distribution: distRes.status === 'fulfilled' ? distRes.value : [],
+                topApps: topRes.status === 'fulfilled' ? topRes.value : [],
+                timeline: timelineRes.status === 'fulfilled' ? timelineRes.value : [],
+            });
 
-        const ml: any = {};
-        if (productivityRes.status === 'fulfilled') ml.productivity = productivityRes.value;
-        if (burnoutRes.status === 'fulfilled') ml.burnout = burnoutRes.value;
-        setMlData(ml);
+            const ml: any = {};
+            if (productivityRes.status === 'fulfilled') ml.productivity = productivityRes.value;
+            if (burnoutRes.status === 'fulfilled') ml.burnout = burnoutRes.value;
+            setMlData(ml);
+        } catch {
+            // Silently handle — Promise.allSettled shouldn't throw, but just in case
+        } finally {
+            setLoading(false);
+        }
     }, [sourceFilter]);
 
     useEffect(() => {
+        setLoading(true);
         loadAll();
         const interval = setInterval(loadAll, 60000);
         return () => clearInterval(interval);
@@ -131,6 +139,17 @@ export default function DashboardPage() {
     const topApp = chartData.topApps && chartData.topApps.length > 0 ? chartData.topApps[0].app_name : '—';
     const totalSessions = overview?.total_sessions_today ?? 0;
     const avgSession = totalSessions > 0 && totalMinutes > 0 ? (totalMinutes / totalSessions) : 0;
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-[60vh]">
+                <div className="text-center space-y-4">
+                    <div className="w-8 h-8 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mx-auto" />
+                    <p className="text-sm text-white/40">Loading dashboard…</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <motion.div variants={containerVariants} initial="hidden" animate="visible" className="pb-10 font-sans">

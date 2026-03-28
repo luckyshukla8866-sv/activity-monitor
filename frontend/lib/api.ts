@@ -24,11 +24,16 @@ apiClient.interceptors.request.use((config) => {
     return config;
 });
 
-// Handle auth errors
+// Handle auth errors — only redirect for genuine 401s, not network errors
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
+        if (
+            error.response?.status === 401 &&
+            !error.config?.url?.startsWith('/auth/') &&       // don't loop on auth endpoints
+            typeof window !== 'undefined' &&
+            window.location.pathname !== '/login'              // prevent redirect loops
+        ) {
             localStorage.removeItem('access_token');
             window.location.href = '/login';
         }
