@@ -90,7 +90,13 @@ async def lifespan(app: FastAPI):
             print("[OK] Created default admin user: admin / admin123")
 
         cloud_user = db.query(User).filter(User.username == "cloud_user").first()
-        if not cloud_user:
+        if cloud_user:
+            # Ensure demo user NEVER has admin privileges (fixes a previous migration bug)
+            if getattr(cloud_user, 'is_admin', False):
+                cloud_user.is_admin = False
+                db.commit()
+                print("[OK] Revoked admin privileges from demo user")
+        else:
             cloud_user = User(
                 username="cloud_user",
                 password_hash=get_password_hash("default_password"),
