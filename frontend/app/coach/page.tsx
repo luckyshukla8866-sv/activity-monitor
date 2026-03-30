@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import apiClient from '@/lib/api';
+import { getUserStorageKey } from '@/lib/auth-utils';
 import GlassCard from '@/components/GlassCard';
 
 /* ── Types ─────────────────────────────────────────────────────────── */
@@ -143,9 +144,10 @@ export default function CoachPage() {
     const [messages, setMessages] = useState<Message[]>([DEFAULT_MESSAGE]);
     const [isLoaded, setIsLoaded] = useState(false);
 
-    // Load from localStorage on mount
+    // Load from localStorage on mount (namespaced by user)
     useEffect(() => {
-        const saved = localStorage.getItem('coach_messages');
+        const storageKey = getUserStorageKey('coach_messages');
+        const saved = localStorage.getItem(storageKey);
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
@@ -163,10 +165,11 @@ export default function CoachPage() {
         setIsLoaded(true);
     }, []);
 
-    // Save to localStorage whenever messages change
+    // Save to localStorage whenever messages change (namespaced by user)
     useEffect(() => {
         if (isLoaded) {
-            localStorage.setItem('coach_messages', JSON.stringify(messages));
+            const storageKey = getUserStorageKey('coach_messages');
+            localStorage.setItem(storageKey, JSON.stringify(messages));
         }
     }, [messages, isLoaded]);
     const [input, setInput] = useState('');

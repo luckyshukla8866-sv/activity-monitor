@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import GradientText from './GradientText';
+import { clearUserData } from '@/lib/auth-utils';
 import axios from 'axios';
 
 const baseMenuItems = [
@@ -57,7 +58,7 @@ export default function Sidebar() {
     const menuItems = isAdmin ? [...baseMenuItems, adminMenuItem] : baseMenuItems;
 
     const handleLogout = () => {
-        localStorage.removeItem('access_token');
+        clearUserData();  // clears token + all user-specific chat history
         router.push('/login');
     };
 

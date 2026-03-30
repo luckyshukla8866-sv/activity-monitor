@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { clearUserData } from '@/lib/auth-utils';
 
 // Pages that do NOT require authentication
 const PUBLIC_PATHS = ['/', '/login'];
@@ -13,7 +14,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         const handleUnauthorized = () => {
-            localStorage.removeItem('access_token');
+            clearUserData();  // clears token + all user-specific data
             router.replace('/login');
         };
 
