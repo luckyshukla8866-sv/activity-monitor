@@ -34,8 +34,7 @@ apiClient.interceptors.response.use(
             typeof window !== 'undefined' &&
             window.location.pathname !== '/login'              // prevent redirect loops
         ) {
-            localStorage.removeItem('access_token');
-            window.location.href = '/login';
+            window.dispatchEvent(new Event('auth:unauthorized'));
         }
         return Promise.reject(error);
     }

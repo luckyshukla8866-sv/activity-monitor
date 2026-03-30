@@ -12,6 +12,13 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     const [checked, setChecked] = useState(false);
 
     useEffect(() => {
+        const handleUnauthorized = () => {
+            localStorage.removeItem('access_token');
+            router.replace('/login');
+        };
+
+        window.addEventListener('auth:unauthorized', handleUnauthorized);
+        
         const token = localStorage.getItem('access_token');
         const isPublic = PUBLIC_PATHS.includes(pathname);
 
@@ -28,6 +35,8 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         }
 
         setChecked(true);
+
+        return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
     }, [pathname, router]);
 
     // Don't render protected content until auth check is done
