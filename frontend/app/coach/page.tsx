@@ -7,7 +7,7 @@ import {
     Brain, Target, TrendingUp, RotateCcw,
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import axios from 'axios';
+import apiClient from '@/lib/api';
 import GlassCard from '@/components/GlassCard';
 
 /* ── Types ─────────────────────────────────────────────────────────── */
@@ -212,9 +212,8 @@ export default function CoachPage() {
         if (textareaRef.current) textareaRef.current.style.height = 'auto';
 
         try {
-            const response = await axios.post('/api/ai/chat', {
+            const response = await apiClient.post('/api/ai/chat', {
                 question: userMsg.content,
-                user_id: 1,
             });
 
             const aiMsg: Message = {

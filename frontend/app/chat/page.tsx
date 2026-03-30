@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Bot, User, Loader2, Sparkles, Activity } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import axios from 'axios';
+import apiClient from '@/lib/api';
 import PageContainer from '@/components/PageContainer';
 import GlassCard from '@/components/GlassCard';
 
@@ -54,10 +54,8 @@ export default function ChatPage() {
         setIsLoading(true);
 
         try {
-            // Note: In a real app we'd get a real user_id from auth context
-            const response = await axios.post('/api/ai/chat', {
+            const response = await apiClient.post('/api/ai/chat', {
                 question: userMsg.content,
-                user_id: 1 // Default test user
             });
 
             const aiMsg: Message = {

@@ -23,6 +23,7 @@ except ImportError:
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from api.database import get_db
 from api.models import User, ActivitySession
+from api.auth import get_current_user
 
 router = APIRouter(prefix="/api/ai", tags=["ai"])
 
@@ -31,7 +32,6 @@ router = APIRouter(prefix="/api/ai", tags=["ai"])
 
 class ChatRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=2000)
-    user_id: int
 
 
 class ChatResponse(BaseModel):
@@ -153,27 +153,25 @@ Be encouraging but honest.\
 # ── Endpoint ─────────────────────────────────────────────────────────────
 
 @router.post("/chat", response_model=ChatResponse)
-async def ai_chat(request: ChatRequest, db: Session = Depends(get_db)):
+async def ai_chat(
+    request: ChatRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     """
     AI-powered productivity coach.
 
-    Fetches the user's last 30 days of activity sessions, formats them as
-    context, and sends the question to Groq (free tier LLaMA) for analysis.
+    Fetches the logged-in user's last 30 days of activity sessions,
+    formats them as context, and sends the question to Groq for analysis.
 
     Args:
-        request: ChatRequest with question and user_id
+        request: ChatRequest with question
+        current_user: JWT-authenticated user
         db: Database session
 
     Returns:
         ChatResponse with the AI answer and token usage
     """
-    # ── Validate user exists ─────────────────────────────────────────
-    user = db.query(User).filter(User.id == request.user_id).first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with id {request.user_id} not found",
-        )
 
     # ── Check package is installed ───────────────────────────────────
     if not _HAS_GROQ:
@@ -191,7 +189,7 @@ async def ai_chat(request: ChatRequest, db: Session = Depends(get_db)):
         )
 
     # ── Fetch & format session data ──────────────────────────────────
-    session_summary = _build_session_summary(db, request.user_id)
+    session_summary = _build_session_summary(db, current_user.id)
 
     # ── Call Groq API ────────────────────────────────────────────────
     try:
