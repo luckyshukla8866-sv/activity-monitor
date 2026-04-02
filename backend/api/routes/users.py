@@ -103,9 +103,9 @@ async def get_current_user_info(current_user: User = Depends(get_current_active_
         current_user: Current authenticated user
     
     Returns:
-        User information
+        User information with computed is_demo flag
     """
-    return current_user
+    return UserResponse.from_user(current_user)
 
 
 @router.put("/me", response_model=UserResponse)

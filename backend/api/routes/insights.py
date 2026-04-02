@@ -18,6 +18,7 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 from api.database import get_db
 from api.models import User, ActivitySession
 from api.auth import get_current_user
+from api.schemas import DEMO_USERNAMES
 from api.ml_engine.classifier import get_productivity_summary
 from api.ml_engine.anomaly import detect_burnout
 from api.ml_engine.forecasting import predict_peak_hours
@@ -298,6 +299,13 @@ async def upload_csv(
     """
     if not file.filename or not file.filename.endswith(".csv"):
         raise HTTPException(status_code=400, detail="Please upload a .csv file.")
+
+    # Block demo users from uploading data
+    if current_user.username in DEMO_USERNAMES:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Demo accounts cannot upload data. Please register your own account to upload and analyze your activity data.",
+        )
 
     try:
         contents = await file.read()

@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import GradientText from './GradientText';
-import { clearUserData } from '@/lib/auth-utils';
+import { clearUserData, isDemoUser } from '@/lib/auth-utils';
 import axios from 'axios';
 
 const baseMenuItems = [
@@ -35,11 +35,14 @@ const adminMenuItem = { icon: Shield, label: 'Admin', href: '/admin' };
 export default function Sidebar() {
     const [collapsed, setCollapsed] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isDemo, setIsDemo] = useState(false);
     const pathname = usePathname();
     const router = useRouter();
 
-    // Check if the current user is an admin
+    // Check role on mount
     useEffect(() => {
+        setIsDemo(isDemoUser());
+
         const token = localStorage.getItem('access_token');
         if (!token) return;
 
@@ -49,13 +52,18 @@ export default function Sidebar() {
         client.get('/auth/me')
             .then((res) => {
                 setIsAdmin(res.data?.is_admin === true);
+                setIsDemo(res.data?.is_demo === true);
             })
             .catch(() => {
                 setIsAdmin(false);
             });
     }, []);
 
-    const menuItems = isAdmin ? [...baseMenuItems, adminMenuItem] : baseMenuItems;
+    // Build menu items based on role
+    let menuItems = isDemo
+        ? baseMenuItems.filter((item) => item.href !== '/upload')  // demo: no upload
+        : baseMenuItems;
+    if (isAdmin) menuItems = [...menuItems, adminMenuItem];
 
     const handleLogout = () => {
         clearUserData();  // clears token + all user-specific chat history

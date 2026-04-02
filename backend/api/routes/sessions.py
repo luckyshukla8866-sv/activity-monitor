@@ -23,6 +23,7 @@ from api.schemas import (
     PaginatedResponse
 )
 from api.auth import get_current_user
+from api.schemas import DEMO_USERNAMES
 
 router = APIRouter(prefix="/api/sessions", tags=["sessions"])
 
@@ -224,6 +225,13 @@ async def ingest_browser_sessions(
     and assigns a category (deep_work, communication, distraction, etc.).
     Sessions are saved with source='browser'.
     """
+    # Block demo users from creating data
+    if current_user.username in DEMO_USERNAMES:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Demo accounts cannot upload data. Register your own account to track activity.",
+        )
+
     created = 0
     skipped = 0
     categories_seen: dict[str, int] = {}
@@ -387,6 +395,13 @@ async def create_session(
     Returns:
         Created session
     """
+    # Block demo users from creating data
+    if current_user.username in DEMO_USERNAMES:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Demo accounts cannot create sessions. Register your own account.",
+        )
+
     db_session = ActivitySession(
         user_id=current_user.id,
         app_name=session.app_name,

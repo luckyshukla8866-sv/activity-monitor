@@ -3,8 +3,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, FileText, CheckCircle, AlertCircle, Download, ArrowRight, Sparkles, Info } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, Download, ArrowRight, Sparkles, Info, Lock, UserPlus } from 'lucide-react';
 import { uploadAPI } from '@/lib/api';
+import { isDemoUser } from '@/lib/auth-utils';
 import OnboardingChatWidget from '@/components/OnboardingChatWidget';
 
 export default function UploadPage() {
@@ -16,6 +17,12 @@ export default function UploadPage() {
     const [dragOver, setDragOver] = useState(false);
     const [redirectCountdown, setRedirectCountdown] = useState<number | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isDemo, setIsDemo] = useState(false);
+
+    // Check if user is a demo account
+    useEffect(() => {
+        setIsDemo(isDemoUser());
+    }, []);
 
     // Auto-redirect to dashboard after successful upload
     useEffect(() => {
@@ -97,7 +104,61 @@ Visual Studio Code,api.ts - frontend,2026-03-10T11:15:00,2026-03-10T12:30:00,450
 
     return (
         <div className="space-y-6">
-            {/* Header */}
+            {/* Demo user restriction banner */}
+            {isDemo && (
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mx-auto max-w-2xl"
+                >
+                    <div className="relative overflow-hidden rounded-2xl border border-amber-500/20 bg-amber-500/[0.06] backdrop-blur-md p-8 text-center">
+                        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5" />
+                        <div className="relative z-10 space-y-4">
+                            <div className="mx-auto w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                                <Lock className="w-8 h-8 text-amber-400" />
+                            </div>
+                            <h2 className="text-xl font-semibold text-white/90">Demo Account — Upload Restricted</h2>
+                            <p className="text-sm text-white/50 max-w-md mx-auto leading-relaxed">
+                                Demo accounts can explore the Dashboard, ML Insights, Forecast, Sessions, and AI Coach
+                                with pre-loaded sample data — but cannot upload new data.
+                            </p>
+                            <p className="text-sm text-white/40">
+                                To upload and analyze your own activity data, create a free account:
+                            </p>
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => router.push('/login')}
+                                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl
+                                           bg-gradient-to-r from-indigo-500 to-violet-500
+                                           hover:from-indigo-400 hover:to-violet-400
+                                           text-white font-semibold text-sm shadow-lg shadow-indigo-500/20
+                                           transition-all cursor-pointer"
+                            >
+                                <UserPlus className="w-4 h-4" />
+                                Create Free Account
+                            </motion.button>
+                            <div className="flex justify-center gap-6 pt-2">
+                                <button
+                                    onClick={() => router.push('/dashboard')}
+                                    className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
+                                >
+                                    ← Go to Dashboard
+                                </button>
+                                <button
+                                    onClick={() => router.push('/insights')}
+                                    className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
+                                >
+                                    View ML Insights →
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+            )}
+
+            {/* Regular upload UI — hidden for demo users */}
+            {!isDemo && (<>
             <div>
                 <h1 className="text-3xl font-bold gradient-text">Upload Data</h1>
                 <p className="text-slate-400 mt-1">Import your activity data for ML analysis — any CSV format accepted</p>
@@ -405,6 +466,7 @@ Visual Studio Code,api.ts - frontend,2026-03-10T11:15:00,2026-03-10T12:30:00,450
 
             {/* Floating AI Chat Widget */}
             <OnboardingChatWidget />
+            </>)}
         </div>
     );
 }

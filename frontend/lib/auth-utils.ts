@@ -31,6 +31,17 @@ export function getCurrentUsername(): string | null {
     return payload?.sub ?? null;
 }
 
+/** Usernames considered demo (read-only) accounts — must match backend's DEMO_USERNAMES */
+const DEMO_USERNAMES = new Set(['cloud_user']);
+
+/**
+ * Check if the current logged-in user is a demo account.
+ */
+export function isDemoUser(): boolean {
+    const username = getCurrentUsername();
+    return username !== null && DEMO_USERNAMES.has(username);
+}
+
 /**
  * Get a localStorage key namespaced to the current user.
  * This ensures data isolation between different users on the same browser.

@@ -23,13 +23,31 @@ class UserLogin(BaseModel):
     password: str
 
 
+# Usernames that are considered demo accounts (read-only, no uploads)
+DEMO_USERNAMES = {"cloud_user"}
+
+
 class UserResponse(UserBase):
     id: int
     is_admin: bool = False
+    is_demo: bool = False
     created_at: datetime
     updated_at: datetime
     
     model_config = ConfigDict(from_attributes=True)
+
+    @classmethod
+    def from_user(cls, user) -> "UserResponse":
+        """Create a UserResponse with computed is_demo flag."""
+        return cls(
+            id=user.id,
+            username=user.username,
+            device_name=user.device_name,
+            is_admin=getattr(user, "is_admin", False),
+            is_demo=user.username in DEMO_USERNAMES,
+            created_at=user.created_at,
+            updated_at=user.updated_at,
+        )
 
 
 class Token(BaseModel):
