@@ -1,4 +1,3 @@
-import { AlertTriangle, Info, XCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Props {
@@ -8,40 +7,39 @@ interface Props {
 
 const CONFIG = {
     high: {
-        icon: XCircle,
-        bg: 'bg-rose-500/10',
-        border: 'border-rose-500/50',
-        text: 'text-rose-400',
-        animation: 'animate-pulse shadow-[0_0_15px_rgba(244,63,94,0.1)]',
+        icon: 'error',
+        bg: 'bg-error-container/20',
+        border: 'border-error/20',
+        text: 'text-error',
+        animation: 'animate-pulse shadow-[0_0_8px_rgba(179,27,37,0.15)]',
     },
     medium: {
-        icon: AlertTriangle,
+        icon: 'warning',
         bg: 'bg-amber-500/10',
-        border: 'border-amber-500/30',
-        text: 'text-amber-400',
+        border: 'border-amber-500/20',
+        text: 'text-amber-600',
         animation: '',
     },
     low: {
-        icon: Info,
-        bg: 'bg-sky-500/10',
-        border: 'border-sky-500/30',
-        text: 'text-sky-400',
+        icon: 'info',
+        bg: 'bg-primary-container/20',
+        border: 'border-primary/20',
+        text: 'text-primary',
         animation: '',
     },
 };
 
 export default function AlertBanner({ severity, message }: Props) {
     const config = CONFIG[severity] || CONFIG.low;
-    const Icon = config.icon;
 
     return (
         <motion.div 
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
-            className={`flex items-start gap-4 p-4 rounded-xl border backdrop-blur-md ${config.bg} ${config.border} ${config.animation}`}
+            className={`flex items-start gap-4 p-4 rounded-[1rem] border ${config.bg} ${config.border} ${config.animation}`}
         >
-            <Icon className={`w-5 h-5 mt-0.5 shrink-0 ${config.text}`} />
-            <p className={`text-sm leading-relaxed ${config.text} drop-shadow-sm`}>{message}</p>
+            <span className={`material-symbols-outlined mt-0.5 shrink-0 ${config.text}`} style={{fontVariationSettings: "'FILL' 1"}}>{config.icon}</span>
+            <p className={`text-sm leading-relaxed font-medium ${config.text}`}>{message}</p>
         </motion.div>
     );
 }

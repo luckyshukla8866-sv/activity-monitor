@@ -1,39 +1,23 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { Brain, Activity, Code, Sparkles, ArrowRight, Shield, BarChart3, Cpu } from 'lucide-react';
-import GradientText from '@/components/GradientText';
-import Pill from '@/components/Pill';
+import { useInView } from 'framer-motion';
 
-function FloatingStat({ val, label, top, left, bottom, right, delay }: any) {
+function Reveal({ children, className = '' }: { children: React.ReactNode, className?: string }) {
+    const ref = useRef(null);
+    const isInView = useInView(ref, { once: true, margin: "0px 0px -50px 0px" });
+
     return (
-        <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1, transition: { delay, duration: 0.8 } }}
-            className="absolute hidden lg:flex items-center gap-3 glass-card px-4 py-3 border border-white/10"
-            style={{
-                top, left, bottom, right,
-                animation: `floatBob 6s ease-in-out infinite alternate ${delay}s`
-            }}
-            whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(99,102,241,0.15)' }}
-        >
-            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-                <Activity className="w-4 h-4 text-sky-400" />
-            </div>
-            <div>
-                <div className="font-mono text-lg font-medium tracking-tight text-white/90">{val}</div>
-                <div className="text-[11px] uppercase tracking-wider text-white/40">{label}</div>
-            </div>
-        </motion.div>
+        <div ref={ref} className={`${className} reveal ${isInView ? 'visible' : ''}`}>
+            {children}
+        </div>
     );
 }
 
 export default function LandingPage() {
     const router = useRouter();
 
-    // If already logged in, go straight to dashboard
     useEffect(() => {
         const token = localStorage.getItem('access_token');
         if (token) {
@@ -42,114 +26,228 @@ export default function LandingPage() {
     }, [router]);
 
     return (
-        <div className="relative min-h-screen flex flex-col items-center justify-center px-5 sm:px-10 overflow-hidden font-sans">
-            {/* Floating Stats - Decoration */}
-            <FloatingStat top="20%" left="10%" val="2,401" label="HOURS TRACKED" delay={0} />
-            <FloatingStat top="15%" right="12%" val="98.2%" label="ML ACCURACY" delay={0.5} />
-            <FloatingStat bottom="25%" left="8%" val="Top 5%" label="DEEP WORK" delay={1} />
-            <FloatingStat bottom="30%" right="10%" val="No Risk" label="BURNOUT CHANCE" delay={1.5} />
+        <div className="bg-surface text-on-surface antialiased overflow-x-hidden min-h-screen">
+            <header className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-10 py-4 mt-2 mx-auto w-full max-w-[1440px] bg-transparent">
+                <div className="text-xl font-black text-[#2D7FF9] tracking-tight">
+                    <span style={{ letterSpacing: '-1px' }}>Activity Monitor</span>
+                </div>
+                <nav className="hidden md:flex flex-1 max-w-sm mx-8 items-center neumorphic-inset rounded-full px-2 py-1.5 justify-around">
+                    <a className="px-5 py-2 text-sm font-medium text-slate-500 hover:text-[#2D7FF9] transition-colors" href="#">Features</a>
+                    <a className="px-5 py-2 text-sm font-medium text-slate-500 hover:text-[#2D7FF9] transition-colors" href="#">Journey</a>
+                    <a className="px-5 py-2 text-sm font-bold text-[#2D7FF9] nav-button-active rounded-full transition-all" href="#">AI Coach</a>
+                </nav>
+                <div className="flex items-center gap-4">
+                    <button className="text-slate-500 font-semibold text-sm hover:text-[#2D7FF9] transition-colors" onClick={() => router.push('/login')}>Sign In</button>
+                    <button className="cta-gradient text-on-primary px-6 py-2.5 rounded-full font-bold text-sm" onClick={() => router.push('/login')}>Try Demo Free</button>
+                </div>
+            </header>
 
-            {/* Hero Section */}
-            <motion.div
-                variants={{
-                    hidden: {},
-                    visible: { transition: { staggerChildren: 0.08 } }
-                }}
-                initial="hidden"
-                animate="visible"
-                className="w-full max-w-[640px] flex flex-col items-center text-center z-10"
-            >
-                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
-                    <Pill color="indigo" className="mb-6 flex items-center gap-2 pr-4 bg-indigo-500/10 border-indigo-500/20">
-                        <Brain className="w-3.5 h-3.5 text-indigo-400" />
-                        <span className="text-indigo-300">AI-Powered Productivity Analytics</span>
-                    </Pill>
-                </motion.div>
+            <main className="pt-32">
+                <Reveal className="max-w-7xl mx-auto px-6 py-20 text-center">
+                    <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-on-surface mb-8 leading-[1.1] soft-text">
+                        Understand your <br />
+                        <span className="text-primary extrusion bg-surface px-8 py-3 rounded-2xl inline-block mt-4 interactive-card">
+                            productivity patterns
+                        </span>
+                    </h1>
+                    <p className="max-w-3xl mx-auto text-lg md:text-xl text-on-surface-variant leading-relaxed mb-12">
+                        Upload your activity logs. Our machine learning models map your focus hours, categorize apps, and predict burnout risk — all with actionable AI coaching.
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-8">
+                        <button className="cta-gradient text-on-primary px-10 py-5 rounded-xl font-bold text-lg hover:scale-105 transition-transform" onClick={() => router.push('/login')}>
+                            Try Demo Free
+                        </button>
+                        <button className="extrusion bg-surface text-primary px-10 py-5 rounded-xl font-bold text-lg interactive-card" onClick={() => router.push('/login')}>
+                            Sign In
+                        </button>
+                    </div>
+                </Reveal>
 
-                <motion.h1
-                    variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-                    className="text-[clamp(40px,7vw,72px)] font-bold leading-[1.1] tracking-[-0.03em] text-white/95 mb-4 font-['Outfit']"
-                >
-                    Understand your <br className="hidden sm:block" />
-                    <span className="bg-clip-text text-transparent bg-[linear-gradient(200deg,#fff,#6366f1,#38bdf8)] animate-[shimmer_4s_ease_infinite] bg-[length:200%_auto]">
-                        productivity patterns
-                    </span>
-                </motion.h1>
+                <Reveal className="max-w-6xl mx-auto px-6 mb-32">
+                    <div className="bg-surface extrusion rounded-[3rem] p-8 md:p-12 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-primary-container/10 blur-[100px] -mr-32 -mt-32"></div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
+                            <div className="bg-surface recessed rounded-[2rem] p-8 flex flex-col items-center text-center interactive-card">
+                                <span className="material-symbols-outlined text-primary text-3xl mb-4">schedule</span>
+                                <div className="text-3xl font-black text-on-surface soft-text">2,401</div>
+                                <div className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mt-1">Hours Tracked</div>
+                            </div>
+                            <div className="bg-surface recessed rounded-[2rem] p-8 flex flex-col items-center text-center interactive-card">
+                                <span className="material-symbols-outlined text-tertiary text-3xl mb-4">rocket_launch</span>
+                                <div className="text-3xl font-black text-on-surface soft-text">Top 5%</div>
+                                <div className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mt-1">Deep Work</div>
+                            </div>
+                            <div className="bg-surface recessed rounded-[2rem] p-8 flex flex-col items-center text-center interactive-card">
+                                <span className="material-symbols-outlined text-secondary text-3xl mb-4">query_stats</span>
+                                <div className="text-3xl font-black text-on-surface soft-text">98.2%</div>
+                                <div className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mt-1">ML Accuracy</div>
+                            </div>
+                            <div className="bg-surface recessed rounded-[2rem] p-8 flex flex-col items-center text-center interactive-card">
+                                <span className="material-symbols-outlined text-emerald-500 text-3xl mb-4" style={{color: '#10b981'}}>verified_user</span>
+                                <div className="text-3xl font-black text-on-surface soft-text">No Risk</div>
+                                <div className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mt-1">Burnout Chance</div>
+                            </div>
+                        </div>
 
-                <motion.p
-                    variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-                    className="text-[16px] text-white/50 max-w-[480px] mb-10 leading-relaxed font-light"
-                >
-                    Upload your activity logs. Our machine learning models map your focus hours, categorize apps, and predict burnout risk — all with actionable AI coaching.
-                </motion.p>
+                        <div className="mt-12 grid md:grid-cols-3 gap-8 relative z-10">
+                            <div className="md:col-span-2 extrusion bg-surface rounded-[2rem] h-[400px] flex items-center justify-center relative group overflow-hidden">
+                                <div className="absolute inset-0 opacity-40 group-hover:opacity-60 transition-opacity duration-700">
+                                    <img className="w-full h-full object-cover scale-110 group-hover:scale-100 transition-transform duration-1000" alt="abstract dashboard interface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWYJwfEO-3HpNQjBzdKmsgYrDRbziGcK1hbSgrdUh6MkOmzrQLtw2JNp0kqAFBAfsBTxIURetUD6SbAi3q8yij_L1X6hqZrfugi1jN0kQgm8ZCvC734joJJPhW5FTh7FhSm93ZgBKK1kqkBhE48eE8p8q096DA2Y28XU4cIER_eLWiEXEZsE_m9A2p_O9UtT17MbISwFFGukmNvycRisN9ZfGQmhk7NT2w-huzzdI2mECJNsvk0Za9T6o2frbYLK_HLOWSksoMj0A2" />
+                                </div>
+                                <div className="z-10 text-center p-8 extrusion bg-surface/90 backdrop-blur-lg rounded-[2rem] max-w-sm border border-white/40">
+                                    <h3 className="text-xl font-bold mb-2 soft-text">Real-time Focus Distribution</h3>
+                                    <p className="text-sm text-on-surface-variant">Intelligent mapping of your cognitive load throughout the workday</p>
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-8">
+                                <div className="recessed p-6 rounded-[2rem] flex-1 flex flex-col justify-center">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-2.5 h-2.5 rounded-full bg-primary animate-ping"></div>
+                                        <span className="text-xs font-bold uppercase tracking-widest opacity-60 text-on-surface">AI Coach Tip</span>
+                                    </div>
+                                    <p className="text-sm leading-relaxed italic text-on-surface-variant">"Your peak performance aligns with early mornings. Consider moving your deep work blocks to 8 AM."</p>
+                                </div>
+                                <div className="extrusion p-6 rounded-[2rem] flex-1 interactive-card">
+                                    <div className="text-xs font-bold uppercase tracking-widest text-on-secondary-fixed-variant mb-4">Focus Score Trend</div>
+                                    <div className="h-3 w-full bg-surface-container-high recessed rounded-full overflow-hidden mb-3">
+                                        <div className="h-full bg-primary w-4/5 rounded-full shadow-[0_0_10px_rgba(0,88,188,0.3)]"></div>
+                                    </div>
+                                    <div className="flex justify-between text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">
+                                        <span>Mon</span>
+                                        <span>Fri</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Reveal>
 
-                {/* CTA Buttons */}
-                <motion.div
-                    variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-                    className="flex flex-col sm:flex-row items-center gap-4 w-full max-w-[400px] mb-8"
-                >
-                    {/* Primary: Demo */}
-                    <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => router.push('/login')}
-                        className="w-full sm:flex-1 py-3.5 px-6 rounded-xl font-semibold text-[15px]
-                                   bg-gradient-to-r from-indigo-500 to-violet-500
-                                   hover:from-indigo-400 hover:to-violet-400
-                                   text-white shadow-lg shadow-indigo-500/25
-                                   flex items-center justify-center gap-2.5
-                                   transition-all duration-200 cursor-pointer
-                                   relative overflow-hidden group"
-                    >
-                        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                        <Sparkles className="w-5 h-5" />
-                        Try Demo Free
-                        <ArrowRight className="w-4 h-4 opacity-60 group-hover:translate-x-0.5 transition-transform" />
-                    </motion.button>
+                <Reveal className="max-w-7xl mx-auto px-6 py-24 bg-[var(--surface-container-low)] rounded-[3rem] mb-32">
+                    <div className="text-center mb-20">
+                        <h2 className="text-3xl md:text-5xl font-extrabold mb-4 soft-text">Designed for deep focus</h2>
+                        <div className="w-24 h-2 bg-primary mx-auto rounded-full extrusion border-0"></div>
+                    </div>
+                    <div className="grid md:grid-cols-3 gap-12">
+                        <div className="bg-surface extrusion p-10 rounded-[2rem] interactive-card">
+                            <div className="w-16 h-16 bg-surface recessed rounded-[1.5rem] flex items-center justify-center mb-8">
+                                <span className="material-symbols-outlined text-primary text-3xl">neurology</span>
+                            </div>
+                            <h3 className="text-2xl font-bold mb-4 soft-text">Pattern Recognition</h3>
+                            <p className="text-on-surface-variant leading-relaxed">Our ML models identify the specific sequences that lead to your most productive states.</p>
+                        </div>
+                        <div className="bg-surface extrusion p-10 rounded-[2rem] interactive-card">
+                            <div className="w-16 h-16 bg-surface recessed rounded-[1.5rem] flex items-center justify-center mb-8">
+                                <span className="material-symbols-outlined text-tertiary text-3xl">location_on</span>
+                            </div>
+                            <h3 className="text-2xl font-bold mb-4 soft-text">Focus Mapping</h3>
+                            <p className="text-on-surface-variant leading-relaxed">Visual journey of your digital environment, showing exactly where flow is disrupted.</p>
+                        </div>
+                        <div className="bg-surface extrusion p-10 rounded-[2rem] interactive-card">
+                            <div className="w-16 h-16 bg-surface recessed rounded-[1.5rem] flex items-center justify-center mb-8">
+                                <span className="material-symbols-outlined text-secondary text-3xl">smart_toy</span>
+                            </div>
+                            <h3 className="text-2xl font-bold mb-4 soft-text">AI Coaching</h3>
+                            <p className="text-on-surface-variant leading-relaxed">Personalized behavioral insights delivered just when you need that cognitive nudge.</p>
+                        </div>
+                    </div>
+                </Reveal>
 
-                    {/* Secondary: Sign In */}
-                    <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => router.push('/login')}
-                        className="w-full sm:flex-1 py-3.5 px-6 rounded-xl font-semibold text-sm
-                                   bg-white/[0.06] border border-white/[0.08]
-                                   text-white/70 hover:text-white/90 hover:bg-white/[0.10]
-                                   flex items-center justify-center gap-2
-                                   transition-all duration-200 cursor-pointer"
-                    >
-                        Sign In
-                    </motion.button>
-                </motion.div>
+                <Reveal className="max-w-7xl mx-auto px-6 py-24">
+                    <div className="grid md:grid-cols-2 gap-20 items-center">
+                        <div>
+                            <h2 className="text-4xl md:text-5xl font-extrabold leading-tight mb-8 soft-text">
+                                Actionable intelligence, <br /><span className="text-primary">not just more charts</span>
+                            </h2>
+                            <ul className="space-y-10">
+                                <li className="flex items-start gap-6 group">
+                                    <div className="flex-shrink-0 w-12 h-12 bg-surface extrusion rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <span className="material-symbols-outlined text-primary" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
+                                    </div>
+                                    <div>
+                                        <h4 className="text-lg font-bold mb-2 soft-text">Burnout Prevention</h4>
+                                        <p className="text-on-surface-variant leading-relaxed">Early warning signs detected through subtle shifts in interaction frequency and speed.</p>
+                                    </div>
+                                </li>
+                                <li className="flex items-start gap-6 group">
+                                    <div className="flex-shrink-0 w-12 h-12 bg-surface extrusion rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <span className="material-symbols-outlined text-primary" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
+                                    </div>
+                                    <div>
+                                        <h4 className="text-lg font-bold mb-2 soft-text">Contextual Privacy</h4>
+                                        <p className="text-on-surface-variant leading-relaxed">Local-first processing ensures your raw activity data never leaves your device.</p>
+                                    </div>
+                                </li>
+                                <li className="flex items-start gap-6 group">
+                                    <div className="flex-shrink-0 w-12 h-12 bg-surface extrusion rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <span className="material-symbols-outlined text-primary" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
+                                    </div>
+                                    <div>
+                                        <h4 className="text-lg font-bold mb-2 soft-text">Automated Tagging</h4>
+                                        <p className="text-on-surface-variant leading-relaxed">Apps and sites are categorized by intent, not just name, providing deeper meaning to your time.</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div className="grid grid-cols-2 gap-8">
+                            <div className="space-y-8 pt-12">
+                                <div className="bg-surface extrusion p-8 rounded-[2rem] interactive-card">
+                                    <div className="text-primary font-black text-3xl mb-1 soft-text">+24%</div>
+                                    <div className="text-xs font-bold uppercase text-on-surface-variant tracking-widest">Focus Gain</div>
+                                </div>
+                                <div className="bg-surface extrusion p-8 rounded-[2rem] interactive-card">
+                                    <div className="text-tertiary font-black text-3xl mb-1 soft-text">-12h</div>
+                                    <div className="text-xs font-bold uppercase text-on-surface-variant tracking-widest">Idle Weekly</div>
+                                </div>
+                            </div>
+                            <div className="space-y-8">
+                                <div className="bg-surface extrusion p-8 rounded-[2rem] interactive-card">
+                                    <div className="text-secondary font-black text-3xl mb-1 soft-text">High</div>
+                                    <div className="text-xs font-bold uppercase text-on-surface-variant tracking-widest">Flow Quality</div>
+                                </div>
+                                <div className="bg-surface extrusion p-8 rounded-[2rem] h-56 flex flex-col justify-end interactive-card">
+                                    <div className="text-primary font-black text-3xl mb-1 soft-text">92%</div>
+                                    <div className="text-xs font-bold uppercase text-on-surface-variant tracking-widest">Retention Rate</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Reveal>
 
-                {/* Feature pills */}
-                <motion.div
-                    variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-                    className="flex justify-center flex-wrap gap-2.5 mb-10"
-                >
-                    <span className="text-[11px] px-3 py-1.5 bg-white/[0.03] border border-white/[0.05] rounded-full text-white/50 flex items-center gap-1.5">
-                        <BarChart3 className="w-3 h-3 text-violet-400" /> Smart Dashboard
-                    </span>
-                    <span className="text-[11px] px-3 py-1.5 bg-white/[0.03] border border-white/[0.05] rounded-full text-white/50 flex items-center gap-1.5">
-                        <Cpu className="w-3 h-3 text-emerald-400" /> ML Insights
-                    </span>
-                    <span className="text-[11px] px-3 py-1.5 bg-white/[0.03] border border-white/[0.05] rounded-full text-white/50 flex items-center gap-1.5">
-                        <Brain className="w-3 h-3 text-sky-400" /> AI Coach
-                    </span>
-                    <span className="text-[11px] px-3 py-1.5 bg-white/[0.03] border border-white/[0.05] rounded-full text-white/50 flex items-center gap-1.5">
-                        <Code className="w-3 h-3 text-amber-400" /> Chrome Extension
-                    </span>
-                </motion.div>
+                <Reveal className="max-w-7xl mx-auto px-6 py-32">
+                    <div className="bg-surface extrusion rounded-[3rem] p-16 text-center relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/10 to-transparent pointer-events-none"></div>
+                        <h2 className="text-4xl md:text-6xl font-black mb-8 soft-text relative z-10">Start your journey</h2>
+                        <p className="text-xl text-on-surface-variant max-w-2xl mx-auto mb-12 relative z-10">
+                            Join 15,000+ knowledge workers reclaiming their focus through behavioral science.
+                        </p>
+                        <div className="flex flex-wrap justify-center gap-6 relative z-10">
+                            <button className="cta-gradient text-on-primary px-12 py-5 rounded-xl font-bold text-lg hover:scale-105 transition-transform" onClick={() => router.push('/login')}>
+                                Try Demo Free
+                            </button>
+                            <button className="extrusion bg-surface text-primary px-12 py-5 rounded-xl font-bold text-lg interactive-card" onClick={() => router.push('/login')}>
+                                Contact Sales
+                            </button>
+                        </div>
+                    </div>
+                </Reveal>
+            </main>
 
-                {/* Trust badge */}
-                <motion.p
-                    variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { delay: 0.9 } } }}
-                    className="text-xs text-white/25 flex items-center gap-2 group cursor-default"
-                >
-                    <Shield className="w-3.5 h-3.5 text-emerald-500/50" />
-                    All data is processed locally. It never leaves your machine.
-                </motion.p>
-            </motion.div>
+            <footer className="bg-[#f2f7fe] rounded-t-[4rem] w-full mt-24 shadow-[-20px_-20px_40px_#ffffff,20px_20px_40px_rgba(203,213,225,0.4)] relative z-20">
+                <div className="flex flex-col md:flex-row justify-between items-center px-16 py-16 w-full max-w-7xl mx-auto">
+                    <div className="text-xl font-black text-[#2D7FF9] mb-8 md:mb-0 soft-text">
+                        <span style={{ letterSpacing: '-1px' }}>Activity Monitor</span>
+                    </div>
+                    <div className="flex flex-wrap justify-center gap-8 text-slate-500 text-xs uppercase tracking-widest font-bold">
+                        <a className="hover:text-[#2D7FF9] transition-colors" href="#">Privacy Policy</a>
+                        <a className="hover:text-[#2D7FF9] transition-colors" href="#">Terms</a>
+                        <a className="hover:text-[#2D7FF9] transition-colors" href="#">Status</a>
+                        <a className="hover:text-[#2D7FF9] transition-colors" href="#">Contact</a>
+                    </div>
+                    <div className="mt-8 md:mt-0 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                        © 2026 Activity Monitor Analytics. Sculpted for Clarity.
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 }

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Download, User } from 'lucide-react';
 import { analyticsAPI } from '@/lib/api';
 import { downloadBlob } from '@/lib/utils';
 import LiveDot from './LiveDot';
@@ -25,30 +24,30 @@ export default function Header() {
     };
 
     return (
-        <header className="h-14 flex items-center justify-between px-6 bg-white/[0.02] border-b border-white/5 backdrop-blur-3xl shrink-0 z-10">
+        <header className="h-16 flex items-center justify-between px-6 bg-white border-b border-slate-200 shrink-0 z-10 w-full shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
             <div>
-                <h2 className="text-[17px] font-medium text-white/90 tracking-tight">Overview</h2>
+                <h2 className="text-xl font-bold text-slate-800 tracking-tight font-manrope">Overview</h2>
             </div>
 
             <div className="flex items-center gap-4">
                 {/* Live Indicator */}
-                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200">
                     <LiveDot />
-                    <span className="text-xs font-medium text-white/70 uppercase tracking-widest">Tracking Live</span>
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest font-mono">Tracking Live</span>
                 </div>
 
                 {/* Export Button */}
                 <button
                     onClick={handleExportCSV}
-                    className="flex items-center gap-2 px-4 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all text-white/90 text-sm font-medium"
+                    className="flex items-center gap-2 px-4 py-2 bg-indigo-50 hover:bg-indigo-100/70 border border-indigo-100 rounded-xl transition-all text-indigo-700 text-sm font-bold shadow-sm active:scale-95"
                 >
-                    <Download className="w-4 h-4" />
+                    <span className="material-symbols-outlined text-[18px]">download</span>
                     <span className="hidden sm:inline">Export</span>
                 </button>
 
                 {/* User Avatar Placeholder */}
-                <div className="w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center">
-                    <User className="w-4 h-4 text-indigo-300" />
+                <div className="w-10 h-10 rounded-full bg-indigo-100 border border-indigo-200 flex items-center justify-center shadow-sm">
+                    <span className="material-symbols-outlined text-[20px] text-indigo-600">person</span>
                 </div>
             </div>
         </header>

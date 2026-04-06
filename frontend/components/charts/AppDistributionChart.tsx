@@ -3,7 +3,7 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import GlassTooltip from './GlassTooltip';
 
-const COLORS = ['#6366f1', '#38bdf8', '#a855f7', '#10b981', '#f59e0b'];
+const COLORS = ['#0058bc', '#883c93', '#3953b7', '#10b981', '#f59e0b'];
 
 interface Props {
     data: any[] | null;
@@ -13,13 +13,13 @@ export default function AppDistributionChart({ data }: Props) {
     if (data === null) {
         return (
             <div className="h-[280px] flex items-center justify-center">
-                <div className="w-full h-full bg-white/[0.02] rounded-2xl animate-pulse" />
+                <div className="w-full h-full bg-surface-container rounded-2xl animate-pulse" />
             </div>
         );
     }
 
     if (data.length === 0) {
-        return <div className="h-[280px] flex items-center justify-center text-white/40">No data available</div>;
+        return <div className="h-[280px] flex items-center justify-center text-on-surface-variant font-medium">No data available</div>;
     }
 
     const chartData = data.map((item: any) => ({
@@ -36,18 +36,19 @@ export default function AppDistributionChart({ data }: Props) {
                         data={chartData}
                         cx="50%"
                         cy="50%"
-                        innerRadius={70}
-                        outerRadius={100}
-                        paddingAngle={3}
+                        innerRadius={80}
+                        outerRadius={105}
+                        paddingAngle={5}
                         dataKey="value"
                         stroke="none"
                         isAnimationActive={true}
                         animationDuration={1500}
                         animationBegin={100}
                         animationEasing="ease-out"
+                        cornerRadius={4}
                     >
                         {chartData.map((_, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="drop-shadow-sm" />
                         ))}
                     </Pie>
                     <Tooltip content={<GlassTooltip formatter={(val: number) => `${val.toFixed(2)} hrs`} />} />
@@ -55,7 +56,7 @@ export default function AppDistributionChart({ data }: Props) {
                         verticalAlign="bottom" 
                         height={36} 
                         iconType="circle"
-                        wrapperStyle={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}
+                        wrapperStyle={{ fontSize: '13px', color: '#565c62', fontWeight: 600, fontFamily: 'Manrope' }}
                     />
                 </PieChart>
             </ResponsiveContainer>

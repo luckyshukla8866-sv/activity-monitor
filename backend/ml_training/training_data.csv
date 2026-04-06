@@ -1,0 +1,520 @@
+app_name,window_title,category
+Visual Studio Code,schema.prisma — Visual Studio Code,deep_work
+Google Chrome,docs.google.com — Untitled Document,neutral
+Microsoft Excel,Budget_2026.xlsx — Excel,neutral
+Gmail,Gmail — Forwarded: CI Pipeline Failed,communication
+Brave,discord.com — Server — #general,communication
+Netflix,Netflix — Browse,distraction
+YouTube,YouTube — Lofi Hip Hop Radio — beats to study to,distraction
+GitKraken,GitKraken — Commit History,deep_work
+Google Chrome,meet.google.com — Meeting,communication
+Arc,npm — axios package — Arc,deep_work
+Spotify,Spotify — Daily Mix 1,distraction
+Visual Studio Code,utils.py — backend — Visual Studio Code,deep_work
+Discord,Discord — DM — Pair Programming,communication
+Microsoft Edge,Imgur — Most Viral,distraction
+Windows Terminal,Windows Terminal — git log,deep_work
+Terminal,Terminal — git rebase -i HEAD~5,deep_work
+Terminal,Terminal — uvicorn app:app --reload,deep_work
+Firefox,web.whatsapp.com,communication
+Netflix,Netflix — Trending Now,distraction
+Firefox,YouTube — Trending Videos,distraction
+GitKraken,GitKraken — Merge Branch,deep_work
+Reddit,Reddit — r/wallstreetbets,distraction
+Visual Studio Code,settings.json — Visual Studio Code,deep_work
+Settings,Settings — Apps & Features,neutral
+TikTok,TikTok — Trending Sounds,distraction
+Firefox,Myntra — Men's Fashion,distraction
+Microsoft Excel,Attendance.xlsx — Excel,neutral
+Brave,Udemy — Complete Python Bootcamp — Brave,deep_work
+Calendar,Calendar — April 2026,neutral
+YouTube,YouTube — Shorts,distraction
+YouTube,YouTube — How to mass produce a song in 5 minutes,distraction
+Apple Music,Apple Music — Browse,distraction
+Windows Security,Windows Security — Virus & Threat Protection,neutral
+Brave,YouTube — Music — Chill Playlist,distraction
+Google Sheets,Google Sheets — Team Schedule,neutral
+Visual Studio Code,database.py — Visual Studio Code,deep_work
+Microsoft Edge,Tumblr — Dashboard,distraction
+Firefox,W3Schools — SQL Tutorial,deep_work
+Google Chrome,Supabase — Database,deep_work
+Safari,Vercel — Deployments — activity-monitor — Safari,deep_work
+Notion,Notion — Bug Tracker,deep_work
+Instagram,Instagram — Explore,distraction
+Instagram,Instagram — Feed,distraction
+Thunderbird,Thunderbird — Inbox,communication
+Gmail,Gmail — Sent — Deployment notification,communication
+JupyterLab,JupyterLab — experiment_01.ipynb,deep_work
+Microsoft Edge,outlook.office.com — Mail,communication
+YouTube,YouTube — Home,distraction
+Photos,Photos — Library,neutral
+Slack,Slack — DM — Sarah — File shared,communication
+IntelliJ IDEA,IntelliJ IDEA — pom.xml,deep_work
+Clock,Clock — Alarm,neutral
+Spotify,Spotify — Deep Focus Playlist,neutral
+Facebook,Facebook — Events — Weekend Party,distraction
+Slack,Slack — #help-desk,communication
+System Preferences,System Preferences — Network,neutral
+Slack,Slack — #design,communication
+Zoom,Zoom — Screen Share — VS Code,communication
+Android Studio,Android Studio — MainActivity.kt,deep_work
+Postman,Postman — DELETE /api/sessions/42,deep_work
+Safari,Stack Overflow — How to fix CORS in FastAPI,deep_work
+Slack,Slack — Huddle — Backend Sync,communication
+Preview,Preview — screenshot.png,neutral
+Twitter,Twitter — Home,distraction
+Brave,Telegram Web — Chat — Brave,communication
+Fortnite,Fortnite — Battle Royale,distraction
+Preview,Preview — document.pdf,neutral
+Android Studio,Android Studio — Build: Gradle sync,deep_work
+Settings,Settings — Time & Language,neutral
+Jupyter Notebook,Jupyter Notebook — data_analysis.ipynb,deep_work
+Google Chrome,CodeSandbox — React App,deep_work
+Terminal,PowerShell,deep_work
+Firefox,CodePen — CSS Animation Experiment,deep_work
+Reddit,Reddit — Home,distraction
+Microsoft Teams,Microsoft Teams — Whiteboard Session,communication
+Google Chrome,Tailwind CSS — Documentation,deep_work
+Jira,Jira — Sprint Board,deep_work
+Safari,Asana — Project Tasks,deep_work
+League of Legends,League of Legends,distraction
+Safari,Speedtest by Ookla,neutral
+TablePlus,TablePlus — production_db,deep_work
+Netflix,Netflix — Squid Game S2,distraction
+Microsoft Edge,Docker Hub — python:3.11-slim,deep_work
+Valorant,Valorant,distraction
+Terminal,Terminal — git push origin main,deep_work
+YouTube,YouTube — How to grow on social media,distraction
+Reddit,Reddit — r/AskReddit,distraction
+Visual Studio Code,server.js — Visual Studio Code,deep_work
+Firefox,Claude — Explain async/await — Firefox,deep_work
+Jupyter Notebook,Jupyter Notebook — model_training.ipynb,deep_work
+Firefox,Trello — Sprint Board,deep_work
+Notion,Notion — Onboarding Guide,deep_work
+Linear,Linear — My Issues,deep_work
+Apex Legends,Apex Legends — Lobby,distraction
+TextEdit,TextEdit — Untitled,neutral
+Terminal,zsh — Terminal,deep_work
+Prime Video,Prime Video — Watch Party,distraction
+DBeaver,DBeaver — ER Diagram,deep_work
+Amazon,Amazon — Search: mechanical keyboard,distraction
+Outlook,Outlook — RE: Budget Approval,communication
+Calculator,Calculator — Programmer,neutral
+Calendar,Calendar — Week View,neutral
+Visual Studio Code,tsconfig.json — Visual Studio Code,deep_work
+PyCharm,main.py — activity-monitor — PyCharm,deep_work
+Visual Studio Code,styles.css — Visual Studio Code,deep_work
+File Explorer,File Explorer — Documents,neutral
+Microsoft Edge,bing.com — Search,neutral
+File Explorer,File Explorer — C:\Users\Lucky\Projects,neutral
+Visual Studio Code,Welcome — Visual Studio Code,deep_work
+Microsoft Word,Cover_Letter.docx — Word,neutral
+Steam,Steam — Library,distraction
+Brave,Python Docs — asyncio — Brave,deep_work
+Sublime Text,notes.md — Sublime Text,deep_work
+WhatsApp,WhatsApp,communication
+Xcode,Xcode — Debug Navigator,deep_work
+Visual Studio Code,test_api.py — Visual Studio Code,deep_work
+Firefox,9gag.com — Trending,distraction
+Microsoft Edge,AWS Console — EC2 Instances,deep_work
+Telegram,Telegram — Saved Messages,communication
+Jira,Jira — PROJ-789 API rate limiting,deep_work
+Slack,Slack — #random,communication
+Firefox,BuzzFeed — Trending,distraction
+Twitch,Twitch — Following,distraction
+Netflix,Netflix — The Night Agent,distraction
+Google Meet,Google Meet — Team Standup,communication
+Disney+,Disney+ — The Mandalorian,distraction
+Notepad,Notepad — todo.txt,neutral
+YouTube,YouTube — ASMR cooking,distraction
+Facebook,Facebook — Groups,distraction
+Google Chrome,Perplexity — How does CORS work?,deep_work
+pgAdmin,pgAdmin 4 — activity_monitor_db,deep_work
+Slack,Slack — #deployments,communication
+Firefox,GitHub — Issues — activity-monitor — Firefox,deep_work
+TikTok,TikTok — Following,distraction
+Notion,Notion — Architecture Decision Records,deep_work
+Instagram,Instagram — Direct Messages,distraction
+Settings,Settings — Display,neutral
+Brave,Netflix — Watch Party — Brave,distraction
+Reddit,Reddit — r/memes,distraction
+Settings,Settings — Network & Internet,neutral
+Prime Video,Prime Video — The Boys S4,distraction
+Notion,Notion — Meeting Notes — Backend Sync,deep_work
+IntelliJ IDEA,IntelliJ IDEA — Main.java,deep_work
+Control Panel,Control Panel — Programs and Features,neutral
+Google Meet,Google Meet — Design Review,communication
+Jupyter Notebook,Jupyter Notebook — feature_engineering.ipynb,deep_work
+Google Chrome,GitHub — Actions — CI/CD Pipeline,deep_work
+Windows Terminal,Windows Terminal — PowerShell,deep_work
+Microsoft Word,Document1 — Word,neutral
+Google Chrome,localhost:8000/docs — Swagger UI,deep_work
+Safari,Downloads — Safari,neutral
+Safari,New Tab,neutral
+Slack,Slack — #code-review,communication
+Microsoft Teams,Microsoft Teams — Daily Standup,communication
+Terminal,Terminal — make build,deep_work
+Terminal,Terminal — yarn install,deep_work
+Twitter,Twitter — @elonmusk,distraction
+Arc,freeCodeCamp — JavaScript Algorithms,deep_work
+Jupyter Notebook,Jupyter Notebook — visualization.ipynb,deep_work
+YouTube,YouTube — Funny Cat Compilation 2026,distraction
+Slack,Slack — #code-review — PR #42 Discussion,communication
+Gmail,Gmail — Starred — Important threads,communication
+Safari,MDN Web Docs — Fetch API — Safari,deep_work
+Postman,Postman — POST /api/auth/login,deep_work
+Microsoft Edge,Google Meet — Team Standup — Microsoft Edge,communication
+Microsoft Edge,ClickUp — Development Tasks — Microsoft Edge,deep_work
+Windows Terminal,Windows Terminal — Ubuntu,deep_work
+Google Chrome,translate.google.com,neutral
+Microsoft Teams,Microsoft Teams — Call — Architecture Review,communication
+Finder,Finder — Downloads,neutral
+Terminal,Terminal — npm run dev,deep_work
+Twitch,Twitch — Pokimane — Just Chatting,distraction
+Arc,LeetCode — Binary Tree Level Order,deep_work
+DBeaver,DBeaver — PostgreSQL — activity_monitor,deep_work
+Reddit,Reddit — r/movies — Oscar Predictions,distraction
+Brave,Hashnode — Understanding JWT Authentication — Brave,deep_work
+Twitter,X — Notifications,distraction
+Microsoft Word,Report_Q1.docx — Word,neutral
+Zoom,Zoom — Interview: Senior Developer,communication
+Discord,Discord — #help — React Server,communication
+Google Chrome,netflix.com — Browse,distraction
+Zoom,Zoom — All-Hands Q2 Kickoff,communication
+Safari,Google Cloud Console — Cloud Run,deep_work
+Thunderbird,Thunderbird — Compose: Re: Meeting,communication
+Settings,Settings — Windows Update,neutral
+Activity Monitor (macOS),Activity Monitor — CPU,neutral
+File Explorer,File Explorer — This PC,neutral
+Slack,Slack — #backend-team,communication
+Terminal,Terminal — terraform plan,deep_work
+Visual Studio Code,package.json — Visual Studio Code,deep_work
+Netflix,Netflix — Stranger Things S5,distraction
+Reddit,Reddit — r/programming,distraction
+Google Chrome,calendar.google.com — This Week,neutral
+Twitter,X — Home / X,distraction
+Microsoft Edge,Dev.to — Building REST APIs with FastAPI,deep_work
+Brave,Gmail — Inbox (42) — Google Chrome — Brave,communication
+Google Chrome,Google — Search — Google Chrome,neutral
+Visual Studio Code,main.py — activity-monitor — Visual Studio Code,deep_work
+Brave,Confluence — Backend Architecture — Brave,deep_work
+Google Chrome,teams.microsoft.com — Chat,communication
+Visual Studio Code,.env — Visual Studio Code,deep_work
+1Password,1Password — Vault,neutral
+Firefox,GitHub — Pull Requests — Firefox,deep_work
+Discord,Discord — Voice — Study Group,communication
+Zoom,Zoom — Webinar: Tech Talk,communication
+Google Chrome,Figma — Dashboard Redesign — Google Chrome,deep_work
+Steam,Steam — Community Market,distraction
+Telegram,Telegram — Group Chat — Friends,communication
+Twitch,Twitch — xQc Live,distraction
+Microsoft Edge,Flipkart — Mobile Phones,distraction
+Facebook,Facebook,distraction
+Google Chrome,twitch.tv — Browse,distraction
+Linear,Linear — BACKEND-142: Fix auth middleware,deep_work
+Google Chrome,facebook.com — Notifications,distraction
+WhatsApp,WhatsApp — Chat — Team Updates,communication
+Google Docs,Google Docs — Project Brief,neutral
+Visual Studio Code,tailwind.config.js — Visual Studio Code,deep_work
+Brave,Wikipedia — Machine Learning,neutral
+Discord,Discord — #open-source — Contributions,communication
+Windows Terminal,Windows Terminal — Command Prompt,deep_work
+Microsoft Edge,Next.js Docs — App Router — Microsoft Edge,deep_work
+Google Chrome,Firebase Console — Authentication,deep_work
+Clipboard,Clipboard History,neutral
+Gmail,Gmail — RE: Deployment Status,communication
+Gmail,Gmail — Draft: Quarterly Report,communication
+Amazon,Amazon — Today's Deals,distraction
+YouTube,YouTube — Best fails compilation,distraction
+Finder,Finder — Documents,neutral
+Zoom,Zoom — Waiting Room,communication
+YouTube,YouTube — Mr Beast — Last to Leave Circle Wins,distraction
+Calculator,Calculator — Standard,neutral
+Firefox,google.com — Search,neutral
+Instagram,Instagram — Reels,distraction
+PyCharm,PyCharm — Debug: main.py,deep_work
+Spotify,Spotify — Discover Weekly,distraction
+Slack,Slack — #standup,communication
+Minecraft,Minecraft 1.20.4,distraction
+Android Studio,Android Studio — Layout Editor,deep_work
+Google Chrome,Jira — PROJ-101 — Google Chrome,deep_work
+YouTube,YouTube — Subscriptions,distraction
+Visual Studio Code,api_routes.py — Visual Studio Code,deep_work
+Firefox,Google Calendar — Week View,neutral
+Notion,Notion — API Documentation,deep_work
+Spotify,Spotify — Liked Songs,distraction
+Facebook,Facebook — Marketplace,distraction
+Task Manager,Task Manager — Performance,neutral
+Postman,Postman — Activity Monitor API Collection,deep_work
+Linear,Linear — Sprint 14 Board,deep_work
+YouTube,YouTube — Top 10 Anime Fights,distraction
+File Explorer,File Explorer — Projects,neutral
+TikTok,TikTok — Live,distraction
+Safari,ESPN — Scores,distraction
+Figma,Figma — Prototype Review,deep_work
+Microsoft Edge,amazon.com — Today's Deals,distraction
+Flipkart,Flipkart — Electronics Sale,distraction
+PyCharm,requirements.txt — PyCharm,deep_work
+Instagram,Instagram,distraction
+Terminal,Terminal — python -m pytest --cov,deep_work
+Docker Desktop,Docker Desktop — Containers,deep_work
+Gmail,Gmail — Re: Project Update,communication
+Microsoft Excel,Data.xlsx — Microsoft Excel,neutral
+Microsoft Word,Thesis_Chapter3.docx — Word,neutral
+Google Chrome,Wikipedia — Python (programming language) — Google Chrome,neutral
+Linear,Linear — Backlog,deep_work
+Visual Studio Code,app.py — Visual Studio Code,deep_work
+Twitch,Twitch — Browse — Just Chatting,distraction
+Linear,Linear — FRONTEND-89: Dashboard charts,deep_work
+Docker Desktop,Docker Desktop — Volumes,deep_work
+System Information,System Information,neutral
+Firefox,LeetCode — Two Sum — Python,deep_work
+Disk Cleanup,Disk Cleanup — C:,neutral
+Microsoft PowerPoint,Team_Offsite.pptx — PowerPoint,neutral
+Figma,Figma — Design System v2,deep_work
+Zoom,Zoom — Pair Programming Session,communication
+Firefox,Medium — System Design Interview Prep,deep_work
+Twitter,Twitter / X — Trending,distraction
+Safari,Chrome Web Store,neutral
+Twitter,X — For You,distraction
+Telegram,Telegram Desktop,communication
+PyCharm,PyCharm — Project Structure,deep_work
+Notepad,Notepad — scratch.txt,neutral
+Google Chrome,Notion — API Docs — Google Chrome,deep_work
+JupyterLab,JupyterLab — data_cleaning.ipynb,deep_work
+Brave,Stack Overflow — Python typing: Optional vs Union — Brave,deep_work
+Arc,Slack — App — Google Chrome,communication
+PyCharm,models.py — PyCharm Professional,deep_work
+Google Sheets,Google Sheets — Untitled spreadsheet,neutral
+Postman,Postman — GET /api/users,deep_work
+PyCharm,urls.py — PyCharm Professional,deep_work
+Notion,Notion — Sprint Planning Q2,deep_work
+Google Chrome,Codeforces — Round 900,deep_work
+Safari,GitHub — Code Review — main.py — Safari,deep_work
+Flipkart,Flipkart — Big Billion Days,distraction
+Bitwarden,Bitwarden — Vault,neutral
+PyCharm,settings.py — django-app — PyCharm,deep_work
+Docker Desktop,Docker Desktop — Images,deep_work
+Google Meet,Google Meet — All Hands Meeting,communication
+Obsidian,Obsidian — System Design Notes,deep_work
+YouTube,YouTube — Top 10 Netflix Shows 2026,distraction
+Google Chrome,Claude — Explain Python decorators,deep_work
+PyCharm,views.py — PyCharm Professional,deep_work
+Outlook,Outlook — Inbox — Microsoft Outlook,communication
+Apple Music,Apple Music — Lo-fi Beats,neutral
+Paint,Paint — Untitled,neutral
+IntelliJ IDEA,IntelliJ IDEA — ApplicationService.java,deep_work
+Zoom,Zoom — Client Demo,communication
+Notepad,Notepad — notes.txt,neutral
+Snipping Tool,Snipping Tool,neutral
+Arc,Coursera — Machine Learning Specialization — Arc,deep_work
+Safari,cricbuzz — Live Score — Safari,distraction
+Netflix,Netflix — My List,distraction
+pgAdmin,pgAdmin 4 — Query Tool,deep_work
+Arc,PyPI — SQLAlchemy — Arc,deep_work
+Outlook,Outlook — New Email,communication
+Gmail,Gmail — Code Review Request,communication
+Google Chrome,drive.google.com — My Drive,neutral
+Reddit,Reddit — r/pics — Best of 2026,distraction
+Figma,Figma — User Flow Diagram,deep_work
+Notion,Notion — Technical Spec: Auth System,deep_work
+Google Chrome,Linear — Sprint Board — Google Chrome,deep_work
+Obsidian,Obsidian — Learning Kubernetes,deep_work
+Figma,Figma — Landing Page Mockup,deep_work
+Arc,eBay — Search: vintage watches,distraction
+Steam,Steam — Wishlist,distraction
+Settings,Settings — Personalization,neutral
+Microsoft Word,Resume.docx — Microsoft Word,neutral
+Arc,ChatGPT — Debug Python error,deep_work
+Telegram,Telegram — Tech Channel,communication
+Google Sheets,Google Sheets — Budget Tracker,neutral
+Apple Music,Apple Music — For You,distraction
+Visual Studio Code,app.tsx — my-project — Visual Studio Code,deep_work
+Outlook,Outlook — Meeting Request — Architecture Review,communication
+Reddit,Reddit — r/funny — Top Posts,distraction
+Zoom,Zoom Meeting — Weekly Sync,communication
+Google Chrome,Replit — Python Project,deep_work
+Prime Video,Prime Video — Browse,distraction
+Google Chrome,Pinterest — Home Feed,distraction
+Safari,Hacker News — Show HN,distraction
+Snipping Tool,Snip & Sketch,neutral
+Counter-Strike 2,Counter-Strike 2,distraction
+Microsoft PowerPoint,Quarterly Review.pptx — PowerPoint,neutral
+Arc,9GAG — Trending — Arc,distraction
+Figma,Figma — Mobile App Wireframes,deep_work
+Brave,GitLab — Merge Request !15 — Brave,deep_work
+Arc,Kaggle — Titanic Dataset — Arc,deep_work
+Brave,Amazon — Deal of the Day — Brave,distraction
+Visual Studio Code,README.md — activity-monitor — Visual Studio Code,deep_work
+Terminal,Terminal — pytest -v,deep_work
+Microsoft Edge,Google — Maps,neutral
+File Explorer,File Explorer — Desktop,neutral
+WhatsApp,WhatsApp Web,communication
+Instagram,Instagram — @username Stories,distraction
+Safari,Reddit — r/memes — Hot,distraction
+Postman,Postman — PATCH /api/users/me,deep_work
+Facebook,Facebook — News Feed,distraction
+Google Chrome,ChatGPT — Help me write a regex,deep_work
+Microsoft Teams,Microsoft Teams — General Channel,communication
+Google Chrome,reddit.com — r/funny,distraction
+Google Chrome,Netlify — Deploy Preview #87,deep_work
+DBeaver,DBeaver — SQL Editor — Query 1,deep_work
+Google Meet,Google Meet — 1:1 Catchup,communication
+Apple Mail,Mail — Compose — Project Update,communication
+Clock,Clock — Timer,neutral
+Google Chrome,GitLab — Pipeline #4521 passed — Google Chrome,deep_work
+Firefox,FastAPI — Request Body — Documentation,deep_work
+Firefox,LinkedIn — Messages,communication
+Amazon,Amazon.com — Shopping Cart,distraction
+Firefox,twitter.com — For You,distraction
+Arc,HackerRank — Python Challenges — Arc,deep_work
+PyCharm,alembic.ini — PyCharm,deep_work
+Firefox,JSFiddle — API Test,deep_work
+Google Chrome,instagram.com — Feed,distraction
+Zoom,Zoom — 1:1 with Manager,communication
+Safari,Stack Overflow — SQLAlchemy async session best practices — Safari,deep_work
+Notion,Notion — Roadmap 2026,deep_work
+Reddit,Reddit — r/relationship_advice,distraction
+Microsoft Teams,Microsoft Teams — Chat — Project Alpha,communication
+Google Chrome,Instagram — Web,distraction
+Google Chrome,LinkedIn — Job Alerts — Google Chrome,communication
+Brave,Render — Dashboard — Backend Service — Brave,deep_work
+Terminal,Terminal — ssh user@server,deep_work
+Jira,Jira — Backlog Grooming,deep_work
+Terminal,bash — Terminal,deep_work
+Task Manager,Task Manager,neutral
+Google Chrome,youtube.com — Home,distraction
+Postman,Postman — Testing Environment,deep_work
+Microsoft Excel,Book1 — Excel,neutral
+Photos,Photos — Recent,neutral
+System Preferences,System Preferences — General,neutral
+Microsoft Edge,FastAPI — Dependency Injection — Docs — Microsoft Edge,deep_work
+Visual Studio Code,Dockerfile — Visual Studio Code,deep_work
+Brave,tiktok.com — For You,distraction
+Apple Mail,Mail — Inbox (12),communication
+Calendar,Calendar — Today's Agenda,neutral
+Reddit,Reddit — r/tifu — HOT,distraction
+Google Docs,Google Docs — Meeting Notes,neutral
+Google Chrome,127.0.0.1:5173 — Vite App,deep_work
+Firefox,React Documentation — Hooks at a Glance,deep_work
+Sublime Text,script.sh — Sublime Text,deep_work
+Slack,Slack — #general,communication
+WhatsApp,WhatsApp — Work Group,communication
+Photos,Photos — Screenshots,neutral
+Postman,Postman — PUT /api/sessions/123,deep_work
+Notepad,Notepad — Untitled,neutral
+Firefox,about:blank,neutral
+Google Chrome,Microsoft Teams — Web App — Google Chrome,communication
+Arc,GitHub — Pull Request #42: Fix auth middleware — Arc,deep_work
+Visual Studio Code,Extensions — Visual Studio Code,deep_work
+Google Chrome,localhost:3000 — Dashboard,deep_work
+Firefox,Product Hunt — Today's Top Products — Firefox,distraction
+Slack,Slack — #incident-response,communication
+Discord,Discord — #dev-help — Python Server,communication
+File Explorer,File Explorer — Downloads,neutral
+Notion,Notion — Grocery List,neutral
+Visual Studio Code,jest.config.ts — Visual Studio Code,deep_work
+Gmail,Gmail — Inbox (42),communication
+Instagram,Instagram — Stories,distraction
+Visual Studio Code,index.tsx — frontend — Visual Studio Code,deep_work
+Reddit,Reddit — r/gaming,distraction
+Docker Desktop,Docker Desktop — activity-monitor-backend,deep_work
+YouTube,YouTube — Reacting to Old Videos,distraction
+Facebook,Facebook — Watch,distraction
+Figma,Figma — Onboarding Screens,deep_work
+Calculator,Calculator,neutral
+Google Chrome,Vercel — Logs — activity-monitor,deep_work
+Google Chrome,YouTube — FastAPI Full Course 2026,deep_work
+GitKraken,GitKraken — activity-monitor,deep_work
+Slack,Slack — #frontend-team,communication
+Google Chrome,mail.google.com — Inbox,communication
+iTerm2,iTerm2 — python manage.py runserver,deep_work
+Visual Studio Code,models.py — backend — Visual Studio Code,deep_work
+Device Manager,Device Manager,neutral
+Figma,Figma — Icon Set v3,deep_work
+Microsoft Edge,Discord — Web App,communication
+IntelliJ IDEA,IntelliJ IDEA — Build Running,deep_work
+Twitter,X — Trending — #WorldCup,distraction
+1Password,1Password — Login,neutral
+Firefox,Udemy — Docker Mastery — Firefox,deep_work
+Steam,Steam — Store,distraction
+Terminal,Terminal — alembic upgrade head,deep_work
+Zoom,Zoom — Breakout Room 1,communication
+Finder,Finder — Applications,neutral
+Firefox,MDN — Array.prototype.map() — Firefox,deep_work
+Jira,Jira — PROJ-456 Fix login bug,deep_work
+Microsoft Excel,Expense_Tracker.xlsx — Excel,neutral
+Jupyter Notebook,Jupyter Notebook — EDA.ipynb,deep_work
+Epic Games,Epic Games Launcher,distraction
+Microsoft PowerPoint,Presentation1 — PowerPoint,neutral
+Google Chrome,YouTube — JavaScript Tutorial for Beginners,deep_work
+Xcode,Xcode — Build Succeeded,deep_work
+Zoom,Zoom — Team Retrospective,communication
+Figma,Figma — Component Library,deep_work
+Terminal,Terminal — go run main.go,deep_work
+Spotify,Spotify — Coding Music,neutral
+Netflix,Netflix — Continue Watching,distraction
+Arc,Weather.com — Forecast — Arc,neutral
+TikTok,TikTok — For You,distraction
+Terminal,Terminal — python main.py,deep_work
+Figma,Figma — Dashboard Redesign,deep_work
+Arc,Outlook — Mail — Microsoft Edge,communication
+Brave,WhatsApp Web,communication
+Google Chrome,Reddit — r/todayilearned,distraction
+Sublime Text,config.yaml — Sublime Text,deep_work
+Microsoft Edge,Google Translate — Microsoft Edge,neutral
+Terminal,Terminal — kubectl get pods,deep_work
+Settings,Settings — System,neutral
+Twitch,Twitch — Shroud playing Valorant,distraction
+Amazon,Amazon — Your Orders,distraction
+Disney+,Disney+ — Home,distraction
+Flipkart,Flipkart — Cart,distraction
+Google Chrome,LinkedIn — Feed,communication
+iTerm2,iTerm2 — npm test,deep_work
+iTerm2,iTerm2 — docker ps,deep_work
+Xcode,Xcode — MyApp — ContentView.swift,deep_work
+TikTok,TikTok — Discover,distraction
+Notion,Notion — Personal Journal,neutral
+Visual Studio Code,layout.tsx — app — Visual Studio Code,deep_work
+Google Chrome,Google Search — weather today,neutral
+Microsoft Teams,Microsoft Teams — Call with Design Team,communication
+Settings,Settings — Privacy & Security,neutral
+Google Chrome,MDN Web Docs — CSS Grid Layout,deep_work
+Arc,Stack Overflow — React useEffect cleanup,deep_work
+Gmail,Gmail — Compose — Weekly Update,communication
+Visual Studio Code,middleware.ts — Visual Studio Code,deep_work
+Brave,Firefox Add-ons,neutral
+Obsidian,Obsidian — Daily Log,deep_work
+Google Docs,Google Docs — Untitled Document,neutral
+TablePlus,TablePlus — Query Editor,deep_work
+Calculator,Calculator — Scientific,neutral
+Brave,Twitter / X — Home Timeline,distraction
+Outlook,Outlook — Calendar — Sprint Planning,communication
+Microsoft Teams,Microsoft Teams — Meeting — Sprint Review,communication
+Activity Monitor (macOS),Activity Monitor — Memory,neutral
+Twitter,X — #TechTwitter — Trending,distraction
+YouTube,YouTube — Watch Later,distraction
+Terminal,Terminal — cargo build,deep_work
+PyCharm,PyCharm — Run: pytest,deep_work
+Settings,Settings — Bluetooth & Devices,neutral
+Terminal,Terminal — docker-compose up,deep_work
+Netflix,Netflix — New Releases — April 2026,distraction
+Sublime Text,Sublime Text — Find in Files,deep_work
+Google Chrome,GeeksforGeeks — Dynamic Programming — Google Chrome,deep_work
+Microsoft Edge,Google Drive — My Drive — Microsoft Edge,neutral
+Terminal,Terminal — pip install -r requirements.txt,deep_work
+Visual Studio Code,docker-compose.yml — Visual Studio Code,deep_work
+Slack,Slack — Direct Message — John,communication
+File Explorer,File Explorer — Network,neutral
+Slack,Slack — Thread — API discussion,communication
+Arc,GitHub — luckyshukla8866-sv/activity-monitor — Arc,deep_work
+Microsoft Edge,TypeScript Handbook — Generics,deep_work
+Visual Studio Code,Untitled-1 — Visual Studio Code,deep_work
+Safari,Facebook — News Feed,distraction
+Obsidian,Obsidian — Research Notes,deep_work
+Epic Games,Epic Games — Store — Free Games,distraction
+TextEdit,TextEdit — quick_notes.txt,neutral
+Microsoft Teams,Microsoft Teams — Files — Shared Documents,communication
+File Explorer,File Explorer — Recycle Bin,neutral
+Microsoft Teams,Microsoft Teams — #engineering,communication
+Microsoft Edge,Azure DevOps — Pipeline Runs,deep_work

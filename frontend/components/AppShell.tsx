@@ -3,20 +3,16 @@
 import { usePathname } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
-import BackgroundSystem from '@/components/BackgroundSystem';
 import AuthGuard from '@/components/AuthGuard';
 import { motion } from 'framer-motion';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-
-    // Full-screen layout — no sidebar or header
-    const isFullScreen = pathname === '/' || pathname === '/upload' || pathname === '/login';
+    const isFullScreen = pathname === '/' || pathname === '/login';
 
     if (isFullScreen) {
         return (
             <AuthGuard>
-                <BackgroundSystem />
                 <motion.div
                     key={pathname}
                     initial={{ opacity: 0, y: 12 }}
@@ -32,8 +28,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
     return (
         <AuthGuard>
-            <div className="flex h-screen overflow-hidden text-white/90">
-                <BackgroundSystem />
+            <div className="flex h-screen overflow-hidden bg-surface text-on-surface">
                 <Sidebar />
                 <div className="flex-1 flex flex-col min-w-0 relative">
                     <Header />
@@ -53,4 +48,3 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </AuthGuard>
     );
 }
-

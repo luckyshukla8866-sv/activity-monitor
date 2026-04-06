@@ -9,7 +9,6 @@ import {
 import ReactMarkdown from 'react-markdown';
 import apiClient from '@/lib/api';
 import { getUserStorageKey } from '@/lib/auth-utils';
-import GlassCard from '@/components/GlassCard';
 
 /* ── Types ─────────────────────────────────────────────────────────── */
 
@@ -24,10 +23,10 @@ type Message = {
 /* ── Quick-prompt suggestions ──────────────────────────────────────── */
 
 const SUGGESTIONS = [
-    { icon: TrendingUp, label: 'Why was my productivity low this week?', color: 'from-rose-500/20 to-pink-500/20 border-rose-500/20 text-rose-300' },
-    { icon: Target, label: 'When am I most focused?', color: 'from-emerald-500/20 to-teal-500/20 border-emerald-500/20 text-emerald-300' },
-    { icon: Brain, label: 'Am I at risk of burnout?', color: 'from-amber-500/20 to-orange-500/20 border-amber-500/20 text-amber-300' },
-    { icon: Zap, label: 'What apps are hurting my focus?', color: 'from-violet-500/20 to-purple-500/20 border-violet-500/20 text-violet-300' },
+    { icon: TrendingUp, label: 'Why was my productivity low this week?', color: 'from-rose-500/10 to-pink-500/10 border-rose-500/20 text-rose-700' },
+    { icon: Target, label: 'When am I most focused?', color: 'from-emerald-500/10 to-teal-500/10 border-emerald-500/20 text-emerald-700' },
+    { icon: Brain, label: 'Am I at risk of burnout?', color: 'from-amber-500/10 to-orange-500/10 border-amber-500/20 text-amber-700' },
+    { icon: Zap, label: 'What apps are hurting my focus?', color: 'from-violet-500/10 to-purple-500/10 border-violet-500/20 text-violet-700' },
 ];
 
 /* ── Typing indicator ──────────────────────────────────────────────── */
@@ -42,20 +41,20 @@ function TypingIndicator() {
         >
             {/* Avatar */}
             <div className="shrink-0 mt-1">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 flex items-center justify-center shadow-lg shadow-indigo-500/5">
-                    <Bot className="w-4 h-4 text-indigo-300" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100 flex items-center justify-center shadow-sm">
+                    <span className="material-symbols-outlined text-[18px] text-indigo-600">smart_toy</span>
                 </div>
             </div>
             {/* Dots */}
-            <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl rounded-tl-sm px-5 py-4 backdrop-blur-sm">
+            <div className="extrusion rounded-2xl rounded-tl-sm px-5 py-4">
                 <div className="flex gap-1.5 items-center">
                     {[0, 1, 2].map((i) => (
                         <motion.div
                             key={i}
-                            className="w-2 h-2 rounded-full bg-indigo-400/80"
+                            className="w-2 h-2 rounded-full bg-indigo-400"
                             animate={{
                                 y: [0, -6, 0],
-                                opacity: [0.4, 1, 0.4],
+                                opacity: [0.5, 1, 0.5],
                             }}
                             transition={{
                                 repeat: Infinity,
@@ -65,7 +64,7 @@ function TypingIndicator() {
                             }}
                         />
                     ))}
-                    <span className="text-xs text-white/30 ml-2 font-mono">analyzing...</span>
+                    <span className="text-xs text-slate-400 ml-2 font-mono">analyzing...</span>
                 </div>
             </div>
         </motion.div>
@@ -87,12 +86,12 @@ function MessageBubble({ message }: { message: Message }) {
             {/* Avatar */}
             <div className="shrink-0 mt-1">
                 {isUser ? (
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-600/50 to-slate-700/50 border border-slate-500/30 flex items-center justify-center">
-                        <User className="w-4 h-4 text-slate-300" />
+                    <div className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shadow-sm">
+                        <span className="material-symbols-outlined text-[18px] text-slate-500">person</span>
                     </div>
                 ) : (
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 flex items-center justify-center shadow-lg shadow-indigo-500/5">
-                        <Bot className="w-4 h-4 text-indigo-300" />
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100 flex items-center justify-center shadow-sm">
+                        <span className="material-symbols-outlined text-[18px] text-indigo-600">smart_toy</span>
                     </div>
                 )}
             </div>
@@ -103,24 +102,24 @@ function MessageBubble({ message }: { message: Message }) {
                     className={`
                         px-5 py-3.5 rounded-2xl text-[14.5px] leading-relaxed
                         ${isUser
-                            ? 'bg-indigo-600/70 text-white rounded-tr-sm shadow-[0_4px_20px_rgba(79,70,229,0.2)] border border-indigo-500/30'
-                            : 'bg-white/[0.04] text-slate-200 border border-white/[0.06] rounded-tl-sm backdrop-blur-sm'
+                            ? 'bg-indigo-600 text-white rounded-tr-sm shadow-md shadow-indigo-600/20'
+                            : 'extrusion text-slate-700 rounded-tl-sm'
                         }
                     `}
                 >
-                    <div className="prose prose-invert prose-sm prose-p:my-1.5 prose-ul:my-2 prose-li:my-0.5 prose-headings:text-white/90 prose-strong:text-white/90 prose-code:text-indigo-300 prose-code:bg-indigo-500/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-[13px] max-w-none">
+                    <div className={`prose prose-sm prose-p:my-1.5 prose-ul:my-2 prose-li:my-0.5 max-w-none ${isUser ? 'prose-invert prose-headings:text-white prose-strong:text-white prose-code:text-indigo-100 prose-code:bg-indigo-500/20' : 'prose-headings:text-slate-900 prose-strong:text-slate-900 prose-code:text-indigo-600 prose-code:bg-indigo-50' } prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-[13px]`}>
                         <ReactMarkdown>{message.content}</ReactMarkdown>
                     </div>
                 </div>
 
                 {/* Meta: time + tokens */}
                 <div className="flex items-center gap-3 mt-1.5 px-1">
-                    <span className="text-[10px] text-white/25 font-mono">
+                    <span className="text-[10px] text-slate-400 font-mono">
                         {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                     {message.tokens && (
-                        <span className="text-[10px] text-indigo-400/50 flex items-center gap-1 font-mono">
-                            <Activity className="w-2.5 h-2.5" />
+                        <span className="text-[10px] text-indigo-400 flex items-center gap-1 font-mono">
+                            <span className="material-symbols-outlined text-[10px]">analytics</span>
                             {message.tokens.toLocaleString()} tokens
                         </span>
                     )}
@@ -277,16 +276,16 @@ export default function CoachPage() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
-                className="mb-6 flex items-center justify-between"
+                className="mb-8 flex items-center justify-between"
             >
                 <div>
-                    <h1 className="text-2xl font-semibold tracking-tight text-white/90 flex items-center gap-3">
-                        <div className="p-2 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/20">
-                            <Sparkles className="w-5 h-5 text-indigo-400" />
+                    <h1 className="text-3xl font-bold tracking-tight text-slate-800 flex items-center gap-3 font-manrope">
+                        <div className="p-2 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center shadow-sm">
+                            <span className="material-symbols-outlined text-[24px] text-indigo-600">auto_awesome</span>
                         </div>
                         AI Coach
                     </h1>
-                    <p className="text-sm text-white/40 mt-1">
+                    <p className="text-sm text-slate-500 mt-2 font-inter">
                         Personalized productivity insights from your activity data
                     </p>
                 </div>
@@ -295,40 +294,40 @@ export default function CoachPage() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         onClick={clearChat}
-                        className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-white/40 hover:text-white/70 hover:bg-white/5 border border-transparent hover:border-white/10 transition-all"
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-transparent shadow-sm transition-all"
                     >
-                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span className="material-symbols-outlined text-[18px]">refresh</span>
                         New Chat
                     </motion.button>
                 )}
             </motion.div>
 
             {/* Chat Container */}
-            <GlassCard className="flex flex-col h-[calc(100vh-220px)] min-h-[500px] max-h-[800px] p-0 overflow-hidden relative">
+            <div className="extrusion flex flex-col h-[calc(100vh-250px)] min-h-[500px] max-h-[800px] p-0 overflow-hidden relative rounded-[2rem]">
 
                 {/* Status bar */}
-                <div className="px-5 py-3 border-b border-white/5 bg-white/[0.02] flex items-center justify-between shrink-0">
+                <div className="px-6 py-4 border-b border-slate-200/50 bg-[#eef1f3]/50 flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="flex items-center gap-2">
-                            <span className="relative flex h-2 w-2">
+                            <span className="relative flex h-2.5 w-2.5">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
                             </span>
-                            <span className="text-xs text-white/50 font-medium">Claude Sonnet 4</span>
+                            <span className="text-xs text-slate-600 font-medium">Claude Sonnet 4</span>
                         </div>
-                        <span className="text-white/10">|</span>
-                        <span className="text-[10px] text-white/30 font-mono uppercase tracking-wider">
+                        <span className="text-slate-300">|</span>
+                        <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">
                             Last 30 days context
                         </span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-[10px] text-white/25 font-mono">
-                        <Brain className="w-3 h-3" />
+                    <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-mono">
+                        <span className="material-symbols-outlined text-[14px]">psychology</span>
                         {messages.filter((m) => m.role === 'assistant' && m.tokens).reduce((sum, m) => sum + (m.tokens || 0), 0).toLocaleString()} total tokens
                     </div>
                 </div>
 
                 {/* Messages area */}
-                <div className="flex-1 overflow-y-auto px-5 py-6 space-y-6" id="coach-messages">
+                <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 bg-white" id="coach-messages">
                     <AnimatePresence initial={false}>
                         {messages.map((msg) => (
                             <MessageBubble key={msg.id} message={msg} />
@@ -351,7 +350,7 @@ export default function CoachPage() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 10, transition: { duration: 0.2 } }}
                             transition={{ delay: 0.3, duration: 0.5 }}
-                            className="px-5 pb-3 shrink-0"
+                            className="px-6 pb-4 shrink-0 bg-white"
                         >
                             <div className="flex flex-wrap gap-2">
                                 {SUGGESTIONS.map((s) => (
@@ -360,8 +359,8 @@ export default function CoachPage() {
                                         onClick={() => sendMessage(s.label)}
                                         className={`
                                             group flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium
-                                            bg-gradient-to-r ${s.color} border backdrop-blur-sm
-                                            hover:scale-[1.03] hover:shadow-lg transition-all duration-200
+                                            bg-gradient-to-r ${s.color} border transition-all duration-200
+                                            hover:scale-[1.02] shadow-sm hover:shadow-md
                                         `}
                                     >
                                         <s.icon className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 transition-opacity" />
@@ -374,8 +373,8 @@ export default function CoachPage() {
                 </AnimatePresence>
 
                 {/* Input area */}
-                <div className="px-4 py-3 bg-white/[0.02] border-t border-white/5 shrink-0">
-                    <form onSubmit={handleSubmit} className="relative flex items-end gap-2">
+                <div className="px-6 py-4 bg-[#f5f7f9] border-t border-slate-200/50 shrink-0">
+                    <form onSubmit={handleSubmit} className="relative flex items-end gap-3">
                         <div className="flex-1 relative">
                             <textarea
                                 ref={textareaRef}
@@ -386,12 +385,13 @@ export default function CoachPage() {
                                 disabled={isLoading}
                                 rows={1}
                                 className="
-                                    w-full bg-white/[0.03] border border-white/[0.08] rounded-xl
-                                    px-4 py-3 pr-4 text-sm text-white resize-none
-                                    focus:outline-none focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/30
-                                    focus:bg-white/[0.05] transition-all placeholder:text-white/25
-                                    disabled:opacity-40 disabled:cursor-not-allowed
-                                    min-h-[44px] max-h-[160px]
+                                    w-full recessed rounded-2xl
+                                    px-5 py-4 pr-4 text-[14px] text-slate-800 resize-none
+                                    border-none
+                                    focus:outline-none focus:ring-2 focus:ring-indigo-500/30
+                                    transition-all placeholder:text-slate-400
+                                    disabled:opacity-50 disabled:cursor-not-allowed
+                                    min-h-[52px] max-h-[160px]
                                 "
                             />
                         </div>
@@ -399,22 +399,23 @@ export default function CoachPage() {
                             type="submit"
                             disabled={!input.trim() || isLoading}
                             className="
-                                shrink-0 p-3 rounded-xl transition-all duration-200
-                                bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-500/20
-                                disabled:bg-white/[0.04] disabled:shadow-none
-                                disabled:text-white/20 text-white
-                                hover:shadow-indigo-500/30 hover:scale-105
-                                active:scale-95
+                                shrink-0 p-4 rounded-2xl transition-all duration-200
+                                bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-600/20
+                                disabled:bg-slate-200 disabled:shadow-none
+                                disabled:text-slate-400 text-white
+                                hover:shadow-indigo-600/30 hover:scale-[1.02]
+                                active:scale-95 flex items-center justify-center
                             "
                         >
-                            <Send className="w-4 h-4" />
+                            <span className="material-symbols-outlined text-[20px]">send</span>
                         </button>
                     </form>
-                    <p className="text-[10px] text-white/20 mt-1.5 text-center font-mono">
+                    <p className="text-[11px] text-slate-500 mt-2 text-center font-mono">
                         Press Enter to send &middot; Shift+Enter for new line
                     </p>
                 </div>
-            </GlassCard>
+            </div>
         </div>
     );
 }
+

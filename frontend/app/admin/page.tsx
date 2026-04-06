@@ -8,7 +8,7 @@ import {
     AlertTriangle, CheckCircle, Eye, EyeOff, X
 } from 'lucide-react';
 import axios from 'axios';
-import GlassCard from '@/components/GlassCard';
+
 
 const apiClient = axios.create({ baseURL: '' });
 apiClient.interceptors.request.use((config) => {
@@ -40,7 +40,7 @@ interface Stats {
 
 function StatCard({ icon: Icon, label, value, sub, color }: any) {
     return (
-        <GlassCard className="p-5 group hover:-translate-y-0.5 transition-transform">
+        <div className="bg-surface extrusion rounded-[1.5rem] p-5 group hover:-translate-y-0.5 transition-transform interactive-card">
             <div className="flex items-start justify-between mb-3">
                 <div className={`p-2.5 rounded-xl bg-${color}-500/10 border border-${color}-500/20`}>
                     <Icon className={`w-5 h-5 text-${color}-400`} />
@@ -49,7 +49,7 @@ function StatCard({ icon: Icon, label, value, sub, color }: any) {
             <div className="text-2xl font-mono font-semibold text-white/90 tracking-tight">{value}</div>
             <div className="text-xs text-white/40 uppercase tracking-wider mt-1">{label}</div>
             {sub && <div className="text-[10px] text-white/25 mt-0.5">{sub}</div>}
-        </GlassCard>
+        </div>
     );
 }
 
@@ -174,11 +174,11 @@ export default function AdminPage() {
     if (error) {
         return (
             <div className="flex items-center justify-center h-[60vh]">
-                <GlassCard className="p-8 text-center max-w-md border-red-500/20">
+                <div className="bg-error-container/20 extrusion rounded-[2rem] p-8 text-center max-w-md border-error/20 interactive-card">
                     <Shield className="w-12 h-12 text-red-400 mx-auto mb-4" />
                     <h2 className="text-xl font-semibold text-white/90 mb-2">Admin Access Required</h2>
                     <p className="text-white/50 text-sm">{error}</p>
-                </GlassCard>
+                </div>
             </div>
         );
     }
@@ -242,7 +242,7 @@ export default function AdminPage() {
             )}
 
             {/* Users Table */}
-            <GlassCard className="p-0 overflow-hidden">
+            <div className="bg-surface extrusion rounded-[2rem] p-0 overflow-hidden interactive-card">
                 <div className="px-6 py-4 border-b border-white/[0.06] flex items-center justify-between">
                     <h2 className="text-white/80 font-medium flex items-center gap-2">
                         <Users className="w-4 h-4 text-white/40" />
@@ -333,7 +333,7 @@ export default function AdminPage() {
                         </tbody>
                     </table>
                 </div>
-            </GlassCard>
+            </div>
 
             {/* Create User Modal */}
             <AnimatePresence>

@@ -4,33 +4,21 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-    LayoutDashboard,
-    Table as TableIcon,
-    Brain,
-    Activity,
-    ChevronLeft,
-    ChevronRight,
-    Upload,
-    Sparkles,
-    LogOut,
-    Shield,
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import GradientText from './GradientText';
 import { clearUserData, isDemoUser } from '@/lib/auth-utils';
 import axios from 'axios';
 
 const baseMenuItems = [
-    { icon: Upload, label: 'Upload', href: '/upload' },
-    { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-    { icon: Brain, label: 'ML Insights', href: '/insights' },
-    { icon: Activity, label: 'Forecast', href: '/forecast' },
-    { icon: TableIcon, label: 'Sessions', href: '/sessions' },
-    { icon: Sparkles, label: 'AI Coach', href: '/coach' },
+    { icon: 'upload', label: 'Upload', href: '/upload' },
+    { icon: 'dashboard', label: 'Dashboard', href: '/dashboard' },
+    { icon: 'psychology', label: 'ML Insights', href: '/insights' },
+    { icon: 'monitoring', label: 'Forecast', href: '/forecast' },
+    { icon: 'table_chart', label: 'Sessions', href: '/sessions' },
+    { icon: 'auto_awesome', label: 'AI Coach', href: '/coach' },
 ];
 
-const adminMenuItem = { icon: Shield, label: 'Admin', href: '/admin' };
+const adminMenuItem = { icon: 'shield', label: 'Admin', href: '/admin' };
 
 export default function Sidebar() {
     const [collapsed, setCollapsed] = useState(false);
@@ -73,55 +61,70 @@ export default function Sidebar() {
     return (
         <motion.div
             initial={false}
-            animate={{ width: collapsed ? 64 : 240 }}
-            className="h-full bg-white/[0.02] border-r border-white/5 flex flex-col backdrop-blur-3xl shrink-0"
+            animate={{ width: collapsed ? 72 : 240 }}
+            className="h-full bg-[#f5f7f9] border-r border-slate-200 flex flex-col shrink-0 font-sans"
         >
             {/* Logo */}
-            <div className="h-14 flex items-center px-4 overflow-hidden shrink-0 mt-4">
+            <div className="h-16 flex items-center px-4 overflow-hidden shrink-0 mt-2">
                 <AnimatePresence mode="wait">
                     {!collapsed && (
                         <motion.div
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -10 }}
-                            className="flex-1 whitespace-nowrap"
+                            className="flex-1 whitespace-nowrap pl-2"
                         >
-                            <h1 className="text-xl font-bold tracking-tight">
-                                <GradientText>Activity Monitor</GradientText>
+                            <h1 className="text-xl font-bold tracking-tight text-slate-800">
+                                Activity Monitor
                             </h1>
+                        </motion.div>
+                    )}
+                    {collapsed && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="w-10 h-10 mx-auto bg-white rounded-xl flex items-center justify-center shadow-sm border border-slate-200"
+                        >
+                            <span className="material-symbols-outlined text-[24px] text-indigo-600">monitoring</span>
                         </motion.div>
                     )}
                 </AnimatePresence>
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 px-3 py-4 space-y-1">
+            <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto overflow-x-hidden">
                 {menuItems.map((item) => {
                     const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/');
                     return (
                         <Link key={item.href} href={item.href}>
                             <motion.div
                                 className={cn(
-                                    'group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all',
+                                    'group relative flex items-center gap-3 px-3 py-3 rounded-xl transition-all cursor-pointer font-medium text-sm',
                                     isActive
-                                        ? 'bg-indigo-500/10 text-indigo-300'
-                                        : 'text-white/50 hover:text-white hover:bg-white/5'
+                                        ? 'extrusion bg-white text-indigo-700 font-bold shadow-sm'
+                                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
                                 )}
                             >
                                 {isActive && (
                                     <motion.div 
                                         layoutId="active-indicator"
-                                        className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-indigo-500 rounded-r-full"
+                                        className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-indigo-600 rounded-r-full"
                                     />
                                 )}
-                                <item.icon className="w-5 h-5 shrink-0" />
+                                <span className={cn(
+                                    "material-symbols-outlined text-[20px] shrink-0 transition-colors",
+                                    isActive ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-700"
+                                )}>
+                                    {item.icon}
+                                </span>
                                 <AnimatePresence mode="wait">
                                     {!collapsed && (
                                         <motion.span
                                             initial={{ opacity: 0, width: 0 }}
                                             animate={{ opacity: 1, width: 'auto' }}
                                             exit={{ opacity: 0, width: 0 }}
-                                            className="font-medium whitespace-nowrap overflow-hidden"
+                                            className="whitespace-nowrap overflow-hidden"
                                         >
                                             {item.label}
                                         </motion.span>
@@ -134,19 +137,19 @@ export default function Sidebar() {
             </nav>
 
             {/* Bottom actions */}
-            <div className="p-3 border-t border-white/5 space-y-1">
+            <div className="p-3 border-t border-slate-200 space-y-1.5 bg-[#f5f7f9]">
                 <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all cursor-pointer font-medium text-sm group"
                 >
-                    <LogOut className="w-5 h-5 shrink-0" />
+                    <span className="material-symbols-outlined text-[20px] shrink-0 group-hover:text-rose-500">logout</span>
                     <AnimatePresence mode="wait">
                         {!collapsed && (
                             <motion.span
                                 initial={{ opacity: 0, width: 0 }}
                                 animate={{ opacity: 1, width: 'auto' }}
                                 exit={{ opacity: 0, width: 0 }}
-                                className="font-medium whitespace-nowrap overflow-hidden text-sm"
+                                className="whitespace-nowrap overflow-hidden"
                             >
                                 Logout
                             </motion.span>
@@ -155,13 +158,11 @@ export default function Sidebar() {
                 </button>
                 <button
                     onClick={() => setCollapsed(!collapsed)}
-                    className="w-full flex items-center justify-center p-2 rounded-xl text-white/50 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                    className="w-full flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
                 >
-                    {collapsed ? (
-                        <ChevronRight className="w-5 h-5" />
-                    ) : (
-                        <ChevronLeft className="w-5 h-5" />
-                    )}
+                    <span className="material-symbols-outlined text-[20px]">
+                        {collapsed ? 'chevron_right' : 'chevron_left'}
+                    </span>
                 </button>
             </div>
         </motion.div>

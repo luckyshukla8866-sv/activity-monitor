@@ -200,6 +200,25 @@ export const insightsAPI = {
         });
         return response.data;
     },
+
+    getWeeklyHeatmap: async (weeks: number = 4) => {
+        const response = await apiClient.get('/api/insights/weekly-heatmap', {
+            params: { weeks },
+        });
+        return response.data;
+    },
+
+    getFocusForecast: async () => {
+        const response = await apiClient.get('/api/insights/focus-forecast');
+        return response.data;
+    },
+
+    getCategoryTrends: async (days: number = 30) => {
+        const response = await apiClient.get('/api/insights/category-trends', {
+            params: { days },
+        });
+        return response.data;
+    },
 };
 
 // Data Upload API

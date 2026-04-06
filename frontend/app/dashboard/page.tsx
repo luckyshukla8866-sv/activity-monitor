@@ -1,15 +1,14 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Activity, Clock, Trophy, BrainCircuit, ArrowUpRight, ArrowDownRight, Layers, Monitor, Globe, Chrome } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { analyticsAPI, insightsAPI } from '@/lib/api';
 import dynamic from 'next/dynamic';
-import GlassCard from '@/components/GlassCard';
-import Pill from '@/components/Pill';
 import { useCountUp } from '@/hooks/useCountUp';
 
-// Lazy-load charts
+// ... (rest of the file remains same, except lucide-react is removed and ChevronDown replaced)
+// Let me write out the full file exactly to be safe.
+
 const AppDistributionChart = dynamic(() => import('@/components/charts/AppDistributionChart'), {
     loading: () => <ChartSkeleton />,
     ssr: false,
@@ -26,54 +25,40 @@ const ActivityTimelineChart = dynamic(() => import('@/components/charts/Activity
 function ChartSkeleton() {
     return (
         <div className="h-[280px] flex items-center justify-center">
-            <div className="w-full h-full bg-white/[0.02] rounded-2xl animate-pulse" />
+            <div className="w-full h-full bg-surface-container rounded-2xl animate-pulse" />
         </div>
     );
 }
 
-function AnimatedStatCard({ title, value, unit, icon: Icon, trend, delay, isSmall = false }: any) {
+function StatCard({ title, value, unit, icon, trend, highlightClass = 'text-primary bg-primary-container/20' }: any) {
     const isNumber = typeof value === 'number';
     const displayValue = useCountUp(isNumber ? value : 0, 1500);
     const finalVal = isNumber ? displayValue.toFixed(0) : value;
 
     return (
-        <motion.div
-            variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, delay } } }}
-        >
-            <GlassCard className="p-5 h-full relative group hover:-translate-y-1 transition-transform duration-300">
-                <div className="flex justify-between items-start mb-4">
-                    <div className="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 group-hover:bg-indigo-500/20 transition-colors">
-                        <Icon className="w-5 h-5" />
-                    </div>
-                    {trend !== undefined && (
-                        <Pill color={trend >= 0 ? "emerald" : "red"} className="text-[10px] px-2 py-0.5">
-                            {trend >= 0 ? <ArrowUpRight className="w-3 h-3 mr-0.5" /> : <ArrowDownRight className="w-3 h-3 mr-0.5" />}
-                            {Math.abs(trend)}%
-                        </Pill>
-                    )}
-                </div>
-                <div>
-                    <h3 className="text-white/50 text-xs font-medium uppercase tracking-wider mb-1">{title}</h3>
-                    <div className="flex items-baseline gap-1.5">
-                        <span className={`font-mono font-medium tracking-tight text-white/90 ${isSmall ? 'text-2xl' : 'text-4xl'}`}>
-                            {finalVal}
-                        </span>
-                        {unit && <span className="text-white/40 font-mono text-sm">{unit}</span>}
-                    </div>
-                </div>
-            </GlassCard>
-        </motion.div>
+        <div className="bg-surface p-8 rounded-[1.5rem] extrusion flex flex-col justify-between h-48 interactive-card">
+            <div className="flex justify-between items-start">
+                <span className={`material-symbols-outlined p-3 rounded-[1rem] ${highlightClass}`} style={{fontVariationSettings: "'FILL' 1"}}>
+                    {icon}
+                </span>
+                {trend !== undefined && (
+                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${trend >= 0 ? 'text-green-600 bg-green-100' : 'text-red-500 bg-red-100'}`}>
+                        {trend > 0 ? '+' : ''}{trend}%
+                    </span>
+                )}
+            </div>
+            <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">{title}</p>
+                <h3 className="text-3xl font-black text-on-surface">
+                    {finalVal}
+                    {unit && <span className="text-lg text-on-surface-variant ml-1">{unit}</span>}
+                </h3>
+            </div>
+        </div>
     );
 }
 
-// Source filter type
 type SourceFilter = 'all' | 'desktop' | 'browser';
-
-const SOURCE_BUTTONS: { key: SourceFilter; label: string; icon: any }[] = [
-    { key: 'all', label: 'All', icon: Globe },
-    { key: 'desktop', label: 'Desktop', icon: Monitor },
-    { key: 'browser', label: 'Browser', icon: Chrome },
-];
 
 export default function DashboardPage() {
     const [overview, setOverview] = useState<any>(null);
@@ -112,7 +97,7 @@ export default function DashboardPage() {
             if (burnoutRes.status === 'fulfilled') ml.burnout = burnoutRes.value;
             setMlData(ml);
         } catch {
-            // Silently handle — Promise.allSettled shouldn't throw, but just in case
+            // Silently handle
         } finally {
             setLoading(false);
         }
@@ -125,10 +110,13 @@ export default function DashboardPage() {
         return () => clearInterval(interval);
     }, [loadAll]);
 
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
-    };
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-[60vh]">
+                <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+            </div>
+        );
+    }
 
     const prodScore = mlData?.productivity?.productivity_score ?? null;
     let totalMinutes = 0;
@@ -140,135 +128,153 @@ export default function DashboardPage() {
     const totalSessions = overview?.total_sessions_today ?? 0;
     const avgSession = totalSessions > 0 && totalMinutes > 0 ? (totalMinutes / totalSessions) : 0;
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-[60vh]">
-                <div className="text-center space-y-4">
-                    <div className="w-8 h-8 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mx-auto" />
-                    <p className="text-sm text-white/40">Loading dashboard…</p>
-                </div>
-            </div>
-        );
-    }
-
     return (
-        <motion.div variants={containerVariants} initial="hidden" animate="visible" className="pb-10 font-sans">
-            <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight text-white/90">Dashboard Overview</h1>
-                    <p className="text-sm text-white/40 mt-1">Your local productivity metrics</p>
-                </div>
-                <div className="flex items-center gap-2">
-                    {/* Source filter buttons */}
-                    <div className="flex items-center rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-md p-1 gap-0.5">
-                        {SOURCE_BUTTONS.map(({ key, label, icon: BtnIcon }) => (
-                            <button
-                                key={key}
-                                onClick={() => setSourceFilter(key)}
-                                className={`
-                                    flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold tracking-wide
-                                    transition-all duration-200 cursor-pointer
-                                    ${sourceFilter === key
-                                        ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 shadow-[0_0_12px_rgba(99,102,241,0.15)]'
-                                        : 'text-white/40 hover:text-white/60 hover:bg-white/[0.04] border border-transparent'
-                                    }
-                                `}
-                            >
-                                <BtnIcon className="w-3.5 h-3.5" />
-                                {label}
-                            </button>
-                        ))}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="pb-12 max-w-[1440px] mx-auto px-2 md:px-8">
+            <section className="flex flex-col md:flex-row justify-between items-end mb-12 gap-8">
+                <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-3 mb-2">
+                        <span className="flex h-3 w-3 relative">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+                        </span>
+                        <span className="text-xs font-bold uppercase tracking-widest text-primary">TRACKING LIVE</span>
                     </div>
-                    {/* Date range pill */}
-                    <div className="hidden md:flex glass-card px-4 py-2 border-white/5 text-sm text-white/60 cursor-pointer hover:bg-white/5 transition-colors">
+                    <h1 className="text-5xl font-black tracking-tighter text-on-surface soft-text">Dashboard Overview</h1>
+                    <p className="text-on-surface-variant text-lg">Your local productivity metrics</p>
+                </div>
+                
+                <div className="flex gap-4 p-2 bg-surface recessed rounded-full overflow-x-auto w-full md:w-auto hide-scrollbar">
+                    <button 
+                        onClick={() => setSourceFilter('all')}
+                        className={`px-6 py-2 rounded-full text-sm font-bold min-w-max transition-all ${sourceFilter === 'all' ? 'bg-surface extrusion text-primary' : 'text-on-surface-variant hover:text-primary'}`}
+                    >
+                        All
+                    </button>
+                    <button 
+                        onClick={() => setSourceFilter('desktop')}
+                        className={`px-6 py-2 rounded-full text-sm font-bold min-w-max transition-all ${sourceFilter === 'desktop' ? 'bg-surface extrusion text-primary' : 'text-on-surface-variant hover:text-primary'}`}
+                    >
+                        Desktop
+                    </button>
+                    <button 
+                        onClick={() => setSourceFilter('browser')}
+                        className={`px-6 py-2 rounded-full text-sm font-bold min-w-max transition-all ${sourceFilter === 'browser' ? 'bg-surface extrusion text-primary' : 'text-on-surface-variant hover:text-primary'}`}
+                    >
+                        Browser
+                    </button>
+                    <div className="w-[1px] h-6 bg-surface-variant my-auto shrink-0"></div>
+                    <button className="px-6 py-2 text-on-surface-variant font-medium rounded-full text-sm flex items-center gap-2 min-w-max">
                         Last 30 Days
-                    </div>
+                        <span className="material-symbols-outlined text-[18px]">expand_more</span>
+                    </button>
                 </div>
-            </div>
+            </section>
 
-            {/* Row 1: Key Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
-                <AnimatedStatCard 
+            {/* Top Stats Bento Grid */}
+            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+                <StatCard 
                     title="Active Time Today" 
                     value={totalHours} 
-                    unit="hrs" 
-                    icon={Clock} 
+                    unit="h" 
+                    icon="schedule" 
                     trend={12} 
-                    delay={0.1} 
+                    highlightClass="text-primary bg-primary-container/20"
                 />
-                <AnimatedStatCard 
+                <StatCard 
                     title="Top Application" 
                     value={topApp} 
-                    unit="" 
-                    icon={Trophy} 
-                    delay={0.2} 
+                    icon="terminal" 
+                    highlightClass="text-tertiary bg-tertiary-container/30"
                 />
-                <AnimatedStatCard 
+                <StatCard 
                     title="Productivity Score" 
                     value={prodScore !== null ? prodScore : 0} 
                     unit="/100" 
-                    icon={BrainCircuit} 
+                    icon="bolt" 
                     trend={5} 
-                    delay={0.3} 
+                    highlightClass="text-primary bg-primary-container/20"
                 />
-            </div>
+                <StatCard 
+                    title="Sessions Logged" 
+                    value={totalSessions} 
+                    icon="timer" 
+                    highlightClass="text-on-surface-variant bg-surface-variant/40"
+                />
+            </section>
 
-            {/* Row 2: Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
-                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { delay: 0.4 } } }} className="lg:col-span-2 relative">
-                    <GlassCard className="p-6 h-full flex flex-col">
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-white/80 font-medium font-sans">Activity Timeline</h2>
-                            <span className="text-xs text-white/30 uppercase tracking-widest font-mono">Today</span>
+            {/* Charts Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                <div className="lg:col-span-2 bg-surface p-8 rounded-[2rem] extrusion interactive-card flex flex-col h-full">
+                    <div className="flex justify-between items-center mb-8">
+                        <h3 className="text-xl font-bold tracking-tight text-on-surface soft-text">Activity Timeline</h3>
+                        <div className="flex gap-4">
+                            <div className="flex items-center gap-2">
+                                <span className="w-3 h-3 rounded-full bg-primary shadow-sm shadow-primary/40"></span>
+                                <span className="text-xs font-medium text-on-surface-variant">Active</span>
+                            </div>
                         </div>
-                        <div className="flex-1 min-h-[280px]">
-                            <ActivityTimelineChart data={chartData.timeline} />
-                        </div>
-                    </GlassCard>
-                </motion.div>
-                
-                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { delay: 0.5 } } }} className="relative">
-                    <GlassCard className="p-6 h-full flex flex-col">
-                        <div className="mb-6">
-                            <h2 className="text-white/80 font-medium font-sans">Time Distribution</h2>
-                        </div>
-                        <div className="flex-1 flex flex-col justify-center min-h-[280px]">
-                            <AppDistributionChart data={chartData.distribution} />
-                        </div>
-                    </GlassCard>
-                </motion.div>
-            </div>
+                    </div>
+                    <div className="flex-1 min-h-[300px]">
+                        <ActivityTimelineChart data={chartData.timeline} />
+                    </div>
+                </div>
 
-            {/* Row 3: Smaller Details */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { delay: 0.6 } } }} className="lg:col-span-1">
-                    <GlassCard className="p-6 h-full">
-                        <div className="mb-6">
-                            <h2 className="text-white/80 font-medium font-sans">Top Applications</h2>
-                        </div>
-                        <TopAppsBar data={chartData.topApps} />
-                    </GlassCard>
-                </motion.div>
-
-                <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <AnimatedStatCard 
-                        title="Sessions Logged" 
-                        value={totalSessions} 
-                        unit="today" 
-                        icon={Layers} 
-                        isSmall 
-                        delay={0.7} 
-                    />
-                    <AnimatedStatCard 
-                        title="Avg Session Length" 
-                        value={avgSession} 
-                        unit="min" 
-                        icon={Activity} 
-                        isSmall 
-                        delay={0.8} 
-                    />
+                <div className="bg-surface p-8 rounded-[2rem] extrusion interactive-card flex flex-col h-full">
+                    <h3 className="text-xl font-bold tracking-tight text-on-surface mb-8 soft-text">Time Distribution</h3>
+                    <div className="flex-1 w-full min-h-[300px] flex flex-col">
+                        <AppDistributionChart data={chartData.distribution} />
+                    </div>
                 </div>
             </div>
+
+            {/* Bottom Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                <div className="bg-surface p-8 rounded-[2rem] extrusion flex flex-col interactive-card">
+                    <div className="flex justify-between items-center mb-8">
+                        <h3 className="text-xl font-bold tracking-tight text-on-surface soft-text">Top Applications</h3>
+                        <button className="text-primary font-bold text-sm tracking-wide">View All</button>
+                    </div>
+                    <div className="flex-1 min-h-[250px]">
+                       <TopAppsBar data={chartData.topApps} />
+                    </div>
+                </div>
+                
+                <div className="bg-surface p-8 rounded-[2rem] extrusion overflow-hidden relative group interactive-card">
+                    <div className="relative z-10 h-full flex flex-col justify-center">
+                        <h3 className="text-xl font-bold tracking-tight text-on-surface mb-2 soft-text">Focus Insight</h3>
+                        <p className="text-on-surface-variant text-sm mb-8 max-w-[80%] leading-relaxed">
+                            {mlData?.productivity?.focus_score && mlData.productivity.focus_score > 70 
+                                ? "You've been experiencing excellent focus flow lately. Keep utilizing these focused blocks for maximum throughput."
+                                : "You are 14% more productive before 11:00 AM. Consider scheduling complex coding tasks during this window."}
+                        </p>
+                        
+                        <div className="bg-primary/5 border border-primary/10 p-5 rounded-[1rem] flex items-start gap-4 mb-8">
+                            <span className="material-symbols-outlined text-primary bg-surface p-2 rounded-lg recessed" style={{fontVariationSettings: "'FILL' 1"}}>lightbulb</span>
+                            <div>
+                                <h4 className="text-sm font-bold text-primary mb-1">Deep Work Suggestion</h4>
+                                <p className="text-xs text-on-surface-variant leading-relaxed">Block "No Meeting Wednesdays" to increase weekly output by an estimated 22%.</p>
+                            </div>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="flex flex-col">
+                                    <span className="text-2xl font-black text-on-surface">{Math.round(avgSession)} min</span>
+                                    <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mt-1">Avg Session Length</span>
+                                </div>
+                            </div>
+                            <button className="cta-gradient text-on-primary px-8 py-3 rounded-xl font-bold text-sm shadow-md hover:scale-105 transition-transform">
+                                Optimize Schedule
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div className="absolute top-0 right-0 w-64 h-64 opacity-[0.03] -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-700 pointer-events-none">
+                        <span className="material-symbols-outlined text-[16rem] text-primary" style={{fontVariationSettings: "'FILL' 1"}}>psychology</span>
+                    </div>
+                </div>
+            </div>
+            
         </motion.div>
     );
 }

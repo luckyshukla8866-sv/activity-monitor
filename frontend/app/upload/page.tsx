@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, FileText, CheckCircle, AlertCircle, Download, ArrowRight, Sparkles, Info, Lock, UserPlus } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, Download, ArrowRight, Sparkles, Info, Lock, UserPlus, Calendar, Database, Zap } from 'lucide-react';
 import { uploadAPI } from '@/lib/api';
 import { isDemoUser } from '@/lib/auth-utils';
 import OnboardingChatWidget from '@/components/OnboardingChatWidget';
@@ -85,21 +85,11 @@ export default function UploadPage() {
         }
     };
 
-    const sampleCSV = `app_name,window_title,start_time,end_time,duration_seconds,mouse_clicks,key_presses
-Visual Studio Code,main.py - project,2026-03-10T09:00:00,2026-03-10T09:45:00,2700,150,800
-Google Chrome,GitHub - Pull Request,2026-03-10T09:45:00,2026-03-10T10:15:00,1800,200,300
-Microsoft Teams,Sprint Meeting,2026-03-10T10:15:00,2026-03-10T11:00:00,2700,50,100
-Google Chrome,YouTube - Music,2026-03-10T11:00:00,2026-03-10T11:15:00,900,30,10
-Visual Studio Code,api.ts - frontend,2026-03-10T11:15:00,2026-03-10T12:30:00,4500,250,1500`;
-
-    const downloadSample = () => {
-        const blob = new Blob([sampleCSV], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
+    const downloadSample30Day = () => {
         const a = document.createElement('a');
-        a.href = url;
-        a.download = 'sample_activity_data.csv';
+        a.href = '/sample-30day-dataset.csv';
+        a.download = 'sample_30day_activity_data.csv';
         a.click();
-        URL.revokeObjectURL(url);
     };
 
     return (
@@ -176,10 +166,81 @@ Visual Studio Code,api.ts - frontend,2026-03-10T11:15:00,2026-03-10T12:30:00,450
                 </p>
             </motion.div>
 
+            {/* ── Download 30-Day Sample Dataset Card ─────────────────────── */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="relative group"
+            >
+                {/* Animated gradient border */}
+                <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 opacity-30 group-hover:opacity-60 blur-[2px] transition-opacity duration-500" 
+                     style={{ animation: 'gradShift 4s ease infinite', backgroundSize: '200% 200%' }} />
+                <div className="relative overflow-hidden rounded-2xl bg-[#0c0c1d]/95 backdrop-blur-xl border border-white/[0.06] p-6 md:p-8">
+                    {/* Decorative background orbs */}
+                    <div className="absolute top-0 right-0 w-56 h-56 bg-cyan-500/[0.04] rounded-full blur-3xl pointer-events-none" />
+                    <div className="absolute bottom-0 left-0 w-40 h-40 bg-violet-500/[0.04] rounded-full blur-3xl pointer-events-none" />
+                    
+                    <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6">
+                        {/* Left: Info */}
+                        <div className="flex-1 space-y-3">
+                            <div className="flex items-center gap-2">
+                                <div className="p-2 rounded-xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 border border-cyan-500/20">
+                                    <Database className="w-5 h-5 text-cyan-400" />
+                                </div>
+                                <span className="text-xs font-semibold uppercase tracking-wider text-cyan-400/80">Quick Start</span>
+                            </div>
+                            <h3 className="text-xl md:text-2xl font-bold text-white/95">
+                                Download 30-Day Sample Dataset
+                            </h3>
+                            <p className="text-sm text-slate-400 leading-relaxed max-w-lg">
+                                No data yet? Download a realistic 30-day activity dataset and upload it to explore 
+                                the full Dashboard, ML Insights, Forecast, and AI Coach features instantly.
+                            </p>
+                            
+                            {/* Stats chips */}
+                            <div className="flex flex-wrap gap-2 pt-1">
+                                <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.06] text-slate-300">
+                                    <Zap className="w-3 h-3 text-amber-400" />
+                                    401 sessions
+                                </span>
+                                <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.06] text-slate-300">
+                                    <Database className="w-3 h-3 text-cyan-400" />
+                                    8 apps
+                                </span>
+                                <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.06] text-slate-300">
+                                    <Calendar className="w-3 h-3 text-violet-400" />
+                                    30 days
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Right: Download button */}
+                        <motion.button
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={downloadSample30Day}
+                            id="download-30day-sample"
+                            className="relative shrink-0 group/btn cursor-pointer"
+                        >
+                            <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-cyan-500 to-violet-500 opacity-80 group-hover/btn:opacity-100 blur-[1px] transition-opacity" />
+                            <div className="relative flex items-center gap-3 px-7 py-4 rounded-2xl bg-gradient-to-r from-cyan-500/90 to-violet-500/90 hover:from-cyan-400 hover:to-violet-400 text-white font-semibold text-base shadow-2xl shadow-cyan-500/20 transition-all">
+                                <Download className="w-5 h-5" />
+                                <div className="text-left">
+                                    <div className="text-sm font-bold">Download CSV</div>
+                                    <div className="text-[11px] font-normal text-white/70">~35 KB • Ready to upload</div>
+                                </div>
+                            </div>
+                        </motion.button>
+                    </div>
+                </div>
+            </motion.div>
+
             {/* Upload Zone */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
                 className={`glass p-8 border-2 border-dashed transition-colors cursor-pointer ${
                     dragOver ? 'border-cyan-500 bg-cyan-500/5' : 'border-slate-600 hover:border-slate-500'
                 }`}
@@ -343,11 +404,11 @@ Visual Studio Code,api.ts - frontend,2026-03-10T11:15:00,2026-03-10T12:30:00,450
                         <h2 className="text-lg font-semibold">CSV Format Guide</h2>
                     </div>
                     <button
-                        onClick={downloadSample}
-                        className="flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 rounded-lg text-sm hover:bg-cyan-500/20 transition-all font-medium shadow-[0_0_15px_-3px_rgba(6,182,212,0.2)]"
+                        onClick={downloadSample30Day}
+                        className="flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 rounded-lg text-sm hover:bg-cyan-500/20 transition-all font-medium shadow-[0_0_15px_-3px_rgba(6,182,212,0.2)] cursor-pointer"
                     >
                         <Download className="w-4 h-4" />
-                        Download Sample
+                        Download 30-Day Sample
                     </button>
                 </div>
 

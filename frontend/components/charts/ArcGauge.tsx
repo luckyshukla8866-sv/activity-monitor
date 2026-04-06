@@ -28,12 +28,12 @@ export default function ArcGauge({ value, size = 300, strokeWidth = 20 }: ArcGau
             >
                 <defs>
                     <linearGradient id="arcGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#ef4444" /> {/* red */}
-                        <stop offset="50%" stopColor="#eab308" /> {/* yellow */}
-                        <stop offset="100%" stopColor="#10b981" /> {/* emerald */}
+                        <stop offset="0%" stopColor="#b31b25" /> {/* error */}
+                        <stop offset="50%" stopColor="#f59e0b" /> {/* amber */}
+                        <stop offset="100%" stopColor="#0058bc" /> {/* primary */}
                     </linearGradient>
                     <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                        <feGaussianBlur stdDeviation="8" result="blur" />
+                        <feGaussianBlur stdDeviation="4" result="blur" />
                         <feComposite in="SourceGraphic" in2="blur" operator="over" />
                     </filter>
                 </defs>
@@ -42,7 +42,7 @@ export default function ArcGauge({ value, size = 300, strokeWidth = 20 }: ArcGau
                 <path
                     d={`M ${strokeWidth / 2} ${size / 2 + strokeWidth / 2} A ${radius} ${radius} 0 0 1 ${size - strokeWidth / 2} ${size / 2 + strokeWidth / 2}`}
                     fill="none"
-                    stroke="rgba(255,255,255,0.05)"
+                    stroke="var(--surface-container-high, #dce3ec)"
                     strokeWidth={strokeWidth}
                     strokeLinecap="round"
                 />
@@ -58,15 +58,14 @@ export default function ArcGauge({ value, size = 300, strokeWidth = 20 }: ArcGau
                     initial={{ strokeDashoffset: arcLength }}
                     animate={{ strokeDashoffset: offset }}
                     transition={{ duration: 1.5, ease: "easeOut" }}
-                    filter="url(#glow)"
                 />
             </svg>
             
-            <div className="absolute bottom-2 flex flex-col items-center">
-                <span className="text-6xl font-bold font-mono tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]">
+            <div className="absolute bottom-4 flex flex-col items-center">
+                <span className="text-6xl font-black tracking-tighter text-on-surface soft-text">
                     {displayValue.toFixed(0)}
                 </span>
-                <span className="text-white/40 text-sm uppercase tracking-widest mt-1">Score</span>
+                <span className="text-on-surface-variant font-bold text-sm uppercase tracking-widest mt-1">Score</span>
             </div>
         </div>
     );

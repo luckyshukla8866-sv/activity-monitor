@@ -2,13 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCheck, X, Download, MousePointer, Trash2, SlidersHorizontal } from 'lucide-react';
 import { sessionsAPI, analyticsAPI } from '@/lib/api';
-import GlassCard from '@/components/GlassCard';
 import FilterChipBar from '@/components/FilterChipBar';
 import SessionsTable from '@/components/SessionsTable';
 import AnimatedEmptyState from '@/components/AnimatedEmptyState';
-import { formatDuration } from '@/lib/utils';
 
 export default function SessionsPage() {
     const [sessions, setSessions] = useState<any[]>([]);
@@ -135,11 +132,11 @@ export default function SessionsPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
                 <div>
-                    <h1 className="text-2xl font-semibold tracking-tight text-white/90">Activity Sessions</h1>
-                    <p className="text-sm text-white/40 mt-1 flex items-center gap-2">
+                    <h1 className="text-3xl font-bold tracking-tight text-slate-800 font-manrope">Activity Sessions</h1>
+                    <p className="text-sm text-slate-500 mt-2 flex items-center gap-2 font-inter">
                         Detailed log of all tracked application usage
                         {selectionMode && selectedIds.size > 0 && (
-                            <span className="text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full text-xs font-mono font-medium border border-indigo-500/20">
+                            <span className="text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full text-xs font-mono font-medium border border-indigo-200">
                                 {selectedIds.size} selected
                             </span>
                         )}
@@ -151,16 +148,16 @@ export default function SessionsPage() {
                         <>
                             <button
                                 onClick={allSelected ? deselectAll : selectAll}
-                                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm transition-colors text-white/80"
+                                className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-xl text-sm transition-colors text-slate-700"
                             >
-                                <CheckCheck className="w-4 h-4" />
+                                <span className="material-symbols-outlined text-[18px]">done_all</span>
                                 <span className="hidden sm:inline">{allSelected ? 'Deselect All' : 'Select All'}</span>
                             </button>
                             <button
                                 onClick={exitSelectionMode}
-                                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm transition-colors text-white/60 hover:text-white/90"
+                                className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-xl text-sm transition-colors text-slate-500 hover:text-slate-800"
                             >
-                                <X className="w-4 h-4" />
+                                <span className="material-symbols-outlined text-[18px]">close</span>
                                 Cancel
                             </button>
                         </>
@@ -169,16 +166,16 @@ export default function SessionsPage() {
                             <button
                                 onClick={handleExportCSV}
                                 disabled={exporting}
-                                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded-xl text-sm transition-colors font-medium text-white shadow-[0_0_20px_rgba(79,70,229,0.3)] border border-indigo-500/50"
+                                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:text-slate-500 rounded-xl text-sm transition-colors font-medium text-white shadow-md shadow-indigo-600/20 active:scale-95"
                             >
-                                <Download className="w-4 h-4" />
+                                <span className="material-symbols-outlined text-[18px]">download</span>
                                 <span className="hidden sm:inline">{exporting ? 'Exporting...' : 'Export CSV'}</span>
                             </button>
                             <button
                                 onClick={() => setSelectionMode(true)}
-                                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm transition-colors text-white/80"
+                                className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-xl text-sm transition-colors text-slate-700 active:scale-95"
                             >
-                                <MousePointer className="w-4 h-4" />
+                                <span className="material-symbols-outlined text-[18px]">touch_app</span>
                                 <span className="hidden sm:inline">Select Rows</span>
                             </button>
                         </>
@@ -188,32 +185,32 @@ export default function SessionsPage() {
 
             {/* Filters Area */}
             <motion.div variants={containerVariants}>
-                <GlassCard className="p-4 flex flex-col sm:flex-row items-center gap-4 border-white/5 rounded-2xl">
+                <div className="extrusion p-4 flex flex-col sm:flex-row items-center gap-4 rounded-[2rem]">
                     <div className="relative w-full sm:w-64 shrink-0">
-                        <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                            <SlidersHorizontal className="h-4 w-4 text-white/30" />
+                        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                            <span className="material-symbols-outlined text-[18px] text-slate-400">tune</span>
                         </div>
                         <input
                             type="text"
                             placeholder="Filter by app name..."
                             value={filter.appName}
                             onChange={(e) => handleAppFilter(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 bg-black/40 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500/50 transition-all font-sans placeholder:text-white/20"
+                            className="w-full pl-11 pr-4 py-3 recessed bg-[#f5f7f9] border-none rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all font-sans placeholder:text-slate-400 font-medium"
                         />
                     </div>
                     {knownApps.length > 0 && (
-                        <div className="w-full sm:w-auto flex-1 border-l border-white/10 pl-0 sm:pl-4 overflow-hidden mask-fade-edges">
+                        <div className="w-full sm:w-auto flex-1 border-l border-slate-200 pl-0 sm:pl-4 overflow-hidden">
                             <FilterChipBar apps={knownApps} activeApp={filter.appName} onSelectApp={handleAppFilter} />
                         </div>
                     )}
-                </GlassCard>
+                </div>
             </motion.div>
 
             {/* Sessions Table Area */}
             <motion.div variants={containerVariants}>
                 <div className="relative">
                     {loading ? (
-                        <div className="w-full h-[500px] border border-white/5 bg-white/[0.02] rounded-2xl animate-pulse" />
+                        <div className="w-full h-[500px] border border-slate-100 bg-[#f5f7f9] rounded-[2rem] animate-pulse" />
                     ) : sessions.length === 0 ? (
                         <AnimatedEmptyState />
                     ) : (
@@ -230,7 +227,7 @@ export default function SessionsPage() {
                     
                     {/* Refreshing overlay */}
                     {refreshing && !loading && (
-                        <div className="absolute inset-0 bg-[#0a0a16]/40 backdrop-blur-sm z-10 flex items-center justify-center rounded-2xl">
+                        <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex items-center justify-center rounded-[2rem]">
                             <div className="w-8 h-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
                         </div>
                     )}
@@ -240,23 +237,23 @@ export default function SessionsPage() {
             {/* Pagination Controls */}
             {totalPages > 1 && (
                 <motion.div variants={containerVariants} className="flex flex-col items-center gap-2 mt-8">
-                     <div className="flex items-center justify-center gap-1.5 p-1 bg-white/5 rounded-full border border-white/10">
+                     <div className="flex items-center justify-center gap-2 p-1.5 bg-white rounded-full border border-slate-200 shadow-sm">
                         <button
                             onClick={() => setPage(Math.max(1, page - 1))}
                             disabled={page === 1}
-                            className="px-6 py-2 bg-transparent hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent rounded-full transition-colors text-sm font-medium text-white/80"
+                            className="px-6 py-2 bg-transparent hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-transparent rounded-full transition-colors text-sm font-medium text-slate-600"
                         >
                             Previous
                         </button>
-                        <div className="px-4 py-2 text-sm text-white/40 font-mono flex items-center gap-2">
-                           <span className="text-white">Page {page}</span>
-                           <span className="text-white/20">/</span>
+                        <div className="px-5 py-2 text-sm text-slate-500 font-mono flex items-center gap-2 bg-slate-50 rounded-full border border-slate-100">
+                           <span className="text-slate-700 font-bold">Page {page}</span>
+                           <span className="text-slate-300">/</span>
                            <span>{totalPages}</span>
                         </div>
                         <button
                             onClick={() => setPage(Math.min(totalPages, page + 1))}
                             disabled={page === totalPages}
-                            className="px-6 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-white/10 rounded-full transition-colors text-sm font-medium text-white border border-white/5 shadow-sm"
+                            className="px-6 py-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-30 disabled:bg-slate-200 rounded-full transition-colors text-sm font-medium text-white shadow-sm"
                         >
                             Next
                         </button>
@@ -274,29 +271,29 @@ export default function SessionsPage() {
                         transition={{ type: "spring", stiffness: 300, damping: 25 }}
                         className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40"
                     >
-                        <div className="flex items-center gap-4 px-6 py-4 bg-[#0a0a16]/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.6)] ring-1 ring-white/5">
-                            <span className="text-sm text-white/50 flex flex-col">
-                                <span className="font-semibold text-white text-lg tracking-tight leading-none">{selectedIds.size}</span>
-                                <span className="text-[10px] uppercase tracking-widest mt-1">Selected</span>
+                        <div className="flex items-center gap-4 px-6 py-4 bg-white/90 backdrop-blur-xl border border-slate-200 rounded-[2rem] shadow-2xl ring-1 ring-black/5">
+                            <span className="text-sm text-slate-500 flex flex-col items-center justify-center bg-slate-50 rounded-xl px-4 py-2 border border-slate-100">
+                                <span className="font-bold text-slate-800 text-lg tracking-tight leading-none">{selectedIds.size}</span>
+                                <span className="text-[10px] uppercase font-bold tracking-[0.2em] mt-1 text-slate-400">Selected</span>
                             </span>
                             
-                            <div className="w-px h-8 bg-white/10 mx-2" />
+                            <div className="w-px h-10 bg-slate-200 mx-2" />
                             
                             <button
                                 onClick={exitSelectionMode}
-                                className="px-4 py-2 hover:bg-white/5 rounded-xl text-sm transition-colors text-white/60 hover:text-white"
+                                className="px-4 py-2 hover:bg-slate-50 rounded-xl text-sm font-medium transition-colors text-slate-500 hover:text-slate-800"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleBulkDelete}
                                 disabled={bulkDeleting}
-                                className="flex items-center gap-2 px-6 py-2 bg-rose-500 hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-sm font-semibold transition-all text-white shadow-[0_0_15px_rgba(244,63,94,0.4)] border border-rose-400"
+                                className="flex items-center gap-2 px-6 py-3 bg-rose-500 hover:bg-rose-600 disabled:bg-rose-200 disabled:cursor-not-allowed rounded-xl text-sm font-semibold transition-all text-white shadow-md shadow-rose-500/30"
                             >
                                 {bulkDeleting ? (
-                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                 ) : (
-                                    <Trash2 className="w-4 h-4" />
+                                    <span className="material-symbols-outlined text-[20px]">delete</span>
                                 )}
                                 Delete Sessions
                             </button>

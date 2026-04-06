@@ -6,7 +6,7 @@ import { Send, Bot, User, Loader2, Sparkles, Activity } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import apiClient from '@/lib/api';
 import PageContainer from '@/components/PageContainer';
-import GlassCard from '@/components/GlassCard';
+
 
 type Message = {
     id: string;
@@ -89,7 +89,7 @@ export default function ChatPage() {
     return (
         <PageContainer title="AI Productivity Coach" description="Get personalized insights based on your recent activity">
             <div className="flex flex-col h-[calc(100vh-200px)] max-h-[800px] w-full max-w-4xl mx-auto">
-                <GlassCard className="flex-1 flex flex-col p-0 overflow-hidden relative">
+                <div className="bg-surface extrusion rounded-[2rem] flex-1 flex flex-col p-0 overflow-hidden relative interactive-card">
                     
                     {/* Header */}
                     <div className="p-4 border-b border-white/5 bg-white/[0.02] flex items-center gap-3 shrink-0">
@@ -210,7 +210,7 @@ export default function ChatPage() {
                         </form>
                     </div>
 
-                </GlassCard>
+                </div>
             </div>
         </PageContainer>
     );

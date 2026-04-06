@@ -21,7 +21,12 @@ from api.auth import get_current_user
 from api.schemas import DEMO_USERNAMES
 from api.ml_engine.classifier import get_productivity_summary
 from api.ml_engine.anomaly import detect_burnout
-from api.ml_engine.forecasting import predict_peak_hours
+from api.ml_engine.forecasting import (
+    predict_peak_hours,
+    get_weekly_heatmap,
+    get_focus_forecast,
+    get_category_trends,
+)
 
 router = APIRouter(prefix="/api/insights", tags=["insights"])
 
@@ -275,6 +280,44 @@ async def get_forecast(
     and a human-readable insight summary.
     """
     return predict_peak_hours(db, current_user.id, days)
+
+
+@router.get("/weekly-heatmap")
+async def weekly_heatmap(
+    weeks: int = 4,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Get a weekly activity heatmap (GitHub-contribution style).
+    Returns a grid of day cells with intensity levels (0-4).
+    """
+    return get_weekly_heatmap(db, current_user.id, weeks)
+
+
+@router.get("/focus-forecast")
+async def focus_forecast(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Get a 7-day focus score forecast with confidence bands.
+    Uses day-of-week historical patterns to predict future scores.
+    """
+    return get_focus_forecast(db, current_user.id)
+
+
+@router.get("/category-trends")
+async def category_trends(
+    days: int = 30,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Get app category breakdown (Deep Work, Communication, Distraction, Neutral)
+    with percentages and per-category top apps.
+    """
+    return get_category_trends(db, current_user.id, days)
 
 
 @router.post("/upload")

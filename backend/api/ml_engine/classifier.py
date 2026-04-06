@@ -2,6 +2,9 @@
 Smart Activity Classifier.
 Categorizes sessions as Deep Work, Communication, or Distraction
 and calculates a Productivity Score (0-100).
+
+Uses a trained RandomForest model when available, with keyword-based
+fallback if the .pkl model files are not found.
 """
 
 from sqlalchemy.orm import Session
@@ -10,13 +13,56 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Any
 
 import sys
+import logging
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from api.models import ActivitySession
 
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Category rules: keyword → (category, base_score)
+# 1. Attempt to load the trained ML model + vectorizer at module load time
+# ---------------------------------------------------------------------------
+_ML_MODEL = None
+_TFIDF_VECTORIZER = None
+_USE_ML = False
+
+_ML_DIR = Path(__file__).parent.parent.parent / "ml_training"
+_MODEL_PATH = _ML_DIR / "productivity_model.pkl"
+_VECTORIZER_PATH = _ML_DIR / "tfidf_vectorizer.pkl"
+
+try:
+    import joblib
+
+    if _MODEL_PATH.exists() and _VECTORIZER_PATH.exists():
+        _ML_MODEL = joblib.load(str(_MODEL_PATH))
+        _TFIDF_VECTORIZER = joblib.load(str(_VECTORIZER_PATH))
+        _USE_ML = True
+        logger.info("ML classifier loaded successfully from %s", _ML_DIR)
+    else:
+        logger.warning(
+            "ML model files not found at %s — falling back to keyword matching",
+            _ML_DIR,
+        )
+except ImportError:
+    logger.warning("joblib not installed — falling back to keyword matching")
+except Exception as exc:
+    logger.warning("Failed to load ML model (%s) — falling back to keyword matching", exc)
+
+
+# ---------------------------------------------------------------------------
+# 2. Category → score / label mappings
+# ---------------------------------------------------------------------------
+_CATEGORY_META = {
+    "deep_work":      {"score": 90, "label": "Deep Work"},
+    "communication":  {"score": 60, "label": "Communication"},
+    "distraction":    {"score": 10, "label": "Distraction"},
+    "neutral":        {"score": 50, "label": "Neutral"},
+}
+
+
+# ---------------------------------------------------------------------------
+# 3. Keyword fallback rules (used only when ML model is unavailable)
 # ---------------------------------------------------------------------------
 DEEP_WORK_KEYWORDS = [
     "code", "vscode", "visual studio", "intellij", "pycharm", "sublime",
@@ -45,32 +91,54 @@ DISTRACTION_KEYWORDS = [
 ]
 
 
+def _classify_with_keywords(combined: str) -> Dict[str, Any]:
+    """Original keyword-based fallback classifier."""
+    for kw in DEEP_WORK_KEYWORDS:
+        if kw in combined:
+            return {"category": "deep_work", "score": 90, "label": "Deep Work"}
+
+    for kw in DISTRACTION_KEYWORDS:
+        if kw in combined:
+            return {"category": "distraction", "score": 10, "label": "Distraction"}
+
+    for kw in COMMUNICATION_KEYWORDS:
+        if kw in combined:
+            return {"category": "communication", "score": 60, "label": "Communication"}
+
+    return {"category": "neutral", "score": 50, "label": "Neutral"}
+
+
 def classify_session(app_name: str, window_title: str = "") -> Dict[str, Any]:
     """
     Classify a single session into a category.
+
+    Uses the trained RandomForest model when available; otherwise
+    falls back to keyword matching.
 
     Returns:
         { "category": str, "score": int, "label": str }
     """
     combined = f"{app_name} {window_title}".lower()
 
-    # Check Deep Work first (highest priority)
-    for kw in DEEP_WORK_KEYWORDS:
-        if kw in combined:
-            return {"category": "deep_work", "score": 90, "label": "Deep Work"}
+    # ── ML path ──────────────────────────────────────────────────────
+    if _USE_ML and _ML_MODEL is not None and _TFIDF_VECTORIZER is not None:
+        try:
+            features = _TFIDF_VECTORIZER.transform([combined])
+            predicted_category = _ML_MODEL.predict(features)[0]
+            meta = _CATEGORY_META.get(
+                predicted_category,
+                {"score": 50, "label": "Neutral"},
+            )
+            return {
+                "category": predicted_category,
+                "score": meta["score"],
+                "label": meta["label"],
+            }
+        except Exception as exc:
+            logger.warning("ML prediction failed (%s) — using keyword fallback", exc)
 
-    # Check Distraction
-    for kw in DISTRACTION_KEYWORDS:
-        if kw in combined:
-            return {"category": "distraction", "score": 10, "label": "Distraction"}
-
-    # Check Communication
-    for kw in COMMUNICATION_KEYWORDS:
-        if kw in combined:
-            return {"category": "communication", "score": 60, "label": "Communication"}
-
-    # Default: Neutral activity
-    return {"category": "neutral", "score": 50, "label": "Neutral"}
+    # ── Keyword fallback ─────────────────────────────────────────────
+    return _classify_with_keywords(combined)
 
 
 def get_productivity_summary(

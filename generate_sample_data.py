@@ -239,15 +239,10 @@ def generate_sessions(start_date: datetime, num_days: int = 30) -> list:
     return sessions
 
 
-def main():
-    # Start 30 days ago from "today"
-    start_date = datetime(2026, 2, 15)  # Feb 15 – Mar 16, 2026
-    sessions = generate_sessions(start_date, num_days=30)
-
-    # Sort by timestamp
-    sessions.sort(key=lambda s: s["timestamp"])
-
-    output_path = "sample_data.csv"
+def write_csv(sessions, output_path):
+    """Write sessions to a CSV file."""
+    import os
+    os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else ".", exist_ok=True)
     with open(output_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=[
             "timestamp", "app_name", "window_title",
@@ -256,9 +251,25 @@ def main():
         ])
         writer.writeheader()
         writer.writerows(sessions)
+    print(f"   Saved to: {output_path}")
 
-    print(f"[OK] Generated {len(sessions)} sessions over 30 days")
-    print(f"Saved to: {output_path}")
+
+def main():
+    # Start 30 days ago from today so the data always feels current
+    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    start_date = today - timedelta(days=29)  # 30 days including today
+    sessions = generate_sessions(start_date, num_days=30)
+
+    # Sort by timestamp
+    sessions.sort(key=lambda s: s["timestamp"])
+
+    # Write to project root
+    write_csv(sessions, "sample_data.csv")
+
+    # Also write to frontend/public for static download
+    write_csv(sessions, "frontend/public/sample-30day-dataset.csv")
+
+    print(f"\n[OK] Generated {len(sessions)} sessions over 30 days")
 
     # Quick stats
     apps_count = {}
