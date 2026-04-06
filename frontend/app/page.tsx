@@ -4,12 +4,12 @@ import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useInView } from 'framer-motion';
 
-function Reveal({ children, className = '' }: { children: React.ReactNode, className?: string }) {
+function Reveal({ children, className = '', id }: { children: React.ReactNode, className?: string, id?: string }) {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: "0px 0px -50px 0px" });
 
     return (
-        <div ref={ref} className={`${className} reveal ${isInView ? 'visible' : ''}`}>
+        <div ref={ref} id={id} className={`${className} reveal ${isInView ? 'visible' : ''}`}>
             {children}
         </div>
     );
