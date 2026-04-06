@@ -61,22 +61,22 @@ export default function TopNav() {
     return (
         <>
             <header className="sticky top-0 z-50 w-full">
-                <div className="bg-[#f5f7f9]/80 backdrop-blur-xl border-b border-[#e5e9eb]/60">
+                <div className="bg-white/60 backdrop-blur-2xl border-b border-white/40 shadow-sm shadow-black/[0.02]">
                     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
                         <div className="flex items-center justify-between h-16">
                             {/* Left: Logo */}
                             <Link href="/dashboard" className="flex items-center gap-3 shrink-0">
-                                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#2444eb] to-[#8999ff] flex items-center justify-center shadow-md shadow-[#2444eb]/20">
+                                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#4f46e5] to-[#a855f7] flex items-center justify-center shadow-md shadow-[#4f46e5]/25">
                                     <span className="material-symbols-outlined text-[18px] text-white" style={{fontVariationSettings: "'FILL' 1"}}>monitoring</span>
                                 </div>
-                                <span className="text-lg font-bold tracking-tight text-[#2c2f31] hidden sm:block" style={{fontFamily: 'Manrope, sans-serif'}}>
-                                    Ethereal Analytics
+                                <span className="text-lg font-bold tracking-tight text-[#1a1d21] hidden sm:block gradient-text" style={{fontFamily: 'Manrope, sans-serif'}}>
+                                    Activity Monitor
                                 </span>
                             </Link>
 
                             {/* Center: Navigation Pills */}
                             <nav className="hidden lg:flex items-center">
-                                <div className="flex items-center gap-1 p-1.5 bg-[#e5e9eb]/60 rounded-full">
+                                <div className="flex items-center gap-1 p-1.5 bg-white/40 backdrop-blur-xl rounded-full border border-white/50">
                                     {menuItems.map((item) => {
                                         const isActive = pathname === item.href || 
                                             (pathname.startsWith(item.href) && item.href !== '/');
@@ -86,21 +86,21 @@ export default function TopNav() {
                                                     className={cn(
                                                         'relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer',
                                                         isActive
-                                                            ? 'text-[#2444eb]'
-                                                            : 'text-[#595c5e] hover:text-[#2c2f31]'
+                                                            ? 'text-[#4f46e5]'
+                                                            : 'text-[#6b7280] hover:text-[#1a1d21]'
                                                     )}
                                                 >
                                                     {isActive && (
                                                         <motion.div
                                                             layoutId="nav-pill-bg"
-                                                            className="absolute inset-0 bg-white rounded-full shadow-sm"
-                                                            style={{ boxShadow: '-4px -4px 8px #ffffff, 4px 4px 8px rgba(220, 227, 236, 0.5)' }}
+                                                            className="absolute inset-0 bg-white rounded-full shadow-md"
+                                                            style={{ boxShadow: '0 2px 8px rgba(79,70,229,0.1)' }}
                                                             transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                                                         />
                                                     )}
                                                     <span className={cn(
                                                         "material-symbols-outlined text-[18px] relative z-10 transition-colors",
-                                                        isActive ? "text-[#2444eb]" : "text-[#747779]"
+                                                        isActive ? "text-[#4f46e5]" : "text-[#9ca3af]"
                                                     )} style={isActive ? {fontVariationSettings: "'FILL' 1"} : undefined}>
                                                         {item.icon}
                                                     </span>
@@ -120,9 +120,9 @@ export default function TopNav() {
                                 <div className="relative">
                                     <button 
                                         onClick={() => setUserMenuOpen(!userMenuOpen)}
-                                        className="w-10 h-10 rounded-full bg-gradient-to-br from-[#8999ff]/20 to-[#2444eb]/10 border border-[#8999ff]/30 flex items-center justify-center hover:shadow-md transition-all cursor-pointer"
+                                        className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c7d2fe]/30 to-[#4f46e5]/10 border border-[#c7d2fe]/40 flex items-center justify-center hover:shadow-md hover:scale-105 transition-all cursor-pointer"
                                     >
-                                        <span className="material-symbols-outlined text-[20px] text-[#2444eb]">person</span>
+                                        <span className="material-symbols-outlined text-[20px] text-[#4f46e5]">person</span>
                                     </button>
                                     <AnimatePresence>
                                         {userMenuOpen && (
@@ -133,12 +133,12 @@ export default function TopNav() {
                                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                                     exit={{ opacity: 0, y: -8, scale: 0.95 }}
                                                     transition={{ duration: 0.15 }}
-                                                    className="absolute right-0 top-14 w-56 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-[#e5e9eb] z-50 overflow-hidden"
+                                                    className="absolute right-0 top-14 w-56 bg-white/90 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/50 z-50 overflow-hidden"
                                                 >
                                                     <div className="p-2">
                                                         <button
                                                             onClick={handleLogout}
-                                                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#595c5e] hover:text-red-600 hover:bg-red-50 transition-all cursor-pointer"
+                                                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#6b7280] hover:text-red-600 hover:bg-red-50 transition-all cursor-pointer"
                                                         >
                                                             <span className="material-symbols-outlined text-[18px]">logout</span>
                                                             Sign Out
@@ -153,9 +153,9 @@ export default function TopNav() {
                                 {/* Mobile hamburger */}
                                 <button
                                     onClick={() => setMobileOpen(!mobileOpen)}
-                                    className="lg:hidden w-10 h-10 rounded-xl bg-[#e5e9eb]/60 flex items-center justify-center hover:bg-[#dfe3e6] transition-colors cursor-pointer"
+                                    className="lg:hidden w-10 h-10 rounded-xl bg-white/40 backdrop-blur-xl border border-white/50 flex items-center justify-center hover:bg-white/60 transition-all cursor-pointer"
                                 >
-                                    <span className="material-symbols-outlined text-[22px] text-[#595c5e]">
+                                    <span className="material-symbols-outlined text-[22px] text-[#6b7280]">
                                         {mobileOpen ? 'close' : 'menu'}
                                     </span>
                                 </button>
@@ -180,7 +180,7 @@ export default function TopNav() {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
                                 transition={{ duration: 0.2 }}
-                                className="absolute top-full left-0 right-0 bg-white/95 backdrop-blur-xl border-b border-[#e5e9eb] shadow-2xl z-50 lg:hidden"
+                                className="absolute top-full left-0 right-0 bg-white/90 backdrop-blur-2xl border-b border-white/40 shadow-2xl z-50 lg:hidden"
                             >
                                 <nav className="max-w-[1600px] mx-auto px-4 py-4 space-y-1">
                                     {menuItems.map((item) => {
@@ -191,12 +191,12 @@ export default function TopNav() {
                                                 <div className={cn(
                                                     'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all',
                                                     isActive
-                                                        ? 'bg-[#2444eb]/5 text-[#2444eb]'
-                                                        : 'text-[#595c5e] hover:bg-[#f5f7f9] hover:text-[#2c2f31]'
+                                                        ? 'bg-[#4f46e5]/5 text-[#4f46e5]'
+                                                        : 'text-[#6b7280] hover:bg-[#f0f2f5] hover:text-[#1a1d21]'
                                                 )}>
                                                     <span className={cn(
                                                         "material-symbols-outlined text-[20px]",
-                                                        isActive ? "text-[#2444eb]" : "text-[#747779]"
+                                                        isActive ? "text-[#4f46e5]" : "text-[#9ca3af]"
                                                     )} style={isActive ? {fontVariationSettings: "'FILL' 1"} : undefined}>
                                                         {item.icon}
                                                     </span>
@@ -205,10 +205,10 @@ export default function TopNav() {
                                             </Link>
                                         );
                                     })}
-                                    <div className="h-px bg-[#e5e9eb] my-2" />
+                                    <div className="h-px bg-gradient-to-r from-transparent via-[#d4d8dd] to-transparent my-2" />
                                     <button
                                         onClick={handleLogout}
-                                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#595c5e] hover:text-red-600 hover:bg-red-50 transition-all cursor-pointer"
+                                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#6b7280] hover:text-red-600 hover:bg-red-50 transition-all cursor-pointer"
                                     >
                                         <span className="material-symbols-outlined text-[20px]">logout</span>
                                         Sign Out

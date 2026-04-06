@@ -36,7 +36,7 @@ function StatCard({ title, value, unit, icon, trend, highlightClass = 'text-prim
     const finalVal = isNumber ? displayValue.toFixed(0) : value;
 
     return (
-        <div className="bg-surface p-8 rounded-[1.5rem] extrusion flex flex-col justify-between h-48 interactive-card">
+        <div className="bg-white/60 backdrop-blur-sm p-8 rounded-[1.5rem] border border-white/50 flex flex-col justify-between h-48 hover-lift group">
             <div className="flex justify-between items-start">
                 <span className={`material-symbols-outlined p-3 rounded-[1rem] ${highlightClass}`} style={{fontVariationSettings: "'FILL' 1"}}>
                     {icon}
@@ -129,7 +129,7 @@ export default function DashboardPage() {
     const avgSession = totalSessions > 0 && totalMinutes > 0 ? (totalMinutes / totalSessions) : 0;
 
     return (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="pb-12 max-w-[1440px] mx-auto px-2 md:px-8">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }} className="pb-12 max-w-[1440px] mx-auto px-2 md:px-8">
             <section className="flex flex-col md:flex-row justify-between items-end mb-12 gap-8">
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-3 mb-2">
@@ -139,7 +139,7 @@ export default function DashboardPage() {
                         </span>
                         <span className="text-xs font-bold uppercase tracking-widest text-primary">TRACKING LIVE</span>
                     </div>
-                    <h1 className="text-5xl font-black tracking-tighter text-on-surface soft-text">Dashboard Overview</h1>
+                    <h1 className="text-5xl font-black tracking-tighter text-on-surface" style={{fontFamily: 'Manrope, sans-serif'}}>Dashboard Overview</h1>
                     <p className="text-on-surface-variant text-lg">Your local productivity metrics</p>
                 </div>
                 
@@ -204,7 +204,7 @@ export default function DashboardPage() {
 
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-                <div className="lg:col-span-2 bg-surface p-8 rounded-[2rem] extrusion interactive-card flex flex-col h-full">
+                <div className="lg:col-span-2 bg-white/60 backdrop-blur-sm p-8 rounded-[2rem] border border-white/50 shadow-lg shadow-black/[0.02] flex flex-col h-full group hover:shadow-xl transition-shadow duration-500">
                     <div className="flex justify-between items-center mb-8">
                         <h3 className="text-xl font-bold tracking-tight text-on-surface soft-text">Activity Timeline</h3>
                         <div className="flex gap-4">
@@ -219,7 +219,7 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                <div className="bg-surface p-8 rounded-[2rem] extrusion interactive-card flex flex-col h-full">
+                <div className="bg-white/60 backdrop-blur-sm p-8 rounded-[2rem] border border-white/50 shadow-lg shadow-black/[0.02] flex flex-col h-full group hover:shadow-xl transition-shadow duration-500">
                     <h3 className="text-xl font-bold tracking-tight text-on-surface mb-8 soft-text">Time Distribution</h3>
                     <div className="flex-1 w-full min-h-[300px] flex flex-col">
                         <AppDistributionChart data={chartData.distribution} />
@@ -229,7 +229,7 @@ export default function DashboardPage() {
 
             {/* Bottom Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-                <div className="bg-surface p-8 rounded-[2rem] extrusion flex flex-col interactive-card">
+                <div className="bg-white/60 backdrop-blur-sm p-8 rounded-[2rem] border border-white/50 shadow-lg shadow-black/[0.02] flex flex-col hover:shadow-xl transition-shadow duration-500">
                     <div className="flex justify-between items-center mb-8">
                         <h3 className="text-xl font-bold tracking-tight text-on-surface soft-text">Top Applications</h3>
                         <button className="text-primary font-bold text-sm tracking-wide">View All</button>
@@ -239,7 +239,7 @@ export default function DashboardPage() {
                     </div>
                 </div>
                 
-                <div className="bg-surface p-8 rounded-[2rem] extrusion overflow-hidden relative group interactive-card">
+                <div className="bg-white/60 backdrop-blur-sm p-8 rounded-[2rem] border border-white/50 shadow-lg shadow-black/[0.02] overflow-hidden relative group hover:shadow-xl transition-shadow duration-500">
                     <div className="relative z-10 h-full flex flex-col justify-center">
                         <h3 className="text-xl font-bold tracking-tight text-on-surface mb-2 soft-text">Focus Insight</h3>
                         <p className="text-on-surface-variant text-sm mb-8 max-w-[80%] leading-relaxed">

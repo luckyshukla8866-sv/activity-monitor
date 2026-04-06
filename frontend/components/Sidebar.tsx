@@ -62,7 +62,7 @@ export default function Sidebar() {
         <motion.div
             initial={false}
             animate={{ width: collapsed ? 72 : 240 }}
-            className="h-full bg-[#f5f7f9] border-r border-slate-200 flex flex-col shrink-0 font-sans"
+            className="h-full bg-white/40 backdrop-blur-xl border-r border-white/40 flex flex-col shrink-0 font-sans"
         >
             {/* Logo */}
             <div className="h-16 flex items-center px-4 overflow-hidden shrink-0 mt-2">
@@ -74,7 +74,7 @@ export default function Sidebar() {
                             exit={{ opacity: 0, x: -10 }}
                             className="flex-1 whitespace-nowrap pl-2"
                         >
-                            <h1 className="text-xl font-bold tracking-tight text-slate-800">
+                            <h1 className="text-xl font-bold tracking-tight gradient-text">
                                 Activity Monitor
                             </h1>
                         </motion.div>
@@ -84,9 +84,9 @@ export default function Sidebar() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="w-10 h-10 mx-auto bg-white rounded-xl flex items-center justify-center shadow-sm border border-slate-200"
+                            className="w-10 h-10 mx-auto bg-white/70 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-sm border border-white/50"
                         >
-                            <span className="material-symbols-outlined text-[24px] text-indigo-600">monitoring</span>
+                            <span className="material-symbols-outlined text-[24px] text-[#4f46e5]">monitoring</span>
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -102,19 +102,19 @@ export default function Sidebar() {
                                 className={cn(
                                     'group relative flex items-center gap-3 px-3 py-3 rounded-xl transition-all cursor-pointer font-medium text-sm',
                                     isActive
-                                        ? 'extrusion bg-white text-indigo-700 font-bold shadow-sm'
-                                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
+                                        ? 'bg-white/70 backdrop-blur-sm text-[#4f46e5] font-bold shadow-md shadow-[#4f46e5]/5 border border-white/50'
+                                        : 'text-[#6b7280] hover:text-[#1a1d21] hover:bg-white/40'
                                 )}
                             >
                                 {isActive && (
                                     <motion.div 
                                         layoutId="active-indicator"
-                                        className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-indigo-600 rounded-r-full"
+                                        className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full" style={{background: 'linear-gradient(180deg, #4f46e5, #a855f7)'}}
                                     />
                                 )}
                                 <span className={cn(
                                     "material-symbols-outlined text-[20px] shrink-0 transition-colors",
-                                    isActive ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-700"
+                                    isActive ? "text-[#4f46e5]" : "text-[#9ca3af] group-hover:text-[#6b7280]"
                                 )}>
                                     {item.icon}
                                 </span>
@@ -137,12 +137,12 @@ export default function Sidebar() {
             </nav>
 
             {/* Bottom actions */}
-            <div className="p-3 border-t border-slate-200 space-y-1.5 bg-[#f5f7f9]">
+            <div className="p-3 border-t border-white/40 space-y-1.5 bg-white/20 backdrop-blur-sm">
                 <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all cursor-pointer font-medium text-sm group"
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-[#6b7280] hover:text-rose-600 hover:bg-rose-50 transition-all cursor-pointer font-medium text-sm group"
                 >
-                    <span className="material-symbols-outlined text-[20px] shrink-0 group-hover:text-rose-500">logout</span>
+                    <span className="material-symbols-outlined text-[20px] shrink-0 group-hover:text-rose-500 transition-colors">logout</span>
                     <AnimatePresence mode="wait">
                         {!collapsed && (
                             <motion.span
@@ -158,7 +158,7 @@ export default function Sidebar() {
                 </button>
                 <button
                     onClick={() => setCollapsed(!collapsed)}
-                    className="w-full flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+                    className="w-full flex items-center justify-center p-2 rounded-xl text-[#9ca3af] hover:text-[#4f46e5] hover:bg-[#4f46e5]/5 transition-all cursor-pointer"
                 >
                     <span className="material-symbols-outlined text-[20px]">
                         {collapsed ? 'chevron_right' : 'chevron_left'}

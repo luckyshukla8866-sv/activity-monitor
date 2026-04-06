@@ -28,7 +28,7 @@ export default function OnboardingChatWidget() {
             id: 'welcome',
             role: 'assistant',
             content:
-                "Hi there! 👋 I'm your **Ethereal Analytics assistant**.\n\nAsk me anything about the app — how it works, what data you need, or what insights you'll get!",
+                "Hi there! 👋 I'm your **Activity Monitor assistant**.\n\nAsk me anything about the app — how it works, what data you need, or what insights you'll get!",
             timestamp: new Date(),
         },
     ]);
