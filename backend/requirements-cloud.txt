@@ -20,7 +20,7 @@ cryptography==42.0.0
 # API utilities
 pydantic==2.5.3
 pydantic-settings==2.1.0
-groq==1.1.1
+groq>=0.9.0
 
 # Data Science & ML
 pandas==2.2.0
@@ -29,8 +29,6 @@ scikit-learn>=1.3.0
 # Data export
 reportlab==4.0.9
 
-# AI / LLM
-anthropic>=0.39.0
 
 # WebSocket support
 websockets==12.0

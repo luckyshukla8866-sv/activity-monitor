@@ -30,6 +30,7 @@ export default function ForecastPage() {
     const [focusForecast, setFocusForecast] = useState<any>(null);
     const [categoryTrends, setCategoryTrends] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
         loadData();
@@ -37,6 +38,7 @@ export default function ForecastPage() {
 
     const loadData = async () => {
         setLoading(true);
+        const errs: Record<string, string> = {};
         try {
             const [f, b, hm, ff, ct] = await Promise.allSettled([
                 insightsAPI.getForecast(30),
@@ -45,14 +47,25 @@ export default function ForecastPage() {
                 insightsAPI.getFocusForecast(),
                 insightsAPI.getCategoryTrends(30),
             ]);
+
             if (f.status === 'fulfilled') setForecast(f.value);
+            else { console.error('Forecast API failed:', f.reason); errs.forecast = String(f.reason); }
+
             if (b.status === 'fulfilled') setBurnout(b.value);
-            if (hm.status === 'fulfilled') setHeatmapData(hm.value);
-            if (ff.status === 'fulfilled') setFocusForecast(ff.value);
-            if (ct.status === 'fulfilled') setCategoryTrends(ct.value);
+            else { console.error('Burnout API failed:', b.reason); errs.burnout = String(b.reason); }
+
+            if (hm.status === 'fulfilled') { setHeatmapData(hm.value); console.log('Heatmap data:', hm.value); }
+            else { console.error('Heatmap API failed:', hm.reason); errs.heatmap = String(hm.reason); }
+
+            if (ff.status === 'fulfilled') { setFocusForecast(ff.value); console.log('Focus forecast data:', ff.value); }
+            else { console.error('Focus forecast API failed:', ff.reason); errs.focusForecast = String(ff.reason); }
+
+            if (ct.status === 'fulfilled') { setCategoryTrends(ct.value); console.log('Category trends data:', ct.value); }
+            else { console.error('Category trends API failed:', ct.reason); errs.categoryTrends = String(ct.reason); }
         } catch (err) {
             console.error('Failed to load forecast:', err);
         } finally {
+            setErrors(errs);
             setLoading(false);
         }
     };
@@ -77,6 +90,11 @@ export default function ForecastPage() {
     }
 
     const risk = burnout?.risk_level || 'UNKNOWN';
+
+    // Determine if data is actually available
+    const hasHeatmapData = heatmapData?.grid?.length > 0;
+    const hasFocusForecastData = focusForecast?.forecast?.length > 0;
+    const hasCategoryTrendsData = categoryTrends?.categories?.length > 0;
 
     return (
         <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-8 pb-12 max-w-[1440px] mx-auto px-4 md:px-8">
@@ -153,82 +171,120 @@ export default function ForecastPage() {
                 </motion.div>
             </div>
 
-            {/* Weekly Activity Heatmap */}
-            {heatmapData?.grid?.length > 0 && (
-                <motion.div variants={containerVariants}>
-                    <div className="bg-surface extrusion p-10 rounded-[2rem] interactive-card">
-                        <div className="flex items-center gap-4 mb-8">
-                            <div className="p-3 rounded-xl bg-primary-container/20 border border-primary/10 text-primary shadow-sm">
-                                <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 1"}}>grid_view</span>
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-bold text-on-surface soft-text">Weekly Activity Heatmap</h2>
-                                <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1.5">Last {heatmapData.weeks} weeks of daily activity intensity</p>
-                            </div>
+            {/* ══════════════════════════════════════════════════════════
+                Weekly Activity Heatmap — ALWAYS SHOWN
+               ══════════════════════════════════════════════════════════ */}
+            <motion.div variants={containerVariants}>
+                <div className="bg-surface extrusion p-10 rounded-[2rem] interactive-card">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-3 rounded-xl bg-primary-container/20 border border-primary/10 text-primary shadow-sm">
+                            <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 1"}}>grid_view</span>
                         </div>
+                        <div>
+                            <h2 className="text-xl font-bold text-on-surface soft-text">Weekly Activity Heatmap</h2>
+                            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1.5">
+                                {hasHeatmapData ? `Last ${heatmapData.weeks} weeks of daily activity intensity` : 'Colored grid of activity intensity over time'}
+                            </p>
+                        </div>
+                    </div>
+                    {hasHeatmapData ? (
                         <WeeklyHeatmap
                             grid={heatmapData.grid}
                             weeks={heatmapData.weeks}
                             maxMinutes={heatmapData.max_minutes}
                         />
-                    </div>
-                </motion.div>
-            )}
+                    ) : (
+                        <div className="flex flex-col items-center justify-center py-16 text-center">
+                            <span className="material-symbols-outlined text-[48px] text-on-surface-variant/30 mb-4" style={{fontVariationSettings: "'FILL' 1"}}>grid_view</span>
+                            <p className="text-sm font-bold text-on-surface-variant mb-1">No heatmap data yet</p>
+                            <p className="text-xs text-on-surface-variant/70 max-w-sm">
+                                {errors.heatmap
+                                    ? 'Could not load heatmap data. Make sure the backend is running.'
+                                    : 'Upload your activity data to see your weekly activity heatmap. The heatmap shows activity intensity as a GitHub-contribution-style grid.'}
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </motion.div>
 
-            {/* 7-Day Focus Forecast & App Category Trends — Side by side */}
+            {/* ══════════════════════════════════════════════════════════
+                7-Day Focus Forecast & App Category Trends — ALWAYS SHOWN
+               ══════════════════════════════════════════════════════════ */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                 {/* 7-Day Focus Forecast */}
-                {focusForecast?.forecast?.length > 0 && (
-                    <motion.div variants={containerVariants}>
-                        <div className="bg-surface extrusion p-8 h-full rounded-[2rem] interactive-card flex flex-col">
-                            <div className="flex items-center gap-4 mb-8">
-                                <div className="p-3 rounded-[1rem] bg-surface recessed text-primary">
-                                    <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 1"}}>show_chart</span>
-                                </div>
-                                <div>
-                                    <h2 className="text-xl font-bold text-on-surface soft-text">7-Day Focus Forecast</h2>
-                                    <p className="text-xs font-bold text-on-surface-variant mt-1.5 uppercase tracking-widest">Predicted focus score with confidence interval</p>
-                                </div>
+                <motion.div variants={containerVariants}>
+                    <div className="bg-surface extrusion p-8 h-full rounded-[2rem] interactive-card flex flex-col">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="p-3 rounded-[1rem] bg-surface recessed text-primary">
+                                <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 1"}}>show_chart</span>
                             </div>
-                            <div className="flex-1 min-h-[280px]">
-                                <FocusForecastChart data={focusForecast.forecast} />
-                            </div>
-                            <div className="flex items-center justify-center gap-6 mt-6 text-[10px] tracking-widest text-on-surface-variant uppercase font-bold">
-                                <div className="flex items-center gap-1.5">
-                                    <div className="w-6 h-1 bg-gradient-to-r from-primary to-tertiary rounded" />
-                                    Predicted Score
-                                </div>
-                                <div className="flex items-center gap-1.5">
-                                    <div className="w-4 h-3 bg-tertiary/20 border border-tertiary/30 rounded-sm" />
-                                    Confidence Band
-                                </div>
+                            <div>
+                                <h2 className="text-xl font-bold text-on-surface soft-text">7-Day Focus Forecast</h2>
+                                <p className="text-xs font-bold text-on-surface-variant mt-1.5 uppercase tracking-widest">Predicted focus score with confidence interval</p>
                             </div>
                         </div>
-                    </motion.div>
-                )}
+                        {hasFocusForecastData ? (
+                            <>
+                                <div className="flex-1 min-h-[280px]">
+                                    <FocusForecastChart data={focusForecast.forecast} />
+                                </div>
+                                <div className="flex items-center justify-center gap-6 mt-6 text-[10px] tracking-widest text-on-surface-variant uppercase font-bold">
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-6 h-1 bg-gradient-to-r from-primary to-tertiary rounded" />
+                                        Predicted Score
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-4 h-3 bg-tertiary/20 border border-tertiary/30 rounded-sm" />
+                                        Confidence Band
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="flex-1 flex flex-col items-center justify-center py-12 text-center">
+                                <span className="material-symbols-outlined text-[48px] text-on-surface-variant/30 mb-4" style={{fontVariationSettings: "'FILL' 1"}}>show_chart</span>
+                                <p className="text-sm font-bold text-on-surface-variant mb-1">No forecast data yet</p>
+                                <p className="text-xs text-on-surface-variant/70 max-w-xs">
+                                    {errors.focusForecast
+                                        ? 'Could not load focus forecast. Make sure the backend is running.'
+                                        : 'Upload activity data to see your 7-day focus forecast with confidence bands based on day-of-week patterns.'}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </motion.div>
 
                 {/* App Category Trends */}
-                {categoryTrends?.categories?.length > 0 && (
-                    <motion.div variants={containerVariants}>
-                        <div className="bg-surface extrusion p-8 h-full rounded-[2rem] interactive-card">
-                            <div className="flex items-center gap-4 mb-8">
-                                <div className="p-3 rounded-[1rem] bg-surface recessed text-tertiary">
-                                    <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 1"}}>insert_chart</span>
-                                </div>
-                                <div>
-                                    <h2 className="text-xl font-bold text-on-surface soft-text">App Category Trends</h2>
-                                    <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1.5">
-                                        Time distribution across {categoryTrends.period_days} days
-                                    </p>
-                                </div>
+                <motion.div variants={containerVariants}>
+                    <div className="bg-surface extrusion p-8 h-full rounded-[2rem] interactive-card">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="p-3 rounded-[1rem] bg-surface recessed text-tertiary">
+                                <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 1"}}>insert_chart</span>
                             </div>
+                            <div>
+                                <h2 className="text-xl font-bold text-on-surface soft-text">App Category Trends</h2>
+                                <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1.5">
+                                    {hasCategoryTrendsData ? `Time distribution across ${categoryTrends.period_days} days` : 'Horizontal bar chart of category percentages'}
+                                </p>
+                            </div>
+                        </div>
+                        {hasCategoryTrendsData ? (
                             <CategoryTrendsChart
                                 categories={categoryTrends.categories}
                                 totalHours={categoryTrends.total_hours}
                             />
-                        </div>
-                    </motion.div>
-                )}
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-12 text-center">
+                                <span className="material-symbols-outlined text-[48px] text-on-surface-variant/30 mb-4" style={{fontVariationSettings: "'FILL' 1"}}>insert_chart</span>
+                                <p className="text-sm font-bold text-on-surface-variant mb-1">No category data yet</p>
+                                <p className="text-xs text-on-surface-variant/70 max-w-xs">
+                                    {errors.categoryTrends
+                                        ? 'Could not load category trends. Make sure the backend is running.'
+                                        : 'Upload activity data to see your app usage broken down by Deep Work, Communication, Distraction, and Neutral categories.'}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </motion.div>
             </div>
 
             {/* Warnings AlertBanner */}
@@ -330,3 +386,4 @@ export default function ForecastPage() {
         </motion.div>
     );
 }
+

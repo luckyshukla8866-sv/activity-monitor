@@ -195,33 +195,55 @@ async def ai_chat(
     try:
         client = Groq(api_key=api_key)
 
-        model = os.getenv("GROQ_MODEL", "llama-3.1-70b-versatile")
+        model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+        # Fallback models in case the primary model is unavailable
+        fallback_models = [
+            model,
+            "llama-3.1-70b-versatile",
+            "llama3-70b-8192",
+            "mixtral-8x7b-32768",
+        ]
 
-        completion = client.chat.completions.create(
-            model=model,
-            max_tokens=1024,
-            messages=[
-                {
-                    "role": "system",
-                    "content": SYSTEM_PROMPT,
-                },
-                {
-                    "role": "user",
-                    "content": (
-                        f"Here is my activity data:\n\n"
-                        f"{session_summary}\n\n"
-                        f"My question: {request.question}"
-                    ),
-                },
-            ],
-        )
+        last_error = None
+        for try_model in fallback_models:
+            try:
+                completion = client.chat.completions.create(
+                    model=try_model,
+                    max_tokens=1024,
+                    timeout=30.0,
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": SYSTEM_PROMPT,
+                        },
+                        {
+                            "role": "user",
+                            "content": (
+                                f"Here is my activity data:\n\n"
+                                f"{session_summary}\n\n"
+                                f"My question: {request.question}"
+                            ),
+                        },
+                    ],
+                )
 
-        answer_text = completion.choices[0].message.content
-        tokens_used = (
-            completion.usage.prompt_tokens + completion.usage.completion_tokens
-        )
+                answer_text = completion.choices[0].message.content
+                tokens_used = (
+                    completion.usage.prompt_tokens + completion.usage.completion_tokens
+                )
 
-        return ChatResponse(answer=answer_text, tokens_used=tokens_used)
+                return ChatResponse(answer=answer_text, tokens_used=tokens_used)
+            except Exception as model_err:
+                last_error = model_err
+                error_str = str(model_err).lower()
+                # Only try fallback for model-not-found errors
+                if "model" in error_str and ("not found" in error_str or "not available" in error_str or "decommissioned" in error_str):
+                    continue
+                # For auth/rate-limit errors, don't try fallback
+                raise model_err
+
+        # If all models failed
+        raise last_error
 
     except Exception as e:
         error_str = str(e).lower()
@@ -236,10 +258,15 @@ async def ai_chat(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail="Groq rate limit reached. Please wait a moment and try again.",
             )
-        if "model" in error_str and "not found" in error_str:
+        if "model" in error_str and ("not found" in error_str or "not available" in error_str):
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
-                detail=f"Groq model not found. Check your GROQ_MODEL value: {model}",
+                detail=f"Groq model '{model}' not found. Tried fallback models. Check GROQ_MODEL env var.",
+            )
+        if "timeout" in error_str or "timed out" in error_str:
+            raise HTTPException(
+                status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+                detail="Groq API timed out. The service may be overloaded — try again.",
             )
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
@@ -321,23 +348,41 @@ async def onboarding_chat(request: OnboardingRequest):
 
     try:
         client = Groq(api_key=api_key)
-        model = os.getenv("GROQ_MODEL", "llama-3.1-70b-versatile")
+        model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+        fallback_models = [
+            model,
+            "llama-3.1-70b-versatile",
+            "llama3-70b-8192",
+            "mixtral-8x7b-32768",
+        ]
 
-        completion = client.chat.completions.create(
-            model=model,
-            max_tokens=512,
-            messages=[
-                {"role": "system", "content": ONBOARDING_SYSTEM_PROMPT},
-                {"role": "user", "content": request.question},
-            ],
-        )
+        last_error = None
+        for try_model in fallback_models:
+            try:
+                completion = client.chat.completions.create(
+                    model=try_model,
+                    max_tokens=512,
+                    timeout=30.0,
+                    messages=[
+                        {"role": "system", "content": ONBOARDING_SYSTEM_PROMPT},
+                        {"role": "user", "content": request.question},
+                    ],
+                )
 
-        answer_text = completion.choices[0].message.content
-        tokens_used = (
-            completion.usage.prompt_tokens + completion.usage.completion_tokens
-        )
+                answer_text = completion.choices[0].message.content
+                tokens_used = (
+                    completion.usage.prompt_tokens + completion.usage.completion_tokens
+                )
 
-        return ChatResponse(answer=answer_text, tokens_used=tokens_used)
+                return ChatResponse(answer=answer_text, tokens_used=tokens_used)
+            except Exception as model_err:
+                last_error = model_err
+                error_str = str(model_err).lower()
+                if "model" in error_str and ("not found" in error_str or "not available" in error_str or "decommissioned" in error_str):
+                    continue
+                raise model_err
+
+        raise last_error
 
     except Exception as e:
         error_str = str(e).lower()
@@ -345,6 +390,11 @@ async def onboarding_chat(request: OnboardingRequest):
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail="AI rate limit reached. Please wait a moment and try again.",
+            )
+        if "timeout" in error_str or "timed out" in error_str:
+            raise HTTPException(
+                status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+                detail="AI service timed out. Please try again.",
             )
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,

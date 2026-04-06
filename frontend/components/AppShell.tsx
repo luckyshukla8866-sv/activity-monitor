@@ -27,7 +27,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
     return (
         <AuthGuard>
-            <div className="flex flex-col min-h-screen bg-[#f5f7f9] text-[#2c2f31]">
+            <div className="flex flex-col min-h-screen bg-[#f0f2f5] text-[#1a1d21]">
                 <TopNav />
                 <main className="flex-1 overflow-y-auto">
                     <div className="max-w-[1600px] mx-auto w-full px-4 sm:px-6 lg:px-10 py-8">

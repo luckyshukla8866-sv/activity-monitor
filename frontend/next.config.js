@@ -20,6 +20,22 @@ const nextConfig = {
             },
         ];
     },
+
+    // Performance optimizations
+    compiler: {
+        // Remove console.log in production
+        removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
+    },
+
+    // Optimize images 
+    images: {
+        formats: ['image/avif', 'image/webp'],
+    },
+
+    // Reduce the number of experimental features
+    experimental: {
+        optimizePackageImports: ['framer-motion', 'recharts', 'lucide-react', 'date-fns'],
+    },
 };
 
 module.exports = nextConfig;

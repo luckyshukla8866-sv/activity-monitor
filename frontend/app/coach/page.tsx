@@ -130,7 +130,7 @@ export default function CoachPage() {
         id: 'welcome',
         role: 'assistant',
         content:
-            "Hey! I'm your **AI productivity coach** powered by Claude.\n\nI've got access to your recent activity data — ask me anything about your focus patterns, app usage, deep work ratio, or burnout risk.\n\nTry one of the suggestions below, or ask your own question!",
+            "Hey! I'm your **AI productivity coach** powered by Groq LLaMA.\n\nI've got access to your recent activity data — ask me anything about your focus patterns, app usage, deep work ratio, or burnout risk.\n\nTry one of the suggestions below, or ask your own question!",
         timestamp: new Date(),
     };
 
@@ -228,7 +228,7 @@ export default function CoachPage() {
                 role: 'assistant',
                 content: detail
                     ? `**Error:** ${detail}`
-                    : "Sorry, I couldn't process your request right now. Please check that the backend is running and the Anthropic API key is configured.",
+                    : "Sorry, I couldn't process your request right now. Please check that the backend is running and the Groq API key is configured.",
                 timestamp: new Date(),
             };
             setMessages((prev) => [...prev, aiMsg]);
@@ -307,7 +307,7 @@ export default function CoachPage() {
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
                             </span>
-                            <span className="text-xs text-[#595c5e] font-bold">Claude Sonnet 4</span>
+                            <span className="text-xs text-[#595c5e] font-bold">Groq LLaMA 3.3</span>
                         </div>
                         <span className="text-[#e5e9eb]">|</span>
                         <span className="text-[10px] text-[#747779] font-mono uppercase tracking-wider">

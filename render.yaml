@@ -31,5 +31,9 @@ services:
         value: "false"
       - key: CORS_ORIGINS
         value: "https://activity-monitor-seven.vercel.app,http://localhost:3000"
+      - key: GROQ_API_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: GROQ_MODEL
+        value: "llama-3.3-70b-versatile"
       - key: PYTHON_VERSION
         value: "3.11.8"
