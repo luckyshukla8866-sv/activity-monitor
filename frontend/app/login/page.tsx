@@ -147,7 +147,7 @@ export default function LoginPage() {
     const anyLoading = isLoading || isDemoLoading;
 
     return (
-        <div className="min-h-screen flex items-center justify-center px-4 py-12 font-manrope bg-[#f5f7f9] text-slate-800">
+        <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-[#f5f7f9] text-[#2c2f31]" style={{fontFamily: "'Inter', sans-serif"}}>
             <motion.div
                 initial={{ opacity: 0, y: 24, scale: 0.97 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -160,14 +160,14 @@ export default function LoginPage() {
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
-                        className="w-16 h-16 mx-auto rounded-3xl bg-white border border-slate-200 flex items-center justify-center shadow-sm"
+                        className="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-br from-[#2444eb] to-[#8999ff] flex items-center justify-center shadow-lg shadow-[#2444eb]/20"
                     >
-                        <span className="material-symbols-outlined text-[32px] text-indigo-600">monitoring</span>
+                        <span className="material-symbols-outlined text-[32px] text-white" style={{fontVariationSettings: "'FILL' 1"}}>monitoring</span>
                     </motion.div>
-                    <h1 className="text-3xl font-bold tracking-tight text-slate-800">
-                        Activity Monitor
+                    <h1 className="text-3xl font-bold tracking-tight text-[#2c2f31]" style={{fontFamily: 'Manrope, sans-serif'}}>
+                        Ethereal Analytics
                     </h1>
-                    <p className="text-sm text-slate-500 font-inter">AI-powered productivity analytics</p>
+                    <p className="text-sm text-[#595c5e]">AI-powered productivity analytics</p>
                 </div>
 
                 {/* Main Card */}
@@ -179,8 +179,8 @@ export default function LoginPage() {
                         onClick={handleDemoLogin}
                         disabled={anyLoading}
                         className="w-full py-3.5 px-5 rounded-2xl font-bold text-[15px]
-                                   bg-indigo-600 hover:bg-indigo-700
-                                   text-white shadow-md shadow-indigo-600/30
+                                   cta-gradient
+                                   text-white
                                    disabled:opacity-60 disabled:cursor-not-allowed
                                    flex items-center justify-center gap-2.5
                                    transition-all duration-200 cursor-pointer
@@ -202,19 +202,19 @@ export default function LoginPage() {
 
                     {/* Feature pills */}
                     <div className="flex items-center justify-center gap-3 flex-wrap">
-                        <span className="flex items-center gap-1 text-[10px] text-slate-400 uppercase tracking-wider font-bold">
+                        <span className="flex items-center gap-1 text-[10px] text-[#747779] uppercase tracking-wider font-bold">
                             <span className="material-symbols-outlined text-[14px] text-amber-500">bolt</span> Instant setup
                         </span>
-                        <span className="flex items-center gap-1 text-[10px] text-slate-400 uppercase tracking-wider font-bold">
+                        <span className="flex items-center gap-1 text-[10px] text-[#747779] uppercase tracking-wider font-bold">
                             <span className="material-symbols-outlined text-[14px] text-emerald-500">shield</span> Pre-loaded data
                         </span>
                     </div>
 
                     {/* Divider */}
                     <div className="flex items-center gap-4">
-                        <div className="flex-1 h-px bg-slate-200" />
-                        <span className="text-xs text-slate-400 uppercase tracking-widest font-bold">or</span>
-                        <div className="flex-1 h-px bg-slate-200" />
+                        <div className="flex-1 h-px bg-[#e5e9eb]" />
+                        <span className="text-xs text-[#747779] uppercase tracking-widest font-bold">or</span>
+                        <div className="flex-1 h-px bg-[#e5e9eb]" />
                     </div>
 
                     {/* Tab Switcher */}
@@ -329,10 +329,10 @@ export default function LoginPage() {
                                     type="submit"
                                     disabled={anyLoading}
                                     className="w-full py-3.5 px-5 rounded-2xl font-bold text-[15px]
-                                             bg-slate-800 text-white hover:bg-slate-700
+                                             bg-[#2c2f31] text-white hover:bg-[#0b0f10]
                                              disabled:opacity-50 disabled:cursor-not-allowed
                                              flex items-center justify-center gap-2
-                                             transition-all duration-200 cursor-pointer shadow-md shadow-slate-800/10 active:scale-95"
+                                             transition-all duration-200 cursor-pointer shadow-md shadow-[#2c2f31]/10 active:scale-95"
                                 >
                                     {isLoading ? (
                                         <>
@@ -348,9 +348,9 @@ export default function LoginPage() {
                                 </button>
 
                                 {/* Link to sign up */}
-                                <p className="text-center text-xs text-slate-500 font-inter">
+                                <p className="text-center text-xs text-[#595c5e]">
                                     Don&apos;t have an account?{' '}
-                                    <button type="button" onClick={() => switchTab('signup')} className="text-indigo-600 hover:text-indigo-700 font-bold cursor-pointer transition-colors">
+                                    <button type="button" onClick={() => switchTab('signup')} className="text-[#2444eb] hover:text-[#0934e0] font-bold cursor-pointer transition-colors">
                                         Create one
                                     </button>
                                 </p>
@@ -515,9 +515,9 @@ export default function LoginPage() {
                                 </button>
 
                                 {/* Link to sign in */}
-                                <p className="text-center text-xs text-slate-500 font-inter">
+                                <p className="text-center text-xs text-[#595c5e]">
                                     Already have an account?{' '}
-                                    <button type="button" onClick={() => switchTab('login')} className="text-indigo-600 hover:text-indigo-700 font-bold cursor-pointer transition-colors">
+                                    <button type="button" onClick={() => switchTab('login')} className="text-[#2444eb] hover:text-[#0934e0] font-bold cursor-pointer transition-colors">
                                         Sign in
                                     </button>
                                 </p>
@@ -527,8 +527,8 @@ export default function LoginPage() {
                 </div>
 
                 {/* Footer */}
-                <p className="text-center text-[12px] text-slate-400 tracking-wide font-mono">
-                    Activity Monitor v2.0 • Secured with JWT
+                <p className="text-center text-[12px] text-[#747779] tracking-wide font-mono">
+                    Ethereal Analytics v2.0 • Secured with JWT
                 </p>
             </motion.div>
         </div>

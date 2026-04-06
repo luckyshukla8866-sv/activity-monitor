@@ -16,8 +16,8 @@ export default function PageContainer({ title, description, children }: Props) {
                 transition={{ duration: 0.4 }}
                 className="mb-8"
             >
-                <h1 className="text-3xl font-bold tracking-tight text-white mb-2">{title}</h1>
-                <p className="text-white/50 text-[15px]">{description}</p>
+                <h1 className="text-3xl font-bold tracking-tight text-[#2c2f31] mb-2" style={{fontFamily: 'Manrope, sans-serif'}}>{title}</h1>
+                <p className="text-[#595c5e] text-[15px]">{description}</p>
             </motion.div>
             
             {children}

@@ -1,8 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import Sidebar from '@/components/Sidebar';
-import Header from '@/components/Header';
+import TopNav from '@/components/TopNav';
 import AuthGuard from '@/components/AuthGuard';
 import { motion } from 'framer-motion';
 
@@ -28,22 +27,20 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
     return (
         <AuthGuard>
-            <div className="flex h-screen overflow-hidden bg-surface text-on-surface">
-                <Sidebar />
-                <div className="flex-1 flex flex-col min-w-0 relative">
-                    <Header />
-                    <main className="flex-1 overflow-y-auto p-6 md:p-10 relative z-0">
+            <div className="flex flex-col min-h-screen bg-[#f5f7f9] text-[#2c2f31]">
+                <TopNav />
+                <main className="flex-1 overflow-y-auto">
+                    <div className="max-w-[1600px] mx-auto w-full px-4 sm:px-6 lg:px-10 py-8">
                         <motion.div
                             key={pathname}
                             initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.3, ease: 'easeInOut' }}
-                            className="max-w-[1600px] mx-auto w-full h-full"
                         >
                             {children}
                         </motion.div>
-                    </main>
-                </div>
+                    </div>
+                </main>
             </div>
         </AuthGuard>
     );

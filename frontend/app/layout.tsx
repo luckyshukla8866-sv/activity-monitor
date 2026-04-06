@@ -4,8 +4,8 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import AppShell from "@/components/AppShell";
 
 export const metadata: Metadata = {
-    title: "Activity Monitor | Ethereal Analytics",
-    description: "Understand your productivity patterns with ML-powered insights",
+    title: "Ethereal Analytics | Productivity Intelligence",
+    description: "Understand your productivity patterns with ML-powered insights. Upload activity logs for AI coaching, focus mapping, and burnout prevention.",
 };
 
 export default function RootLayout({
@@ -18,9 +18,9 @@ export default function RootLayout({
             <head>
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-                <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Manrope:wght@300;400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
             </head>
-            <body className="bg-surface text-on-surface antialiased selection:bg-primary/30">
+            <body className="bg-[#f5f7f9] text-[#2c2f31] antialiased selection:bg-[#2444eb]/20" style={{fontFamily: "'Inter', sans-serif"}}>
                 <ThemeProvider attribute="class" defaultTheme="light">
                     <AppShell>
                         {children}
